@@ -70,8 +70,8 @@ Likewise, a stringified numeric representation may be desired. For this use the 
 Possibly more useful, when dealing with IPv6, it isn't unreasonable to want to convert an IPv6 "compressed" address into its fullest form. This can be done with the `string ToUncompressedString(this IPAddress ipAddress)` extension.
 
 ```
-    var address = IPAddress.Parse("1080::8:800:200C:417A");
-    var result = address.ToUncompressedString();    // where result is equal to 1080:0000:0000:0000:0008:0800:200C:417A
+var address = IPAddress.Parse("1080::8:800:200C:417A");
+var result = address.ToUncompressedString();    // where result is equal to 1080:0000:0000:0000:0008:0800:200C:417A
 ```
 
 Other times it is useful to have the numeric representation of an IPAddress. This can be done both in signed `BigInteger ToBigInteger(this IPAddress ipAddress)` and unsigned `BigInteger ToUnsignedBigInteger(this IPAddress ipAddress)`
@@ -80,8 +80,8 @@ Other times it is useful to have the numeric representation of an IPAddress. Thi
 [RFC 1924](http://tools.ietf.org/html/rfc1924), an April Fool's Day joke, provides a manner in which to convert an IPv6 address in to a Ascii85/Base85 representation. If one is feeling particularity foolish it is possible to do this conversion via `string ToBase85String(this IPAddress ipAddress)`
 
 ```
-    var address = IPAddress.Parse("1080::8:800:200C:417A");
-    string result = address.ToBase85String();    // where result is equal to the string "4)+k&C#VzJ4br>0wv%Yp"
+var address = IPAddress.Parse("1080::8:800:200C:417A");
+string result = address.ToBase85String();    // where result is equal to the string "4)+k&C#VzJ4br>0wv%Yp"
 ```
 
 
