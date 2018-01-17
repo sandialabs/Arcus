@@ -1,6 +1,6 @@
 # Arcus
 
-Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and Pv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
+Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
 
 ## Getting Started
 
@@ -18,7 +18,7 @@ At its heart Arcus is split amongst five separate interdependent units. *Types*,
 
 #### `Subnet`
 
-An IPv4 or IPv6 subnetwork representation - the work horse and original reason for the Arcus library. Outside the concept of the `Subnet` object, most everything else in Arcus is auxiliary and exists only in support of making this once facet work. That’s not to say that the remaining pieces of the Arcus library aren’t useful, on the contrary their utility can benefit a developer greatly. That said, once the `Subnet` is mastered the rest of Arcus should follow through nicely.
+An IPv4 or IPv6 subnetwork representation - the work horse and original reason for the Arcus library. Outside the concept of the `Subnet` object, most everything else in Arcus is auxiliary and exists only in support of making this once facet work. Thatâ€™s not to say that the remaining pieces of the Arcus library arenâ€™t useful, on the contrary their utility can benefit a developer greatly. That said, once the `Subnet` is mastered the rest of Arcus should follow through nicely.
 
 A `Subnet` may be instantiated in several ways:
 
@@ -26,7 +26,7 @@ To the most common ways to create a subnet is to construct it via a high and low
 
 It is also possible to create a `Subnet` from an `IPAddress` and an `integer` based *route prefix*. Eg: `Subnet(IPAddress ipAddress, int routingPrefix)`
 
-Likewise it may be desired to statically parse a subnet string with `Subnet. Parse(string input)` or it’s safe equivalent of ` bool Subnet.TryParse(string input,  out Subnet subnet)`. For example, one could safely parse the `string` "192.168.1.0/16" via
+Likewise it may be desired to statically parse a subnet string with `Subnet. Parse(string input)` or itâ€™s safe equivalent of ` bool Subnet.TryParse(string input,  out Subnet subnet)`. For example, one could safely parse the `string` "192.168.1.0/16" via
 ```
 Subnet subnet;
 var success = Subnet.TryParse("192.168.1.0/16",  out subnet)
