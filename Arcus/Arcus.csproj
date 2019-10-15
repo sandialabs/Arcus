@@ -12,6 +12,18 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <IsPackable>true</IsPackable>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageTags>ipv6; ipv4; subnet; networking; ipaddress; ip; ipaddresses; ipv6-address; ipv4-address; ip-calculator; ipv4-calculator; ipv6-calulator; ipv6-support; ipv6-subnetting; ipv4-support; ipv4-subnetting; ipv6-network; ipv4-network; c-sharp; conversion-methods</PackageTags>
+    <Authors>Sandia National Laboratories</Authors>
+    <description>Arcus, developed by Sandia National Laboratories, is a C# library for calculating, parsing, formatting, converting and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms. </description>
+    <Version>1.0.0</Version>
+    <Copyright>Copyright 2019 National Technology &amp; Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software.</Copyright>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/sandialabs/arcus</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/sandialabs/arcus</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +41,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Arcus.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="JetBrains.Annotations, Version=11.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
