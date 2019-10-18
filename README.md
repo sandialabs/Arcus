@@ -1,8 +1,5 @@
 # Arcus
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Arcus?link=https://www.nuget.org/packages/Arcus/)
-![GitHub](https://img.shields.io/github/license/sandialabs/arcus?link=https://github.com/sandialabs/Arcus/blob/master/LICENSE)
-
 Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
 
 ## Getting Started
@@ -45,61 +42,19 @@ The *Comparers* package contains useful Comparer objects for comparing propertie
 
  * `DefaultAddressFamilyComparer` - A comparer that compares address families. Most frequently `Internetwork` (IPv4) and `InternetworkV6` (IPv6)
  * `DefaultIPAddressComparer` - A comparer for `IPAddress` objects
- * `DefaultIPAddressRangeComparer` - A comparer for `IPAddressRange`. Compares such that lower order ranges are less that higher order ranges accounting for size at matching range starts
- * `DefaultSubnetComparer` - A comparer for `Subnet` objects. Compares such that lower order ranges are less that higher order ranges accounting for size at matching range starts
+ * `DefaultIPAddressRangeComparer` - A comparer for `IIPAddressRange`. Compares such that lower order ranges are less that higher order ranges accounting for size at matching range starts
 
 ### Converters
 
-The *Converters* package is a package of static utility classes for converting on type into another type
-
-#### `BigIntegerConverters`
-
-Static utility class containing conversion methods for converting `BigInteger` objects into something else
-
-#### `ByteArrayConverters`
-
-Static utility class containing conversion methods for converting `byte` arrays into something else
+The *Converters* package is a package of static utility classes for converting one type into another type
 
 #### `IPAddressConverters`
 
 Static utility class containing conversion methods for converting `IPAddress` objects into something else
 
-##### String Conversions
-
-Sometimes it makes sense to convert an `IPAddress` into a hexadecimal representation of the underlying value, this can be done via the extension method `string ToHexString(this IPAddress ipAddress)`
-
-Likewise, a stringified numeric representation may be desired. For this use the `string ToNumericString(this IPAddress ipAddress)` extension method.
-
-Possibly more useful, when dealing with IPv6, it isn't unreasonable to want to convert an IPv6 "compressed" address into its fullest form. This can be done with the `string ToUncompressedString(this IPAddress ipAddress)` extension.
-
-```
-var address = IPAddress.Parse("1080::8:800:200C:417A");
-var result = address.ToUncompressedString();    // where result is equal to 1080:0000:0000:0000:0008:0800:200C:417A
-```
-
-Other times it is useful to have the numeric representation of an IPAddress. This can be done both in signed `BigInteger ToBigInteger(this IPAddress ipAddress)` and unsigned `BigInteger ToUnsignedBigInteger(this IPAddress ipAddress)`
-
-
-[RFC 1924](http://tools.ietf.org/html/rfc1924), an April Fool's Day joke, provides a manner in which to convert an IPv6 address in to a Ascii85/Base85 representation. If one is feeling particularity foolish it is possible to do this conversion via `string ToBase85String(this IPAddress ipAddress)`
-
-```
-var address = IPAddress.Parse("1080::8:800:200C:417A");
-string result = address.ToBase85String();    // where result is equal to the string "4)+k&C#VzJ4br>0wv%Yp"
-```
-
-
-
 ### Math
 
 The *Math* package is a package of static utility classes for doing computational mathematics on objects
-
-#### `BigIntegerMath`
-
-Static utility class containing mathematical methods for `BigInteger` objects
-
-#### `ByteArrayMath`
-
-Static utility class containing mathematical methods for `byte` arrays
 
 #### `IPAddressMath`
 
@@ -140,19 +95,9 @@ Equality may also be tested via a host of equality extension methods
 
 The *Utilities* package contains static classes for miscellaneous operations on specific types
 
-#### `ByteArrayUtilities`
-
-Static utility class containing miscellaneous operations for `IEnumerable<byte>` and byte arrays
-
-#### `EnumerableUtilities`
-
-Static utility class containing miscellaneous operations for generic `IEnumerable<T>`
-
 #### `IPAddressUtilities`
 
 Static utility class containing miscellaneous operations for `IPAddress` objects
-
-Among other utilities the `IPAddressUtilities` class has static methods for parsing `IPAddresses` from other types
 
 ##### Address Family Detection
 
@@ -180,64 +125,40 @@ would return an `Enumerable` containing the subnets "128.64.20.3/32", "128.64.20
 
 ## Built With
 
-* [NuGet]( https://www.nuget.org/) - Dependency Management
-* [JetBrains.Annotations]( https://www.jetbrains.com/help/resharper/10.0/Code_Analysis__Code_Annotations.html) - Used to keep developers honest
+* [NuGet](https://www.nuget.org/) - Dependency Management
+* [JetBrains.Annotations](https://www.jetbrains.com/help/resharper/10.0/Code_Analysis__Code_Annotations.html) - Used to keep developers honest
+* [moq](https://github.com/moq/moq4/wiki) - Fake it until you make it!
+* [Stackoverflow](https://stackoverflow.com/) - Because who really remembers how to code
+* [xUnit.net](https://xunit.net/) - Testing, testing, 1, 2, 3...
 
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
 
-## Authors and Contributors
+## Primary Authors and Contributors
 
-* **Robert Engelhardt** - *Initial work* - [@rheone]( https://twitter.com/rheone)
-* **Andrew Steele** - *Review and Suggestions* - [@ahsteele]( https://twitter.com/ahsteele)
+* **Robert H. Engelhardt** - *Primary Developer, Source of Ideas Good and Bad* - [@rheone](https://twitter.com/rheone)
+* **Andrew Steele** - *Review and Suggestions* - [@ahsteele](https://twitter.com/ahsteele)
+* **Nick Bachicha** - *Git Wrangler and DevOps Extraordinaire* - [@nicksterx](https://twitter.com/nicksterx)
 
 ## Copyright
 
 ```
-Copyright 2018 National Technology & Engineering Solutions of
-Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
-U.S. Government retains certain rights in this software.
-
-For five (5) years from  the United States Government is granted for itself and
-others acting on its behalf a paid-up, nonexclusive, irrevocable worldwide
-license in this data to reproduce, prepare derivative works, and perform
-publicly and display publicly, by or on behalf of the Government. There is
-provision for the possible extension of the term of this license. Subsequent to
-that period or any extension granted, the United States Government is granted
-for itself and others acting on its behalf a paid-up, nonexclusive, irrevocable
-worldwide license in this data to reproduce, prepare derivative works,
-distribute copies to the public, perform publicly and display publicly, and to
-permit others to do so. The specific term of the license can be identified by
-inquiry made to National Technology and Engineering Solutions of Sandia, LLC or
-DOE.
- 
-NEITHER THE UNITED STATES GOVERNMENT, NOR THE UNITED STATES DEPARTMENT OF
-ENERGY, NOR NATIONAL TECHNOLOGY AND ENGINEERING SOLUTIONS OF SANDIA, LLC, NOR
-ANY OF THEIR EMPLOYEES, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY
-LEGAL RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR USEFULNESS OF ANY
-INFORMATION, APPARATUS, PRODUCT, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS
-USE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
- 
-Any licensee of this software has the obligation and responsibility to abide by
-the applicable export control laws, regulations, and general prohibitions
-relating to the export of technical data. Failure to obtain an export control
-license or other authority from the Government may result in criminal liability
-under U.S. laws.
+Copyright 2018 National Technology & Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software.
 ```
 
 ## License
 
 ```
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+       http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
 ```
