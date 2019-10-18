@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arcus", "Arcus\Arcus.csproj", "{BF292912-886E-470A-8FD0-2521C5EE586C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arcus.Tests", "Arcus.Tests\Arcus.Tests.csproj", "{067456C0-086C-46A8-B37F-1405717B7BFC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{B4AB2180-4640-4135-BBE4-B958D72C3103}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeQuality", "CodeQuality", "{4523123E-8A4A-443F-BC76-42FB24D96165}"
+	ProjectSection(SolutionItems) = preProject
+		analyzers.ruleset = analyzers.ruleset
+		analyzers.tests.ruleset = analyzers.tests.ruleset
+		Arcus.sln.DotSettings = Arcus.sln.DotSettings
+		stylecop.json = stylecop.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{19C5939E-F1E4-4747-AE48-F72BB4C891C4}"
+	ProjectSection(SolutionItems) = preProject
+		..\acknowledgements.md = ..\acknowledgements.md
+		..\HUMANS.md = ..\HUMANS.md
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{123A833E-759F-44C8-8B10-C453335445D9}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitattributes = ..\.gitattributes
+		..\.gitignore = ..\.gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF292912-886E-470A-8FD0-2521C5EE586C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF292912-886E-470A-8FD0-2521C5EE586C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF292912-886E-470A-8FD0-2521C5EE586C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF292912-886E-470A-8FD0-2521C5EE586C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{067456C0-086C-46A8-B37F-1405717B7BFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{067456C0-086C-46A8-B37F-1405717B7BFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{067456C0-086C-46A8-B37F-1405717B7BFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{067456C0-086C-46A8-B37F-1405717B7BFC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4523123E-8A4A-443F-BC76-42FB24D96165} = {B4AB2180-4640-4135-BBE4-B958D72C3103}
+		{19C5939E-F1E4-4747-AE48-F72BB4C891C4} = {B4AB2180-4640-4135-BBE4-B958D72C3103}
+		{123A833E-759F-44C8-8B10-C453335445D9} = {B4AB2180-4640-4135-BBE4-B958D72C3103}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9F4552D3-9938-429D-B4DA-A5BC2B77FA8C}
+	EndGlobalSection
+EndGlobal
