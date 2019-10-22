@@ -13,7 +13,7 @@
     <IsPackable>true</IsPackable>
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
-    <PackageIconUrl>https://github.com/sandialabs/arcus/master/resources/images/icon_64x64.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/sandialabs/Arcus/master/resources/images/icon_64x64.png</PackageIconUrl>
     <PackageLanguage>en-US</PackageLanguage>
     <PackageLicense>Apache-2.0</PackageLicense>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
@@ -33,7 +33,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Gulliver" Version="1.0.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
