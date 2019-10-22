@@ -58,6 +58,11 @@ task clean {
 
 }
  
-task pack -depends release, build_src, build_docs {
-    dotnet pack $arcus_csproj --no-restore --include-source --include-symbols -vd
+task pack -depends release, clean {
+
+    echo "releasing $config..."
+    echo "Tag: $tag"
+    echo "CommitHash: $commitHash"
+
+    dotnet pack $arcus_csproj -c $config --no-restore --include-symbols --include-source --verbosity m
 }
