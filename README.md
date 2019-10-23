@@ -1,8 +1,8 @@
 # Arcus
 
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/arcus)
-![GitHub](https://img.shields.io/github/license/sandialabs/arcus)
-![.NetStandard 1.3](https://img.shields.io/badge/targets-.NETStandard%201.3-blueviolet)
+[![Apache 2.0 license](https://img.shields.io/github/license/sandialabs/arcus)](https://github.com/sandialabs/Arcus/blob/master/LICENSE)
+[![.NetStandard 1.3](https://img.shields.io/badge/targets-.NETStandard%201.3-blueviolet)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)
 
 Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
 
