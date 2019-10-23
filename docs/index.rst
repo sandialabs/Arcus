@@ -9,11 +9,15 @@ Arcus
    :target: https://github.com/sandialabs/arcus
 .. image:: https://img.shields.io/github/license/sandialabs/arcus?logo=apache
    :alt: Apache 2.0 License
+   :target: https://github.com/sandialabs/Arcus/blob/master/LICENSE
 .. image:: https://img.shields.io/badge/targets-.NETStandard%201.3-5C2D91?logo=.net
    :alt: .NetStandard 1.3
+   :target: https://docs.microsoft.com/en-us/dotnet/standard/net-standard
+.. image:: https://badges.gitter.im/sandialabs/Arcus.svg)
+   :alt: Join the chat at https://gitter.im/sandialabs/Arcus
+   :target: https://gitter.im/sandialabs/Arcus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
-
 
 .. toctree::
    :maxdepth: 2
@@ -23,21 +27,21 @@ Arcus is a C# manipulation library for calculating, parsing, formatting, convert
 
 .. toctree::
    :maxdepth: 2
-   :caption: IP Addresses:
-
-   IPAddress-Math
-   IPAddress-Ranges
-   IPAddress-Utilities
-   IPAddressConverters
-
-.. toctree::
-   :maxdepth: 2
    :caption: IP Addresses Ranges:
 
    IP-Address-Range
    Subnet
    Subnet-Utilities
-   Comparers
+   IP-Address-Range-Comparers
+
+.. toctree::
+   :maxdepth: 2
+   :caption: IP Addresses:
+
+   IPAddress-Converters
+   IPAddress-Comparers
+   IPAddress-Math
+   IPAddress-Utilities
 
 .. toctree::
    :maxdepth: 2
@@ -45,11 +49,3 @@ Arcus is a C# manipulation library for calculating, parsing, formatting, convert
    
    Community
    Acknowledgements
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
