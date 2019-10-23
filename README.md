@@ -33,7 +33,7 @@ It is also possible to create a `Subnet` from an `IPAddress` and an `integer` ba
 Likewise it may be desired to statically parse a subnet string with `Subnet. Parse(string input)` or it’s safe equivalent of ` bool Subnet.TryParse(string input,  out Subnet subnet)`. For example, one could safely parse the `string` "192.168.1.0/16" via
 ```
 Subnet subnet;
-var success = Subnet.TryParse("192.168.1.0/16",  out subnet)
+var success = Subnet.TryParse("192.168.1.0/16", out subnet)
 ```
 
 #### `IPAddressRange`
@@ -72,14 +72,14 @@ Incrementing by one is a simple call to the extension method
 
 ```
 var address = IPAddress.Parse(192.168.1.1);
-var result = address.Increment();   // result is 192.168.1.2
+var result = address.Increment(); // result is 192.168.1.2
 ```
 
 Decrementing is just as simple 
 
 ```
 var address = IPAddress.Parse(192.168.1.1);
-var result = address.Increment(-2);   // result is 192.168.0.0
+var result = address.Increment(-2); // result is 192.168.0.0
 ```
 
 *Overflow* and *Underflow* conditions will result in an `InvalidOperationException`
@@ -125,7 +125,7 @@ Given two arbitrary IP Addresses of the same family it may be desired to calcula
     SubnetUtilities.FewestConsecutiveSubnetsFor(IPAddress.Parse("128.64.20.3"), IPAddress.Parse(128.64.20.12"))
 ```
 
-would return an `Enumerable` containing the subnets "128.64.20.3/32", "128.64.20.4/30", "128.64.20.8/30", "128.64.20.12/32"
+would return an `Enumerable` containing the subnets `128.64.20.3/32`, `128.64.20.4/30`, `128.64.20.8/30`, `128.64.20.12/32`.
 
 ## Built With
 
