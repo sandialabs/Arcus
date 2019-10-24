@@ -1,0 +1,52 @@
+﻿using Xunit;
+using Xunit.Abstractions;
+
+namespace Arcus.DocExamples
+{
+    /// <summary>
+    ///     Subnet Examples
+    /// </summary>
+    public class SubnetExamples
+    {
+        private readonly ITestOutputHelper _console;
+
+        public SubnetExamples(ITestOutputHelper console)
+        {
+            this._console = console;
+        }
+
+        [Fact]
+        public void Contains_Example()
+        {
+            // Arrange
+            var subnetA = Subnet.Parse("192.168.1.0", 8);   // 192.0.0.0 - 192.255.255.255
+            var subnetB = Subnet.Parse("192.168.0.0", 16);  // 192.168.0.0 - 192.168.255.255
+            var subnetC = Subnet.Parse("255.0.0.0", 8);     // 255.0.0.0 - 255.255.255.255
+
+            // Act
+            // Assert
+            Assert.True(subnetA.Contains(subnetB));
+            Assert.False(subnetA.Contains(subnetC));
+        }
+
+        [Fact]
+        public void Overlaps_Example()
+        {
+            // Arrange
+            var ipv4SubnetA = Subnet.Parse("255.255.0.0", 16);
+            var ipv4SubnetB = Subnet.Parse("0.0.0.0", 0);
+
+            var ipv6SubnetA = Subnet.Parse("::", 0);
+            var ipv6SubnetB = Subnet.Parse("abcd:ef01::", 64);
+
+            // Act
+            Assert.True(ipv4SubnetA.Overlaps(ipv4SubnetB));
+            Assert.True(ipv4SubnetB.Overlaps(ipv4SubnetA));
+
+            Assert.True(ipv6SubnetA.Overlaps(ipv6SubnetB));
+
+            Assert.False(ipv6SubnetA.Overlaps(ipv4SubnetA));
+        }
+
+    }
+}
