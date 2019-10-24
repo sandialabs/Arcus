@@ -26,13 +26,17 @@ Arcus is a C# manipulation library for calculating, parsing, formatting, convert
    FAQ
 
 .. toctree::
+   :hidden:
+   IIPAddressRange
+
+.. toctree::
    :maxdepth: 2
    :caption: IP Addresses Ranges:
-
-   IP-Address-Range
+   
+   IPAddressRange
    Subnet
    Subnet-Utilities
-   IP-Address-Range-Comparers
+   IPAddressRange-Comparers
 
 .. toctree::
    :maxdepth: 2
