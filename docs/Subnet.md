@@ -4,6 +4,10 @@ The `Subnet` type, flavored in both IPv4 or IPv6, is a representation of a subne
 
 Keep in mind that a `Subnet` is not an arbitrary range of addresses, for that you want an [IPAddress Range](IPAddress-Range), but rather conforms to a range of length 2<sup>n</sub> starting a particular position, often expressed by a [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
 
+The `Subnet` class extends [`AbstractIPAddressRange`](IIPAddressRange#AbstractIPAddressRange) and implements [`IIPAddressRange`](IIPAddressRange), `IEquatable<Subnet>`, `IComparable<Subnet>`, `IFormattable`, and `IEnumerable<IPAddress>`.
+
+Note that `Subnet` does _not_ extend [`IPAddressRange`](IPAddressRange) but does implement [`IIPAddressRange`](IIPAddressRange).
+
 ## Creation
 
 There are a number of ways to instantiate a `Subnet`. Your most likely candidates are direct construction with a `new`, the use of a static factory method on the `Subnet` class, or the use of sub-set of static factory methods that handle parsing of strings. Most of the factory methods have a "try" style safe alternative that will return a `bool` and out the constructed value.
@@ -101,3 +105,31 @@ public static Subnet Parse(string lowAddressString, string highAddressString)
 ```c#
 public static bool TryParse(string lowAddressString, string highAddressString, out Subnet subnet)
 ```
+
+## Functionality
+
+The `Subnet` implements [`IIPAddressRange`](IIPAddressRange), `IEquatable<Subnet>`, `IComparable<Subnet>`, `IFormattable`, and `IEnumerable<IPAddress>`, and there by contains all the expected functionality from such.
+
+### Set Based Operations
+
+Inherently a `Subnet` is a range of `IPAddress` objects, as such there is some set based operations available.
+
+#### Contains
+
+It is possible to easily check if a subnet partially encapsulates another subnet, at least one `IPAddress`, by using the `Contains` method on the parent `Subnet`.
+
+```c#
+public bool Subnet.Contains(Subnet subnet)
+```
+
+TODO example
+
+#### Overlaps
+
+It is possible determine !!!!!!!a subnet overlaps another subnet by using the `Contains` method on the parent `Subnet`.
+
+```c#
+public bool Overlaps(Subnet subnet)
+```
+
+TODO example
