@@ -2,7 +2,7 @@
 
 The `Subnet` type, flavored in both IPv4 or IPv6, is a representation of a subnetwork. Its is the work horse and original reason for the Arcus library. Outside the concept of the `Subnet` object, most everything else in Arcus is auxiliary and exists only in support of making this once facet work. That’s not to say that the remaining pieces of the Arcus library aren’t useful, on the contrary their utility can benefit a developer greatly. But that said, once the dark and mysterious magic of the `Subnet` is understood the rest of Arcus should follow through nicely.
 
-Keep in mind that a `Subnet` is not an arbitrary range of addresses, for that you want an [IPAddress Range](IPAddress-Range), but rather conforms to a range of length 2<sup>n</sub> starting a particular position, often expressed by a [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
+Keep in mind that a `Subnet` is not an arbitrary range of addresses, for that you want an [IPAddress Range](IPAddressRange), but rather conforms to a range of length 2<sup>n</sub> starting a particular position, often expressed by a [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing).
 
 The `Subnet` class extends [`AbstractIPAddressRange`](IIPAddressRange#AbstractIPAddressRange) and implements [`IIPAddressRange`](IIPAddressRange), `IEquatable<Subnet>`, `IComparable<Subnet>`, `IFormattable`, and `IEnumerable<IPAddress>`.
 
@@ -114,6 +114,8 @@ The `Subnet` implements [`IIPAddressRange`](IIPAddressRange), `IEquatable<Subnet
 
 Inherently a `Subnet` is a range of `IPAddress` objects, as such there is some set based operations available.
 
+In addition to the [set based operations promised by `IIPAddressRange`](IIPAddressRange#Set-Based-Operations), the `Subnet` type also has a few new options.
+
 #### Contains
 
 It is possible to easily check if a subnet is entirely encapsulates another subnet by using the `Contains` method on the larger `Subnet`.
@@ -169,5 +171,24 @@ public void Overlaps_Example()
    Assert.True(ipv6SubnetA.Overlaps(ipv6SubnetB));
 
    Assert.False(ipv6SubnetA.Overlaps(ipv4SubnetA));
+}
+```
+
+```c#
+[Fact]
+public void IFormattable_Example()
+{
+    // Arrange
+    var head = IPAddress.Parse("192.168.0.0");
+    var tail = IPAddress.Parse("192.168.128.0");
+    var ipAddressRange = new IPAddressRange(head, tail);
+
+    const string expected = "192.168.0.0 - 192.168.128.0";
+
+    // Act
+    var formattableString = $"{ipAddressRange:g}";
+
+    // Assert
+    Assert.Equal(expected, formattableString);
 }
 ```
