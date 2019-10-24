@@ -116,20 +116,58 @@ Inherently a `Subnet` is a range of `IPAddress` objects, as such there is some s
 
 #### Contains
 
-It is possible to easily check if a subnet partially encapsulates another subnet, at least one `IPAddress`, by using the `Contains` method on the parent `Subnet`.
+It is possible to easily check if a subnet is entirely encapsulates another subnet by using the `Contains` method on the larger `Subnet`.
 
 ```c#
 public bool Subnet.Contains(Subnet subnet)
 ```
 
-TODO example
+In the following example it is shown that `192.168.1.0/8` contains `192.168.0.0`, but as expected `192.168.1.0/8` does not contain `255.0.0.0/8`
+
+```c#
+[Fact]
+public void Contains_Example()
+{
+    // Arrange
+    var subnetA = Subnet.Parse("192.168.1.0", 8);   // 192.0.0.0 - 192.255.255.255
+    var subnetB = Subnet.Parse("192.168.0.0", 16);  // 192.168.0.0 - 192.168.255.255
+    var subnetC = Subnet.Parse("255.0.0.0", 8);     // 255.0.0.0 - 255.255.255.255
+
+    // Assert
+    Assert.True(subnetA.Contains(subnetB));
+    Assert.False(subnetA.Contains(subnetC));
+}
+```
 
 #### Overlaps
 
-It is possible determine !!!!!!!a subnet overlaps another subnet by using the `Contains` method on the parent `Subnet`.
+It is possible determine if a subnet in any way overlaps another subnet, even if just by a single address, by using the `Contains` between two subnets.
+
+This is a transitive operation, if `Subnet` A overlaps `Subnet` B then B overlaps A.
 
 ```c#
 public bool Overlaps(Subnet subnet)
 ```
 
-TODO example
+In the following example it is shown that `255.255.0.0/16` and `0.0.0.0/0` each overlap each other. However, due to their disparate address families, `::/0` and `0.0.0.0/0` do not overlap despite being equivalent ranges in the differing in integer spaces.
+
+```c#
+[Fact]
+public void Overlaps_Example()
+{
+   // Arrange
+   var ipv4SubnetA = Subnet.Parse("255.255.0.0", 16);
+   var ipv4SubnetB = Subnet.Parse("0.0.0.0", 0);
+
+   var ipv6SubnetA = Subnet.Parse("::", 0);
+   var ipv6SubnetB = Subnet.Parse("abcd:ef01::", 64);
+
+   // Act
+   Assert.True(ipv4SubnetA.Overlaps(ipv4SubnetB));
+   Assert.True(ipv4SubnetB.Overlaps(ipv4SubnetA));
+
+   Assert.True(ipv6SubnetA.Overlaps(ipv6SubnetB));
+
+   Assert.False(ipv6SubnetA.Overlaps(ipv4SubnetA));
+}
+```
