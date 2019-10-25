@@ -13,13 +13,12 @@
     <IsPackable>true</IsPackable>
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
-    <PackageIconUrl>https://raw.githubusercontent.com/sandialabs/Arcus/master/resources/images/icon_64x64.png</PackageIconUrl>
+    <packageicon>icon_64x64.png</packageicon>
     <PackageLanguage>en-US</PackageLanguage>
-    <PackageLicense>Apache-2.0</PackageLicense>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <packagelicenseexpression>Apache-2.0</packagelicenseexpression>
     <PackageProjectUrl>https://github.com/sandialabs/arcus</PackageProjectUrl>
-    <PackageSummary>Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and Pv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.</PackageSummary>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageSummary>Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and Pv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.</PackageSummary>
     <PackageTags>IP; IP Address; IP Calculator; IPv4; IPv6; ipaddress; ipaddresses; ipv4; ipv4 address; ipv4 calculator; ipv4 network; ipv4 subnetting; ipv4 support; ipv6; ipv6 address; ipv6 calulator; ipv6 network; ipv6 subnetting; ipv6 support; netmask; networking; route prefix; subnet</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -79,6 +78,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+      <None Include="resources\images\icon_64x64.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 
 </Project>
