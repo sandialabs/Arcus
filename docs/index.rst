@@ -13,7 +13,7 @@ Arcus
 .. image:: https://img.shields.io/badge/targets-.NETStandard%201.3-5C2D91?logo=.net
    :alt: .NetStandard 1.3
    :target: https://docs.microsoft.com/en-us/dotnet/standard/net-standard
-.. image:: https://badges.gitter.im/sandialabs/Arcus.svg)
+.. image:: https://badges.gitter.im/sandialabs/Arcus.svg
    :alt: Join the chat at https://gitter.im/sandialabs/Arcus
    :target: https://gitter.im/sandialabs/Arcus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
