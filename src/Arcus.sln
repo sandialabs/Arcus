@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2041
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arcus", "Arcus\Arcus.csproj", "{BF292912-886E-470A-8FD0-2521C5EE586C}"
 EndProject
