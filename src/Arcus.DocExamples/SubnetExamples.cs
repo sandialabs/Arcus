@@ -1,24 +1,13 @@
 ﻿using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.DocExamples
 {
     /// <summary>
     ///     Subnet Examples
     /// </summary>
+    [Trait("Category", "Doc.Examples")]
     public class SubnetExamples
     {
-        #region Setup / Teardown
-
-        public SubnetExamples(ITestOutputHelper console)
-        {
-            this._console = console;
-        }
-
-        private readonly ITestOutputHelper _console;
-
-        #endregion
-
         [Fact]
         public void Contains_Example()
         {

@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Arcus.DocExamples
 {
+    [Trait("Category", "Doc.Examples")]
     public class IPAddressRangeExamples
     {
         [Fact]
