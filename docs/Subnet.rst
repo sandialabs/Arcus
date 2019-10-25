@@ -1,13 +1,9 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 Subnet
 ======
 
 The ``Subnet`` type, flavored in both IPv4 or IPv6, is a representation of a subnetwork. Its is the work horse and original reason for the Arcus library. Outside the concept of the ``Subnet`` object, most everything else in Arcus is auxiliary and exists only in support of making this once facet work. That’s not to say that the remaining pieces of the Arcus library aren’t useful, on the contrary their utility can benefit a developer greatly. But that said, once the dark and mysterious magic of the ``Subnet`` is understood the rest of Arcus should follow through nicely.
 
-Keep in mind that a ``Subnet`` is not an arbitrary range of addresses, for that you want an `IPAddress Range <IPAddressRange>`_\ , but rather conforms to a range of length 2\ :raw-html-m2r:`<sup>`\ n</sub> starting a particular position, often expressed by a `CIDR <https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>`_.
+Keep in mind that a ``Subnet`` is not an arbitrary range of addresses, for that you want an `IPAddress Range <IPAddressRange>`_\ , but rather conforms to a range of length :math:`2^n` starting a particular position, often expressed by a `CIDR <https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>`_.
 
 The ``Subnet`` class extends `<AbstractIPAddressRange>`_ and implements `<IIPAddressRange>`_, ``IEquatable<Subnet>``, ``IComparable<Subnet>``, ``IFormattable``, and ``IEnumerable<IPAddress>``.
 

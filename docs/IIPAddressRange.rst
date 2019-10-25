@@ -1,7 +1,3 @@
-.. role:: raw-html-m2r(raw)
-   :format: html
-
-
 IIPAddressRange
 ===============
 
@@ -56,7 +52,7 @@ Touches
 Length and TryGetLength
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``IIPAddressRange`` implements ``IEnumerable<IPAddress>``\ , but because of the possible size of this range it may not always be safe to attempt to do a count or get the length in a traditional manner. A ``BigInteger`` ``Length`` property is provided as keep in mind the full range of IPv6Addresses is 2\ :raw-html-m2r:`<sup>128</sup>` in length. That's 3.4x10\ :raw-html-m2r:`<sup>38</sup>` or over 340 undecillion. Certainly not something that should be iterated in order to be counted.
+The ``IIPAddressRange`` implements ``IEnumerable<IPAddress>``\ , but because of the possible size of this range it may not always be safe to attempt to do a count or get the length in a traditional manner. A ``BigInteger`` ``Length`` property is provided as keep in mind the full range of IPv6Addresses is :math:`2^{128}` in length. That's :math:`3.4\times10^{38}` or over 340 undecillion. Certainly not something that should be iterated in order to be counted.
 
 However, ``BigInteger``\ s aren't always the handiest things to drag around. Using the *magic* of math, the various implementations of ``TryGetLength`` will attempt to get the length of the range in a more portable manner if possible, returning ``true`` on success.
 

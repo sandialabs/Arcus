@@ -5,7 +5,6 @@ Community
 GitHub
 ------
 
-
 .. image:: https://img.shields.io/github/stars/sandialabs/arcus?style=social
    :target: https://github.com/sandialabs/Arcus/stargazers
    :alt: GitHub Stars
