@@ -19,6 +19,8 @@ Arcus
 
 Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
 
+Chances are you're primarily here looking for the :doc:`Subnet <Subnet>` object. 
+
 .. toctree::
    :maxdepth: 1
    :caption: Getting Started
@@ -26,10 +28,11 @@ Arcus is a C# manipulation library for calculating, parsing, formatting, convert
    FAQ
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: IP Addresses Ranges:
 
    IIPAddressRange
+   AbstractIPAddressRange
    IPAddressRange
    Subnet
    Subnet-Utilities
@@ -50,3 +53,4 @@ Arcus is a C# manipulation library for calculating, parsing, formatting, convert
 
    Community
    Acknowledgements
+
