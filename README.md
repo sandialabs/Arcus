@@ -6,6 +6,10 @@
 [![.NetStandard 1.3](https://img.shields.io/badge/targets-.NETStandard%201.3-blueviolet)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)
 [![Join the chat at https://gitter.im/sandialabs/Arcus](https://badges.gitter.im/sandialabs/Arcus.svg)](https://gitter.im/sandialabs/Arcus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Build Status](https://dev.azure.com/sandianationallabs/Arcus/_apis/build/status/sandialabs.Arcus?branchName=master)](https://dev.azure.com/sandianationallabs/Arcus/_build/latest?definitionId=2&branchName=master)
+![Azure DevOps tests (compact)](https://img.shields.io/azure-devops/tests/sandianationallabs/Arcus/2?compact_message)
+![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/sandianationallabs/Arcus/2)
+
 Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
 
 ## Getting Started
