@@ -17,7 +17,7 @@ namespace Arcus.DocExamples
             const string expected = "192.168.0.0 - 192.168.128.0";
 
             // Act
-            var formattableString = $"{ipAddressRange:g}";
+            var formattableString = string.Format("{0:g}", ipAddressRange);
 
             // Assert
             Assert.Equal(expected, formattableString);

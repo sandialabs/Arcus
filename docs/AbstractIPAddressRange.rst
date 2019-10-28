@@ -1,7 +1,9 @@
+.. _AbstractIPAddressRange:
+
 AbstractIPAddressRange
 ======================
 
-The ``AbstractIPAddressRange`` is an abstract implementation of `IIPAddressRange <#IIPAddressRange>`_. It is extended by both `IPAddressRange <IPAddressRange>`_\ , and `Subnet <Subnet>`_.
+The ``AbstractIPAddressRange`` is an abstract implementation of :ref:`IIPAddressRange`. It is extended by both :ref:`IPAddressRange`, and :ref:`Subnet`.
 
 Functionality Implementation
 ----------------------------
@@ -9,9 +11,12 @@ Functionality Implementation
 IFormatable
 ^^^^^^^^^^^
 
-Extensions of ``AbstractIPAddressRange``\ , depending on overrides and implementation, provide a general format (\ ``G``\ , ``g``\ , or empty string) that will express a range of IP addresses in a "\ ``head`` - ``tail``\ " format.
+Extensions of ``AbstractIPAddressRange``, depending on overrides and implementation, provide a general format (``G``, ``g``, or empty string) that will express a range of IP addresses in a "``head`` - ``tail``" format.
 
 .. code-block:: c#
+   :emphasize-lines: 12
+   :caption: AbstractIPAddressRange  IFormattable Example
+   :name: AbstractIPAddressRange  IFormattable Example
 
    [Fact]
    public void IFormattable_Example()
@@ -24,7 +29,7 @@ Extensions of ``AbstractIPAddressRange``\ , depending on overrides and implement
        const string expected = "192.168.0.0 - 192.168.128.0";
 
        // Act
-       var formattableString = $"{ipAddressRange:g}";
+       var formattableString = string.Format("{0:g}", ipAddressRange);
 
        // Assert
        Assert.Equal(expected, formattableString);

@@ -1,0 +1,11 @@
+Format,Name,Description,Example
+"null,
+empty string,
+``g``,
+``G``",Default / General format,CIDR representation,``255.255.0.0/16``
+"``f``,
+``F``","""friendly"" format","CIDR representaion for Subnets of size > 1
+Single address representation for Subnetes of size 1","``255.255.0.0/16``
+or ``192.168.1.1``"
+"``r``,
+``R``",range format,A range represented by NetworkPrefix - Brodcast,``ab::3d00 - ab::3dff``

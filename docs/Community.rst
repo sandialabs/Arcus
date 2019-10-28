@@ -1,4 +1,3 @@
-
 Community
 =========
 
@@ -16,6 +15,11 @@ GitHub
 
 
 Source Code available on `Arcus GitHub <https://github.com/sandialabs/Arcus>`_
+
+GITTER
+------
+
+The developers monitor the `Arcus Gitter chat <https://gitter.im/sandialabs/Arcus>`_ drop us a line.
 
 File an Issue
 -------------

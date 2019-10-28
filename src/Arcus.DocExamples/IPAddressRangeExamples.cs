@@ -8,7 +8,7 @@ namespace Arcus.DocExamples
     public class IPAddressRangeExamples
     {
         [Fact]
-        public void TryCollapseAll_Consecutive_Test()
+        public void TryCollapseAll_Example()
         {
             // Arrange
             var ranges = new[]
