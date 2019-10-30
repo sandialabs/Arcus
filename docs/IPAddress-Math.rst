@@ -1,7 +1,7 @@
 IP Address Math
 ===============
 
-Too frequently the existing implementation of the C# ``IPAddress`` object is too limited for anything beyond some of the most trivial interactions. Mathematical operations in fact are wholly absent, forcing developers to directly manipulate bytes [#Gulliver_001]_, often requiring a great deal of manual implementation of non-existent byte math. Don't worry though, Arcus is here to fill in some of those gaps.
+Too frequently the existing implementation of the C# ``IPAddress`` object is too limited for anything beyond some of the most trivial interactions. Mathematical operations in fact are wholly absent, forcing developers to directly manipulate bytes [#GulliverLib]_, often requiring a great deal of manual implementation of non-existent byte math. Don't worry though, Arcus is here to fill in some of those gaps.
 
 
 .. note:: Unless otherwise specified regarding the math of the ``IPAddress`` object treats it as an unsigned integer based on its bytes interpenetrated as 32-bit for IPv4 and 128-bit for IPv6 all in big-endian byte order.
@@ -95,6 +95,6 @@ Determine Scale
 
 .. rubric:: Footnotes
 
-.. [#Gulliver_001] If you actually want to manipulate bytes take a gander at `Gulliver <https://github.com/sandialabs/gulliver>`_, an C# library developed by the same folks that wrote Arcus. They're kinda great.
+.. [#GulliverLib] If you actually want to manipulate bytes take a gander at `Gulliver <https://github.com/sandialabs/gulliver>`_, an C# library developed by the same folks that wrote Arcus. They're kinda great.
 
 .. [#OperatorExtensionMethods] A GitHub issue for `Extension function members <https://github.com/dotnet/csharplang/issues/192>`_ requesting a champion for some proposed changes regarding the future of extension methods.

@@ -3,7 +3,8 @@
 IIPAddressRange
 ===============
 
-``IIPAddressRange`` is an interface defining a contract for all of Arcus' implementations of a consecutive a range of ``IPAddress`` objects. It implements both ``IFormattable`` and ``IEnumerable<IPAddress>``
+Arcus defines the ``IIPAddressRange`` interface for representation of consecutive ``IPAddress`` objects. It implements both ``IFormattable`` and ``IEnumerable<IPAddress>``.
+
 
 .. caution:: ``IIPAddressRange`` implements ``IEnumerable<IPAddress>``, this means that you should pay particular attention when you may be iterating over large ranges. Such as the full set of IPv6 addresses, which will take a while. A long while. It isn't recommended.
 

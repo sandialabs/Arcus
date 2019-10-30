@@ -12,7 +12,7 @@ DefaultIPAddressRangeComparer
 
 The ``DefaultIPAddressRangeComparer`` is a ``Comparer<IIPAddressRange>`` that compares implementations of ``IIPAddressRange`` first by their ``IIPAddressRange.Head`` and then by their total length.
 
-By default the two ``IIPAddressRange.Head`` values are compared via the :ref:`DefaultIPAddressComparer`, but that may be overridden by providing your own ``IComparer<IPAddress>`` to the appropriate constructor
+By default the two ``IIPAddressRange.Head`` values are compared via the :ref:`DefaultIPAddressComparer`, but that may be overridden by providing your own ``IComparer<IPAddress>`` to the appropriate constructor.
 
 .. code-block:: c#
 

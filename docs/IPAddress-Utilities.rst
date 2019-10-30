@@ -5,7 +5,7 @@ IP Address Utilities
 
 Useful Values
 ^^^^^^^^^^^^^
-Included within are some handy-dandy constant values and static readonly properties
+Included within are some handy-dandy constant values and static readonly properties:
 
 :``int`` IPv4BitCount: The number of bits in an IPv4 address (``32``)
 :``int`` IPv4ByteCount: The number of bytes in an IPv4 address (``4``)

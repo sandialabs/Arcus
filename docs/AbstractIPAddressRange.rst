@@ -11,7 +11,7 @@ Functionality Implementation
 IFormatable
 ^^^^^^^^^^^
 
-Extensions of ``AbstractIPAddressRange``, depending on overrides and implementation, provide a general format (``G``, ``g``, or empty string) that will express a range of IP addresses in a "``head`` - ``tail``" format.
+Extensions of ``AbstractIPAddressRange``, depending on overrides and implementation, provide a general format (``G``, ``g``, or empty string) that will express a range of IP addresses in a ``head - tail`` format for example ``192.168.1.1 - 192.168.1.10``.
 
 .. code-block:: c#
    :emphasize-lines: 12

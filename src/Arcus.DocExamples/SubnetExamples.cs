@@ -1,4 +1,6 @@
-﻿using Xunit;
+﻿using System.Linq;
+using System.Net;
+using Xunit;
 
 namespace Arcus.DocExamples
 {
@@ -8,6 +10,26 @@ namespace Arcus.DocExamples
     [Trait("Category", "Doc.Examples")]
     public class SubnetExamples
     {
+        [Fact]
+        public void Address_RoutePrefix_Subnet_Example()
+        {
+            // Arrange
+            var ipAddress = IPAddress.Parse("192.168.1.1");
+            const int routePrefix = 24;
+
+            // Act
+            var subnet = new Subnet(ipAddress, routePrefix);
+
+            // Assert
+            Assert.False(subnet.IsSingleIP);
+
+            Assert.Equal(256, subnet.Length);
+            Assert.Equal("192.168.1.0", subnet.Head.ToString());
+            Assert.Equal("192.168.1.255", subnet.Tail.ToString());
+            Assert.Equal(24, subnet.RoutingPrefix);
+            Assert.Equal("192.168.1.0/24", subnet.ToString());
+        }
+
         [Fact]
         public void Contains_Example()
         {
@@ -39,6 +61,22 @@ namespace Arcus.DocExamples
             Assert.True(ipv6SubnetA.Overlaps(ipv6SubnetB));
 
             Assert.False(ipv6SubnetA.Overlaps(ipv4SubnetA));
+        }
+
+        [Fact]
+        public void Single_Address_Subnet_Example()
+        {
+            // Arrange
+            var ipAddress = IPAddress.Parse("192.168.1.1");
+
+            // Act
+            var subnet = new Subnet(ipAddress);
+
+            // Assert
+            Assert.Equal(1, subnet.Length);
+            Assert.Equal(ipAddress, subnet.Single());
+            Assert.True(subnet.IsSingleIP);
+            Assert.Equal("192.168.1.1/32", subnet.ToString());
         }
     }
 }

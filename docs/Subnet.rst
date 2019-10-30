@@ -38,6 +38,32 @@ It is also possible to create a ``Subnet`` from an ``IPAddress address`` and an 
 
    public Subnet(IPAddress address, int routingPrefix)
 
+The following example shows that the ``IPAddress`` and ``routingPrefix`` constructor taking an input of ``192.168.1.1`` and ``24`` creates a ``Subnet`` ``192.168.1.0/32``. Note that the ``Head`` is ``192.168.1.0`` and not ``192.168.1.1``, this is done as Arcus will autocorrect the input to a valid ``Subnet``. If this is not desired it is advised that you compare the ``Head`` to the input in order to validate expectations.
+
+.. code-block:: c#
+   :emphasize-lines: 9
+   :caption: Subnet Address and Route Prefix Constructor Example
+   :name: Subnet Address and Route Prefix Constructor Example
+
+   [Fact]
+   public void Address_RoutePrefix_Subnet_Example()
+   {
+       // Arrange
+       var ipAddress = IPAddress.Parse("192.168.1.1");
+       const int routePrefix = 24;
+
+       // Act
+       var subnet = new Subnet(ipAddress, routePrefix);
+
+       // Assert
+       Assert.False(subnet.IsSingleIP);
+       Assert.Equal(256, subnet.Length);
+       Assert.Equal("192.168.1.0", subnet.Head.ToString());
+       Assert.Equal("192.168.1.255", subnet.Tail.ToString());
+       Assert.Equal(24, subnet.RoutingPrefix);
+       Assert.Equal("192.168.1.0/24", subnet.ToString());
+   }   
+
 constructor ``IPAddress address``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -46,6 +72,29 @@ On the rare occasion it may be desired to make a ``Subnet`` comprised of a singl
 .. code-block:: c#
 
    public Subnet(IPAddress address)
+
+The following example shows that the single ``IPAddress`` constructor taking an input of ``192.168.1.1`` creates a ``Subnet`` ``192.168.1.1/32`` that is comprised of only the single input address.
+
+.. code-block:: c#
+   :emphasize-lines: 8
+   :caption: Subnet Single Address Constructor Example
+   :name: Subnet Single Address Constructor Example
+
+   [Fact]
+   public void Single_Address_Subnet_Example()
+   {
+      // Arrange
+      var ipAddress = IPAddress.Parse("192.168.1.1");
+
+      // Act
+      var subnet = new Subnet(ipAddress);
+
+      // Assert
+      Assert.Equal(1, subnet.Length);
+      Assert.Equal(ipAddress, subnet.Single());
+      Assert.True(subnet.IsSingleIP);
+      Assert.Equal("192.168.1.1/32", subnet.ToString());
+   }
 
 factory IPAddress and NetMask
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

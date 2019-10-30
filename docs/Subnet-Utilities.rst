@@ -1,7 +1,7 @@
 Subnet Utilities
 ================
 
- ``Arcus.Utilities.SubnetUtilities`` is a static utility class containing miscellaneous operations for :ref:`Subnet` and collections there of. It is a catchall for methods and functionally that didn't make sense on the ``Subnet`` class itself.
+``Arcus.Utilities.SubnetUtilities`` is a static utility class containing miscellaneous operations for :ref:`Subnet` and collections there of. It is a catchall for methods and functionally that didn't make sense on the ``Subnet`` class itself.
 
 find Fewest Consecutive Subnets
 -------------------------------

@@ -19,78 +19,55 @@ Netmask To Cidr Route Prefix
 
    public static int NetmaskToCidrRoutePrefix(this IPAddress netmask)
 
-The following example generates a table of all route prefixes for the equivalent netmask ``IPAddress`` input. Note that this example uses Gulliver [#Gulliver_001]_ in order to deal with byte manipulation.
+The following example generates a table of all route prefixes for the equivalent netmask ``IPAddress`` input. Note that this example uses Gulliver [#GulliverLib]_ in order to deal with byte manipulation.
 
 .. code-block:: c#
-   :emphasize-lines: 15
+   :emphasize-lines: 17
    :caption: NetmaskToCidrRoutePrefix Example
    :name: NetmaskToCidrRoutePrefix Example
 
-   public void NetmaskToCidrRoutePrefix_Example()
-   {
-       // equivalent byte value of 255.255.255.255 or 2^32
-       var maxIPv4Bytes = Enumerable.Repeat((byte)0xFF, 4).ToArray();
-
-       // build all valid net masks
-       var allNetMasks = Enumerable.Range(0, 32 + 1)
-           .Select(i => maxIPv4Bytes.ShiftBitsLeft(32 - i))    // use Gulliver to shift bits of byte array
-           .Select(b => new IPAddress(b))
-           .ToArray();
-
-       var sb = new StringBuilder();
-       foreach (var netmask in allNetMasks)
-       {
-           var routePrefix = netmask.NetmaskToCidrRoutePrefix();
-
-            sb.Append(routePrefix)
-                .Append('\t')
-                .AppendFormat("{0,-15}", netmask)
-                .Append('\t')
-                .Append(netmask.GetAddressBytes().ToString("b"))    // using Gulliver to print bytes as bits
-                .AppendLine();
-       }
-
-       output.WriteLine(sb.ToString());
-   }
+    public void NetmaskToCidrRoutePrefix_Example()
+    {
+        // equivalent byte value of 255.255.255.255 or 2^32
+        var maxIPv4Bytes = Enumerable.Repeat((byte) 0xFF, 4)
+                                     .ToArray();
+        
+        // build all valid net masks
+        var allNetMasks = Enumerable.Range(7, 10)
+                                    .Select(i => maxIPv4Bytes.ShiftBitsLeft(32 - i)) // use Gulliver to shift bits of byte array
+                                    .Select(b => new IPAddress(b))
+                                    .ToArray();
+        
+        var sb = new StringBuilder();
+        
+        foreach (var netmask in allNetMasks)
+        {
+            var routePrefix = netmask.NetmaskToCidrRoutePrefix();
+            _ = sb.Append(routePrefix)
+                  .Append('\t')
+                  .AppendFormat("{0,-15}", netmask)
+                  .Append('\t')
+                  .Append(netmask.GetAddressBytes()
+                                 .ToString("b")) // using Gulliver to print bytes as bits
+                  .AppendLine();
+        }
+        this.output.WriteLine(sb.ToString());
+    }
 
 .. code-block:: none
    :caption: NetmaskToCidrRoutePrefix Example Output
    :name: NetmaskToCidrRoutePrefix Example Output
 
-   0	0.0.0.0        	00000000 00000000 00000000 00000000
-   1	128.0.0.0      	10000000 00000000 00000000 00000000
-   2	192.0.0.0      	11000000 00000000 00000000 00000000
-   3	224.0.0.0      	11100000 00000000 00000000 00000000
-   4	240.0.0.0      	11110000 00000000 00000000 00000000
-   5	248.0.0.0      	11111000 00000000 00000000 00000000
-   6	252.0.0.0      	11111100 00000000 00000000 00000000
-   7	254.0.0.0      	11111110 00000000 00000000 00000000
-   8	255.0.0.0      	11111111 00000000 00000000 00000000
-   9	255.128.0.0    	11111111 10000000 00000000 00000000
-   10	255.192.0.0    	11111111 11000000 00000000 00000000
-   11	255.224.0.0    	11111111 11100000 00000000 00000000
-   12	255.240.0.0    	11111111 11110000 00000000 00000000
-   13	255.248.0.0    	11111111 11111000 00000000 00000000
-   14	255.252.0.0    	11111111 11111100 00000000 00000000
-   15	255.254.0.0    	11111111 11111110 00000000 00000000
-   16	255.255.0.0    	11111111 11111111 00000000 00000000
-   17	255.255.128.0  	11111111 11111111 10000000 00000000
-   18	255.255.192.0  	11111111 11111111 11000000 00000000
-   19	255.255.224.0  	11111111 11111111 11100000 00000000
-   20	255.255.240.0  	11111111 11111111 11110000 00000000
-   21	255.255.248.0  	11111111 11111111 11111000 00000000
-   22	255.255.252.0  	11111111 11111111 11111100 00000000
-   23	255.255.254.0  	11111111 11111111 11111110 00000000
-   24	255.255.255.0  	11111111 11111111 11111111 00000000
-   25	255.255.255.128	11111111 11111111 11111111 10000000
-   26	255.255.255.192	11111111 11111111 11111111 11000000
-   27	255.255.255.224	11111111 11111111 11111111 11100000
-   28	255.255.255.240	11111111 11111111 11111111 11110000
-   29	255.255.255.248	11111111 11111111 11111111 11111000
-   30	255.255.255.252	11111111 11111111 11111111 11111100
-   31	255.255.255.254	11111111 11111111 11111111 11111110
-   32	255.255.255.255	11111111 11111111 11111111 11111111
-
+    7	254.0.0.0      	11111110 00000000 00000000 00000000
+    8	255.0.0.0      	11111111 00000000 00000000 00000000
+    9	255.128.0.0    	11111111 10000000 00000000 00000000
+    10	255.192.0.0    	11111111 11000000 00000000 00000000
+    11	255.224.0.0    	11111111 11100000 00000000 00000000
+    12	255.240.0.0    	11111111 11110000 00000000 00000000
+    13	255.248.0.0    	11111111 11111000 00000000 00000000
+    14	255.252.0.0    	11111111 11111100 00000000 00000000
+    15	255.254.0.0    	11111111 11111110 00000000 00000000
+    16	255.255.0.0    	11111111 11111111 00000000 00000000
 
 String Converters
 ^^^^^^^^^^^^^^^^^
@@ -160,7 +137,7 @@ The example below shows the output generated by calling the ``ToDottedQuadString
 ToHexString
 -----------
 
-``ToHexString`` may be used to encode the ``IPAddress ipAddress`` as a Big-Endian [#Gulliver_001]_ ordered string. It will keep all zero-valued most significant bytes.
+``ToHexString`` may be used to encode the ``IPAddress ipAddress`` as a Big-Endian [#GulliverLib]_ ordered string. It will keep all zero-valued most significant bytes.
 
 .. code-block:: c#
 
@@ -397,5 +374,5 @@ The example below shows the output created by calling the ``ToBase85String`` ext
 
 .. rubric:: Footnotes
 
-.. [#Gulliver_001] Interested in byte manipulation? Is endianess your calling? You should check out `Gulliver <https://github.com/sandialabs/gulliver>`_, an awesome opensource C# library developed by a number of smart and attractive people that like playing with thier bits.
+.. [#GulliverLib] Interested in byte manipulation? Is endianess your calling? You should check out `Gulliver <https://github.com/sandialabs/gulliver>`_, an awesome opensource C# library developed by a number of smart and attractive people that like playing with thier bits.
 .. [#RFC1924] `RFC 1924 <http://tools.ietf.org/html/rfc1924>`_ is an April Fools Day Joke, but we implemented it anyhow. The question is, did we realize it was a joke before we implemented it or not. Ah, programmer jokes. There are 10 types of developers out there, those that get the joke, and those that don't.
