@@ -3,6 +3,7 @@ IP Address Math
 
 Too frequently the existing implementation of the C# ``IPAddress`` object is too limited for anything beyond some of the most trivial interactions. Mathematical operations in fact are wholly absent, forcing developers to directly manipulate bytes [#Gulliver_001]_, often requiring a great deal of manual implementation of non-existent byte math. Don't worry though, Arcus is here to fill in some of those gaps.
 
+
 .. note:: Unless otherwise specified regarding the math of the ``IPAddress`` object treats it as an unsigned integer based on its bytes interpenetrated as 32-bit for IPv4 and 128-bit for IPv6 all in big-endian byte order.
 
 Increment
@@ -31,7 +32,7 @@ The ``IPAddress`` does not implement the standard comparison operators, and thus
 
 .. note:: Barring the use of the methods below, the  :ref:`DefaultIPAddressComparer` may also be of interest to you.
 
-It should be pretty obvious based on name alone as to what each of the following five methods will accomplish.
+It should be pretty obvious based on name alone as to what each of the following five methods will accomplish:
 
 .. code-block:: c#
 

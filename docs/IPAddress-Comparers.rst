@@ -13,7 +13,7 @@ DefaultIPAddressComparer
 
 The ``DefaultIPAddressComparer`` extends ``Comparer<IPAddress>``. Its behavior is to first compare two ``IPAddress`` objects via the ``IComparer<AddressFamily>`` and then ordinally based on the ``IPAddress`` big-endian unsigned integer value.
 
-By default the :ref:`DefaultAddressFamilyComparer` is used to compare the address families of the addresses. but that may be overridden by providing your own ``IComparer<AddressFamily>`` to the appropriate constructor
+By default the :ref:`DefaultAddressFamilyComparer` is used to compare the address families of the addresses, but that may be overridden by providing your own ``IComparer<AddressFamily>`` to the appropriate constructor
 
 .. code-block:: c#
 

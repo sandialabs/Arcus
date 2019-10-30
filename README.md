@@ -16,27 +16,29 @@ Arcus is a C# manipulation library for calculating, parsing, formatting, convert
 
 The latest stable release of Arcus is [available on NuGet](https://www.nuget.org/packages/Arcus/).
 
-The latest documentation may be found on [ReadTheDocs](https://arcus.readthedocs.io/en/latest/).
+The latest [Arcus documentation](https://arcus.readthedocs.io/en/latest/) may be found on [ReadTheDocs](https://arcus.readthedocs.io/en/latest/).
 
 ## Usage
 
 At its heart Arcus is split amongst five separate interdependent units. _Types_, _Comparers_, _Converters_, _Math_, and _Utilities_.
 
-These units each work across `System.Net.IPAddress`, and Arcus's own `IPAddressRange`, and `Subnet`. Picking up on extra desired functionality where the standard C# libraries left off.
+These units each work across Arcus's `IPAddressRange`, `Subnet` and .NET's `System.Net.IPAddress`. Arcus adds extra desired functionality where the standard C# libraries left off.
 
 ### Types
 
 #### `Subnet`
 
-An IPv4 or IPv6 subnetwork representation - the work horse and original reason for the Arcus library. Outside the concept of the `Subnet` object, most everything else in Arcus is auxiliary and exists only in support of the `Subnet` object. That’s not to say that the remaining pieces of the Arcus library aren’t useful, on the contrary their utility can benefit a developer greatly. That said, once the `Subnet` is mastered the rest of Arcus should follow through nicely.
+An IPv4 or IPv6 subnetwork representation - the work horse and original reason for the Arcus library. Outside the concept of the `Subnet` object, most everything else in Arcus is auxiliary and exists only in support of the `Subnet` object. That’s not to say that the remaining pieces of the Arcus library aren’t useful, on the contrary their utility can benefit a developer greatly.
 
 A `Subnet` may be instantiated in several ways:
 
-To the most common ways to create a subnet is to construct it via a high and low `IPAddress` call the constructor `Subnet(IPAddress primary, IPAddress secondary)` This construct the smallest possible subnet that would contain both IP addresses typically the address specified are the Network and Broadcast addresses (lower and higher bounds) but this is not necessary. Addresses _MUST_ be the same address family (either Internetwork or InternetworkV6)
+The most common way to create a `Subnet` object is to construct it via a high and low `IPAddress` by calling the constructor `Subnet(IPAddress primary, IPAddress secondary)`. This constructs the smallest possible subnet that would contain both IP addresses. Typically the addresses specified are the Network and Broadcast addresses (lower and higher bounds of a subnet) but this is not necessary. Addresses _MUST_ be the same address family (either Internetwork or InternetworkV6).
 
-It is also possible to create a `Subnet` from an `IPAddress` and an `integer` based _route prefix_. Eg: `Subnet(IPAddress ipAddress, int routingPrefix)`
+It is also possible to create a `Subnet` from an `IPAddress` and an `integer` based _route prefix_. Eg: `Subnet(IPAddress ipAddress, int routingPrefix)`.
 
-Likewise it may be desired to statically parse a subnet string with `Subnet. Parse(string input)` or it’s safe equivalent of `bool Subnet.TryParse(string input, out Subnet subnet)`. For example, one could safely parse the `string` "192.168.1.0/16" via
+Likewise it may be desired to statically parse a subnet string with `Subnet.Parse(string input)` or it’s safe equivalent of `bool Subnet.TryParse(string input, out Subnet subnet)`
+
+For example, one could safely parse the `string` "192.168.1.0/16" via
 
 ```c#
 Subnet subnet;
@@ -49,7 +51,7 @@ var success = Subnet.TryParse("192.168.1.0/16", out subnet)
 
 ### Comparers
 
-The _Comparers_ package contains useful Comparer objects for comparing properties of IP Addresses and IP Address composite objects
+The _Comparers_ package contains useful Comparer objects for comparing properties of IP Addresses and IP Address composite objects.
 
 -  `DefaultAddressFamilyComparer` - A comparer that compares address families. Most frequently `Internetwork` (IPv4) and `InternetworkV6` (IPv6)
 -  `DefaultIPAddressComparer` - A comparer for `IPAddress` objects
@@ -57,15 +59,15 @@ The _Comparers_ package contains useful Comparer objects for comparing propertie
 
 ### Converters
 
-The _Converters_ package is a package of static utility classes for converting one type into another type
+The _Converters_ package is a package of static utility classes for converting one type into another type.
 
 #### `IPAddressConverters`
 
-Static utility class containing conversion methods for converting `IPAddress` objects into something else
+Static utility class containing conversion methods for converting `IPAddress` objects into something else.
 
 ### Math
 
-The _Math_ package is a package of static utility classes for doing computational mathematics on objects
+The _Math_ package is a package of static utility classes for doing computational mathematics on objects.
 
 #### `IPAddressMath`
 
@@ -78,22 +80,22 @@ Incrementing and Decrementing an `IPAddress` is easy.
 Incrementing by one is a simple call to the extension method:
 
 ```c#
-var address = IPAddress.Parse(192.168.1.1);
+var address = IPAddress.Parse("192.168.1.1");
 var result = address.Increment(); // result is 192.168.1.2
 ```
 
 Decrementing is just as simple:
 
 ```c#
-var address = IPAddress.Parse(192.168.1.1);
+var address = IPAddress.Parse("192.168.1.1");
 var result = address.Increment(-2); // result is 192.168.0.0
 ```
 
-_Overflow_ and _Underflow_ conditions will result in an `InvalidOperationException`
+_Overflow_ and _Underflow_ conditions will result in an `InvalidOperationException`.
 
 ##### Equality
 
-Equality may also be tested via a host of equality extension methods
+Equality may also be tested via a host of equality extension methods:
 
 -  `bool IsEqualTo(this IPAddress alpha, IPAddress beta)`
 -  `bool IsGreaterThan(this IPAddress alpha, IPAddress beta)`
@@ -103,7 +105,7 @@ Equality may also be tested via a host of equality extension methods
 
 ### Utilities
 
-The _Utilities_ package contains static classes for miscellaneous operations on specific types
+The _Utilities_ package contains static classes for miscellaneous operations on specific types.
 
 #### `IPAddressUtilities`
 
@@ -115,9 +117,9 @@ A couple of extension methods were created to quickly determine the address fami
 
 ##### Parsing
 
-It is possible to parse an `IPAddress` from a hexadecimal string into either an IPv4 of IPv6 address using the `IPAddress ParseFromHexString(string input, AddressFamily addressFamily)` method. Likewise it can be done safely with `bool TryParseFromHexString(string input, AddressFamily addressFamily, out IPAddress address)`
+It is possible to parse an `IPAddress` from a hexadecimal string into either an IPv4 of IPv6 address using the `IPAddress ParseFromHexString(string input, AddressFamily addressFamily)` method. Likewise it can be done safely with `bool TryParseFromHexString(string input, AddressFamily addressFamily, out IPAddress address)`.
 
-Similarly, conversion may be done from an octal string by using `bool TryParseIgnoreOctalInIPv4(string input, out IPAddress address)` or even a `BigInteger` by way of `bool TryParse(BigInteger input, AddressFamily addressFamily, out IPAddress address)`
+Similarly, conversion may be done from an octal string by using `bool TryParseIgnoreOctalInIPv4(string input, out IPAddress address)` or even a `BigInteger` by way of `bool TryParse(BigInteger input, AddressFamily addressFamily, out IPAddress address)`.
 
 #### `SubnetUtilities`
 
@@ -126,7 +128,7 @@ Static utility class containing miscellaneous operations for `Subnet` objects th
 Given two arbitrary IP Addresses of the same family it may be desired to calculate the fewest consecutive subnets that would hold the inclusive range between them. For example
 
 ```c#
-SubnetUtilities.FewestConsecutiveSubnetsFor(IPAddress.Parse("128.64.20.3"), IPAddress.Parse(128.64.20.12"))
+SubnetUtilities.FewestConsecutiveSubnetsFor(IPAddress.Parse("128.64.20.3"), IPAddress.Parse("128.64.20.12"))
 ```
 
 would return an `Enumerable` containing the subnets `128.64.20.3/32`, `128.64.20.4/30`, `128.64.20.8/30`, `128.64.20.12/32`.

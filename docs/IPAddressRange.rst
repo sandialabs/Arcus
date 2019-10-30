@@ -5,7 +5,7 @@ IPAddress Range
 
 ``IPAddressRange`` is a very basic implementation of an :ref:`AbstractIPAddressRange` used to represent an inclusive range of arbitrary IP Addresses of the same address family. It isn't restricted to a `CIDR <https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>`_ representation like a :ref:`Subnet` is, allowing for non-power of two range sizes.
 
-The ``IPAddressRange`` class extends :ref:`AbstractIPAddressRange` and implements :ref:`IIPAddressRange` , ``IEquatable<IPAddressRange>`` , ``IComparable<IPAddressRange>`` , ``IFormattable`` , and ``IEnumerable<IPAddress>``.
+The ``IPAddressRange`` class extends :ref:`AbstractIPAddressRange` and implements :ref:`IIPAddressRange`, ``IEquatable<IPAddressRange>``, ``IComparable<IPAddressRange>``, ``IFormattable``, and ``IEnumerable<IPAddress>``.
 
 Creation
 --------
@@ -15,7 +15,7 @@ constructor ``IPAddress head``, ``IPAddress tail``
 
 To standard way of creating an ``IPAddressRange`` is to construct it via a ``IPAddress head`` and ``IPAddress tail``. This will construct an ``IPAddressRange`` that would inclusively start with the provided ``head`` and end with ``tail``.
 
-Addresses *MUST* be the same address family (either ``InterNetwork`` or ``InterNetworkV6`` ).
+Addresses *MUST* be the same address family (either ``InterNetwork`` or ``InterNetworkV6``).
 
 .. code-block:: c#
 

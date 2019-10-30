@@ -19,11 +19,12 @@ Arcus
 
 Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
 
-Arcus provides extension and helper methods for the pre-existing ``System.Net.IPAddress`` and other objects within that realm. It was created to fill in some of the gaps left by the absence of a representation of a :doc:`Subnet <Subnet>`. As more gaps were found, they were filled. Like nearly any new opensource project, Arcus is a work in progress. We rely on both our free time and our :doc:`community <Community>` in order to provide the best solution we can given the constraints we must conform to.
+Arcus provides extension and helper methods for the pre-existing ``System.Net.IPAddress`` and other objects within that realm. It was created to fill in some of the gaps left by the absence of a representation of a :doc:`Subnet <Subnet>`. As more gaps were found, they were filled. Like all coding projects, Arcus is a work in progress. We rely on both our free time and our :doc:`community <Community>` in order to provide the best solution we can given the constraints we must conform to.
 
 .. hint:: Chances are you're primarily here looking for the :doc:`Subnet <Subnet>` object.
 
-Arcus can exists because of libraries such as `Gulliver <https://github.com/sandialabs/gulliver>`_, if you're interested in byte manipulation it is worth checking out.
+Arcus heavily relies upon one of our other libraries `Gulliver <https://github.com/sandialabs/gulliver>`_, if you're interested in byte manipulation it is worth checking out.
+
 
 .. toctree::
    :maxdepth: 1

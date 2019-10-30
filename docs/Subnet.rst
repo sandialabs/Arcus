@@ -3,9 +3,9 @@
 Subnet
 ======
 
-The ``Subnet`` type, flavored in both IPv4 or IPv6, is a representation of a subnetwork within Arcus. Its is the work horse and original reason for the Arcus library. Outside the concept of the ``Subnet`` object, most everything else in Arcus is auxiliary and exists only in support of making this onc facet work. That’s not to say that the remaining pieces of the Arcus library aren’t useful, on the contrary their utility can benefit a developer greatly. But that said, once the dark and mysterious magic of the ``Subnet`` is understood the rest of Arcus should follow through nicely.
+The ``Subnet`` type, flavored in both IPv4 or IPv6, is a representation of a subnetwork within Arcus. It is the workhorse and original reason for the Arcus library. Outside the concept of the ``Subnet`` object, most everything else in Arcus is auxiliary and exists only in support of making this one facet work. That’s not to say that the remaining pieces of the Arcus library aren’t useful, on the contrary their utility can benefit a developer greatly. But that said, once the dark and mysterious magic of the ``Subnet`` is understood the rest of Arcus should be easy to understand.
 
-Keep in mind that a ``Subnet`` is not an arbitrary range of addresses, for that you want an :ref:`IPAddressRange` , but rather conforms to a range of length :math:`2^n` starting a particular position, following the typical rules of `Classless Inter-Domain Routing <https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>`_.
+Keep in mind that a ``Subnet`` is not an arbitrary range of addresses, for that you want an :ref:`IPAddressRange`, but rather conforms to a range of length :math:`2^n` starting a particular position, following the typical rules of `Classless Inter-Domain Routing <https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>`_.
 
 The ``Subnet`` class extends :ref:`AbstractIPAddressRange` and implements :ref:`IIPAddressRange`, ``IEquatable<Subnet>``, ``IComparable<Subnet>``, ``IFormattable``, and ``IEnumerable<IPAddress>``.
 
@@ -14,16 +14,16 @@ The ``Subnet`` class extends :ref:`AbstractIPAddressRange` and implements :ref:`
 Creation
 --------
 
-There are a number of ways to instantiate a ``Subnet``. Your most likely candidates are direct construction with a ``new`` , the use of a static factory method on the ``Subnet`` class, or the use of sub-set of static factory methods that handle parsing of strings. Most of the factory methods have a "try" style safe alternative that will return a ``bool`` and *out* the constructed value.
+There are a number of ways to instantiate a ``Subnet``. Your most likely candidates are direct construction with a ``new``, the use of a static factory method on the ``Subnet`` class, or the use of sub-set of static factory methods that handle parsing of strings. Most of the factory methods have a "try" style safe alternative that will return a ``bool`` and *out* the constructed value.
 
 .. note:: Unless otherwise specified each creation technique is valid for both IPv4 and IPv6 subnetworks.
 
 constructor ``IPAddress lowAddress``, ``IPAddress highAddress``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To the most common ways to create a ``Subnet`` is to construct it via a ``IPAddress lowAddress`` and ``IPAddress highAddress``. This will construct the smallest possible ``Subnet`` that would contain both IP addresses. Typically, the address specified are the Network and Broadcast addresses (lower and higher bounds) but this is not necessary.
+The most common way to create a ``Subnet`` is to construct it via a ``IPAddress lowAddress`` and ``IPAddress highAddress``. This will construct the smallest possible ``Subnet`` that would contain both IP addresses. Typically, the address specified are the Network and Broadcast addresses (lower and higher bounds) but this is not necessary.
 
-Addresses *MUST* be the same address family (either ``InterNetwork`` or ``InterNetworkV6`` ).
+Addresses *MUST* be the same address family (either ``InterNetwork`` or ``InterNetworkV6``).
 
 .. code-block:: c#
 
@@ -67,7 +67,8 @@ factory From Big-Endian Byte Arrays
 
 ``IPAddress`` objects may not always be handy, in some cases only a couple of big-endian byte arrays may be available. This will construct the smallest possible ``Subnet`` that would contain both byte arrays as IP addresses. Typically, the address specified are the Network and Broadcast addresses (lower and upper bounds) but this is not necessary.
 
-The given ``byte[]`` arrays are interpreted as being in big-endian ordering are are functionally the equivalent construction an ``IPAddress`` using its ``byte[]`` constructor.
+The given ``byte`` arrays are interpreted as being in big-endian ordering are are functionally the equivalent construction an ``IPAddress`` using its ``byte[]`` constructor.
+
 
 .. code-block:: c#
 
@@ -82,7 +83,7 @@ parse string
 
 It is pretty common to tote around a ``string`` as a representation of a subnet, but you needn't do such any longer. Assuming said ``string subnetString`` represents something roughly similar to a `CIDR <https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>`_ Arcus will hand you a ``Subnet``.
 
-If a representaion of an IP Address ``string`` is provided the resulting ``Subnet`` will consist of only that address.
+If a representation of an IP Address ``string`` is provided the resulting ``Subnet`` will consist of only that address.
 
 .. code-block:: c#
 
@@ -121,7 +122,8 @@ A rather common way to to build a ``Subnet`` is to provide a pair of ``string`` 
 Functionality
 -------------
 
-The ``Subnet`` implements :ref:`IIPAddressRange` , ``IEquatable<Subnet>`` , ``IComparable<Subnet>`` , ``IFormattable`` , and ``IEnumerable<IPAddress>`` , and there by contains all the expected functionality its inheritance.
+The ``Subnet`` implements :ref:`IIPAddressRange`, ``IEquatable<Subnet>``, ``IComparable<Subnet>``, ``IFormattable``, and ``IEnumerable<IPAddress>``, and there by contains all the expected functionality it inherits.
+
 
 Properties
 ^^^^^^^^^^
@@ -139,7 +141,7 @@ Set Based Operations
 
 Inherently a ``Subnet`` is a range of ``IPAddress`` objects, as such there is some set based operations available.
 
-In addition to the set based operations promised by :ref:`IIPAddressRange` , the ``Subnet`` type also has a few new options.
+In addition to the set based operations promised by :ref:`IIPAddressRange`, the ``Subnet`` type also has a few new options.
 
 Contains
 ~~~~~~~~
@@ -150,7 +152,7 @@ It is possible to easily check if a subnet is entirely encapsulates another subn
 
    public bool Subnet.Contains(Subnet subnet)
 
-In the following example it is shown that ``192.168.1.0/8`` contains ``192.168.0.0`` , but as expected ``192.168.1.0/8`` does not contain ``255.0.0.0/8``
+In the following example it is shown that ``192.168.1.0/8`` contains ``192.168.0.0``, but as expected ``192.168.1.0/8`` does not contain ``255.0.0.0/8``
 
 .. code-block:: c#
    :emphasize-lines: 10-11

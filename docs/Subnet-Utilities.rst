@@ -39,9 +39,9 @@ The following examples shows that the range defined by ``192.168.1.3`` - ``192.1
 find the Largest Subnet in an enumerable
 ----------------------------------------
 
-Given an ``IEnumerable<Subnet>`` find the largest subnet (smallest route prefix value) within.
+The ``LargestSubnet` method, given an ``IEnumerable<Subnet>`` will select first largest subnet from within the collection.
 
-.. note:: In the case of no single largest subnet one of will be returned. In this case Consider usage of the ``DefaultSubnetComparer``.
+.. note:: If there is no single largest in the input, the first largest subnet encountered will be returned. In cases such as this it may be preferable to consider usage of the ``DefaultSubnetComparer``.
 
 .. code-block:: c#
 
@@ -76,9 +76,9 @@ The following example provides that given the several oddly named sizes of subne
 find the Smallest Subnet in an enumerable
 -----------------------------------------
 
-Given an ``IEnumerable<Subnet>`` find the smallest subnet (largest route prefix value) within.
+The ``SmallestSubnet`` method, given an ``IEnumerable<Subnet>`` will select the first smallest subnet from within the collection.
 
-.. note:: In the case of no single smallest subnet one of will be returned. In this case Consider usage of the ``DefaultSubnetComparer``.
+.. note:: If there is no single smallest in the input, the first smallest subnet encountered will be returned. In cases such as this it may be preferable to consider usage of the ``DefaultSubnetComparer``.
 
 .. code-block:: c#
 

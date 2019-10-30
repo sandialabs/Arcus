@@ -25,7 +25,7 @@ Methods
 Minimum and Maximum Address
 ---------------------------
 
-Given ``AddressFamily addressFamily`` ``MinIPAddress`` and ``MaxIPAddress`` will return the minimum value of an address with the ``AddressFamily`` or the maximum value respectively.
+Given an instance of ``AddressFamily`` the ``MinIPAddress`` and ``MaxIPAddress`` methods will return the minimum value of an address with the ``AddressFamily`` or the maximum value respectively.
 
 .. warning:: these methods are only valid for ``InterNetwork`` and ``InterNetworkV6``
 
@@ -40,7 +40,7 @@ Given ``AddressFamily addressFamily`` ``MinIPAddress`` and ``MaxIPAddress`` will
 Address Family Detection
 ------------------------
 
-Given ``IPAddress ipAddress`` ``IsIPv4`` and ``IsIPv6`` will return ``true`` iff the given address has the address family ``InterNetwork`` or ``InterNetworkV6`` respectively.
+Given an instance of ``IPAddress ipAddress`` the ``IsIPv4`` and ``IsIPv6`` methods will return ``true`` if the given address has the address family ``InterNetwork`` or ``InterNetworkV6`` respectively.
 
 .. code-block:: c#
 
@@ -58,7 +58,7 @@ Arcus provides a few ways to detect the format of an ``IPAddress`` that isn't al
 IsIPv4MappedIPv6
 ++++++++++++++++
 
-``IsIPv4MappedIPv6`` will return ``true`` iff ``IPAddress ipAddress`` is an IPv4 addressed mapped to IPv6.
+``IsIPv4MappedIPv6`` will return ``true`` if, and only if,``IPAddress ipAddress`` is an IPv4 addressed mapped to IPv6.
 
 This check is made in accordance of in accordance to `RFC4291 - IP Version 6 Addressing Architecture <https://tools.ietf.org/html/rfc4291#section-2.5.5.2>`_ - 2.5.5.2. "IPv4-Mapped IPv6 Address."
 
@@ -70,7 +70,7 @@ This check is made in accordance of in accordance to `RFC4291 - IP Version 6 Add
 IsValidNetMask
 ++++++++++++++
 
-``IsValidNetMask`` checks if the given ``IPAddress netmask`` is a valid IPv4 netmask, iff it is then the method returns ``true``.
+``IsValidNetMask`` checks if the given ``IPAddress netmask`` is a valid IPv4 netmask, if, and only if, it is then the method returns ``true``.
 
 .. code-block:: c#
 

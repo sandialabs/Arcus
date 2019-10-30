@@ -1,7 +1,7 @@
 AddressFamily Comparers
 =======================
 
-AddressFamily comparers are simply classes that extend ``Comparer<AddressFamily>``
+AddressFamily comparers are simply classes that extend ``Comparer<AddressFamily>``.
 
 .. _DefaultAddressFamilyComparer:
 
