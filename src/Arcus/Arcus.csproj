@@ -13,7 +13,7 @@
     <IsPackable>true</IsPackable>
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
-    <packageicon>icon_64x64.png</packageicon>
+    <packageicon>icon.png</packageicon>
     <PackageLanguage>en-US</PackageLanguage>
     <packagelicenseexpression>Apache-2.0</packagelicenseexpression>
     <PackageProjectUrl>https://github.com/sandialabs/arcus</PackageProjectUrl>
@@ -81,7 +81,8 @@
   </ItemGroup>
 
   <ItemGroup>
-      <None Include="resources\images\icon_64x64.png" Pack="true" PackagePath=""/>
+      <None Include="icon.png" Pack="true" visible="false" PackagePath=""/>
+      <None Include="icon.txt" Pack="true" visible="false" PackagePath="" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-icon_64x64.png cropped from image https://upload.wikimedia.org/wikipedia/commons/3/31/Iris_Carrying_the_Water_of_the_River_Styx_to_Olympus_for_the_Gods_to_Swear_By%2C_Guy_Head%2C_c._1793_-_Nelson-Atkins_Museum_of_Art_-_DSC08946.JPG
+icon.png cropped from image https://upload.wikimedia.org/wikipedia/commons/3/31/Iris_Carrying_the_Water_of_the_River_Styx_to_Olympus_for_the_Gods_to_Swear_By%2C_Guy_Head%2C_c._1793_-_Nelson-Atkins_Museum_of_Art_-_DSC08946.JPG
 Iris Carrying the Water of the River Styx to Olympus for the Gods to Swear By, Guy Head, c. 1793
 By Daderot - Daderot, CC0, https://commons.wikimedia.org/w/index.php?curid=17503351
 
