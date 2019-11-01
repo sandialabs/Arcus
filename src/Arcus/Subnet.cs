@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -21,7 +21,8 @@ namespace Arcus
     [PublicAPI]
     public class Subnet : AbstractIPAddressRange,
                           IEquatable<Subnet>,
-                          IComparable<Subnet>
+                          IComparable<Subnet>,
+                          IComparable
     {
         /// <summary>
         ///     Pattern that passes on valid IPv4 octet partials
@@ -73,6 +74,28 @@ namespace Arcus
         ///     the routing prefix used to specify the ip address
         /// </summary>
         public int RoutingPrefix { get; }
+
+        #region From Interface IComparable
+
+        /// <inheritdoc />
+        public int CompareTo(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return 1;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return 0;
+            }
+
+            return obj is Subnet other
+                       ? this.CompareTo(other)
+                       : throw new ArgumentException($"Object must be of type {nameof(Subnet)}");
+        }
+
+        #endregion
 
         #region From Interface IComparable<Subnet>
 
@@ -162,7 +185,7 @@ namespace Arcus
         #region Ctor
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Subnet"/> class.
+        ///     Initializes a new instance of the <see cref="Subnet" /> class.
         ///     Construct the smallest possible subnet that would contain both IP addresses
         ///     typically the address specified are the Network and Broadcast addresses
         ///     (lower and higher bounds) but this is not necessary.
@@ -223,7 +246,7 @@ namespace Arcus
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Subnet"/> class.
+        ///     Initializes a new instance of the <see cref="Subnet" /> class.
         /// </summary>
         /// <param name="address">the ip address</param>
         /// <param name="routingPrefix">the routing prefix</param>
@@ -279,7 +302,7 @@ namespace Arcus
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Subnet"/> class.
+        ///     Initializes a new instance of the <see cref="Subnet" /> class.
         ///     contains only a single ip address
         /// </summary>
         /// <param name="address">the ip address</param>
@@ -382,8 +405,8 @@ namespace Arcus
         ///     specified are the Network and Broadcast addresses (lower and higher bounds) but this is not necessary. Addresses
         ///     *MUST* be the same address family (either Internetwork or InternetworkV6)
         /// </summary>
-        /// <param name="lowAddressBytes">the lower address <see cref="byte"/> array</param>
-        /// <param name="highAddressBytes">the high address <see cref="byte"/> array</param>
+        /// <param name="lowAddressBytes">the lower address <see cref="byte" /> array</param>
+        /// <param name="highAddressBytes">the high address <see cref="byte" /> array</param>
         public static Subnet FromBytes([NotNull] byte[] lowAddressBytes,
                                        [NotNull] byte[] highAddressBytes)
         {
@@ -432,8 +455,8 @@ namespace Arcus
         ///     specified are the Network and Broadcast addresses (lower and higher bounds) but this is not necessary. Addresses
         ///     *MUST* be the same address family (either Internetwork or InternetworkV6)
         /// </summary>
-        /// <param name="lowAddressBytes">the lower address <see cref="byte"/> array</param>
-        /// <param name="highAddressBytes">the high address <see cref="byte"/> array</param>
+        /// <param name="lowAddressBytes">the lower address <see cref="byte" /> array</param>
+        /// <param name="highAddressBytes">the high address <see cref="byte" /> array</param>
         /// <param name="subnet">the created subnet or <see langword="null" /> on failure</param>
         /// <returns><see langword="true" /> on success</returns>
         public static bool TryFromBytes(byte[] lowAddressBytes,
@@ -567,10 +590,15 @@ namespace Arcus
         /// </summary>
         /// <param name="addressString">the address string</param>
         /// <param name="routingPrefix">the subnet routing prefix</param>
-        /// <exception cref="ArgumentException"><paramref name="addressString"/> has an invalid <see cref="AddressFamily"/></exception>
-        /// <exception cref="ArgumentNullException"><paramref name="addressString"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="routingPrefix"/> is less than <c>0</c></exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="routingPrefix"/> is is out of range of the provided <see cref="AddressFamily"/></exception>
+        /// <exception cref="ArgumentException">
+        ///     <paramref name="addressString" /> has an invalid <see cref="AddressFamily" />
+        /// </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="addressString" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="routingPrefix" /> is less than <c>0</c></exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     <paramref name="routingPrefix" /> is is out of range of the provided
+        ///     <see cref="AddressFamily" />
+        /// </exception>
         public static Subnet Parse([NotNull] string addressString,
                                    int routingPrefix)
         {
@@ -780,7 +808,7 @@ namespace Arcus
                 || (hextetCount = input.Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries)
                                        .Length)
                 > IPAddressUtilities.IPv6HextetCount
-                || (hextetCount >= IPAddressUtilities.IPv6HextetCount && input.EndsWith(":", StringComparison.OrdinalIgnoreCase))
+                || hextetCount >= IPAddressUtilities.IPv6HextetCount && input.EndsWith(":", StringComparison.OrdinalIgnoreCase)
             ) // too many hextets
             {
                 subnets = Enumerable.Empty<Subnet>();
@@ -801,7 +829,7 @@ namespace Arcus
 
             // a IPv6 cidr partial is provided
             if ((IPAddress.TryParse(input, out var address) // treat as a complete address, may contain a '::' or not
-                 || (input.Contains("::") && IPAddress.TryParse(input.TrimEnd(':'), out address))
+                 || input.Contains("::") && IPAddress.TryParse(input.TrimEnd(':'), out address)
                  || IPAddress.TryParse(input.TrimEnd(':') + "::", out address))
                 && address.IsIPv6()) // no collapse, but incomplete address
             {
@@ -815,11 +843,7 @@ namespace Arcus
 
                 // get the index of the collapse
                 var collapse = hextets.Select((value,
-                                               index) => new
-                                                         {
-                                                             value,
-                                                             index
-                                                         })
+                                               index) => new { value, index })
                                       .FirstOrDefault(pair => string.IsNullOrWhiteSpace(pair.value));
 
                 int collapseIndex;
@@ -892,15 +916,13 @@ namespace Arcus
 
         #endregion // end: Static Factory Methods
 
-        #region equality and hashcode
-
         /// <inheritdoc />
         public bool Equals(Subnet other)
         {
             return !ReferenceEquals(null, other)
                    && (ReferenceEquals(this, other)
-                       || (Equals(this.NetworkPrefixAddress, other.NetworkPrefixAddress)
-                       && this.RoutingPrefix == other.RoutingPrefix));
+                       || Equals(this.NetworkPrefixAddress, other.NetworkPrefixAddress)
+                       && this.RoutingPrefix == other.RoutingPrefix);
         }
 
         /// <inheritdoc />
@@ -908,8 +930,8 @@ namespace Arcus
         {
             return !ReferenceEquals(null, obj)
                    && (ReferenceEquals(this, obj)
-                       || (obj.GetType() == GetType()
-                       && this.Equals((Subnet) obj)));
+                       || obj.GetType() == GetType()
+                       && this.Equals((Subnet) obj));
         }
 
         /// <inheritdoc />
@@ -925,7 +947,89 @@ namespace Arcus
             }
         }
 
-        #endregion
+        #region operators
+
+        /// <summary>
+        ///     Compares two <see cref="Subnet" /> objects for equality
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when both sides are equal</returns>
+        public static bool operator ==(Subnet left,
+                                       Subnet right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="Subnet" /> objects for non-equality
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when both sides are not equal</returns>
+        public static bool operator !=(Subnet left,
+                                       Subnet right)
+        {
+            return !Equals(left, right);
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being less than
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when <paramref name="left" /> is less than <paramref name="right" /></returns>
+        public static bool operator <(Subnet left,
+                                      Subnet right)
+        {
+            return Comparer<Subnet>.Default.Compare(left, right) < 0;
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being greater than
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when <paramref name="left" /> is greater than <paramref name="right" /></returns>
+        public static bool operator >(Subnet left,
+                                      Subnet right)
+        {
+            return Comparer<Subnet>.Default.Compare(left, right) > 0;
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being less than or equal
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns>
+        ///     <see langword="true" /> when <paramref name="left" /> is less than or equal to <paramref name="right" />
+        /// </returns>
+        public static bool operator <=(Subnet left,
+                                       Subnet right)
+        {
+            return Comparer<Subnet>.Default.Compare(left, right) <= 0;
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being greater than or equal to
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns>
+        ///     <see langword="true" /> when <paramref name="left" /> is greater than or equal to <paramref name="right" />
+        /// </returns>
+        public static bool operator >=(Subnet left,
+                                       Subnet right)
+        {
+            return Comparer<Subnet>.Default.Compare(left, right) >= 0;
+        }
+
+        #endregion end operators
 
         #region Static metods, may be appropriate for extracting
 
