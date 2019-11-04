@@ -1,0 +1,40 @@
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# json
+[*.json]
+indent_size = 2
+tab_width=2
+
+# YAML Files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Bash Files
+[*.sh]
+end_of_line = lf
+
+# Batch Files
+[*.{cmd,bat,ps1}]
+end_of_line = crlf
+
+# Visual Studio Solutions
+[*.sln]
+indent_style = tab
+
+# Visual Studio Project Files
+[*.csproj]
+indent_size = 2
+
+# XML
+[*.xml}]
+indent_size=2
+tab_width=2
