@@ -13,13 +13,16 @@
       "allowBuiltInTypeAliases": false
     },
     "orderingRules": {
-      "usingDirectivesPlacement": "preserve"
+      "usingDirectivesPlacement": "outsideNamespace",
+      "systemUsingDirectivesFirst": true,
+      "blankLinesBetweenUsingGroups": "allow"
     },
     "maintainabilityRules": {
       "topLevelTypes": ["class", "interface", "struct", "enum", "delegate"]
     },
     "layoutRules": {
-      "allowConsecutiveUsings": false
+      "allowConsecutiveUsings": true,
+      "newlineAtEndOfFile": "require"
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Text;
 using Arcus.Converters;
@@ -14,10 +15,10 @@ namespace Arcus.DocExamples
 
         public IPAddressConvertersExamples(ITestOutputHelper output)
         {
-            this.output = output;
+            this._output = output;
         }
 
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
 
         #endregion
 
@@ -40,16 +41,16 @@ namespace Arcus.DocExamples
             {
                 var routePrefix = netmask.NetmaskToCidrRoutePrefix();
 
-                _ = sb.Append(routePrefix)
-                      .Append('\t')
-                      .AppendFormat("{0,-15}", netmask)
-                      .Append('\t')
-                      .Append(netmask.GetAddressBytes()
-                                     .ToString("b")) // using Gulliver to print bytes as bits
-                      .AppendLine();
+                sb.Append(routePrefix)
+                  .Append('\t')
+                  .AppendFormat(CultureInfo.InvariantCulture, "{0,-15}", netmask)
+                  .Append('\t')
+                  .Append(netmask.GetAddressBytes()
+                                 .ToString("b")) // using Gulliver to print bytes as bits
+                  .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
 
         [Fact]
@@ -72,15 +73,13 @@ namespace Arcus.DocExamples
             {
                 var base85String = address.ToBase85String();
 
-                sb.AppendFormat("{0,-40}", address)
-                  .Append('\t')
-                  .Append("=>")
-                  .Append('\t')
+                sb.AppendFormat(CultureInfo.InvariantCulture, "{0,-40}", address)
+                  .Append("\t=>\t")
                   .Append(base85String)
                   .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
 
         [Fact]
@@ -103,15 +102,13 @@ namespace Arcus.DocExamples
             {
                 var dottedQuadString = address.ToDottedQuadString();
 
-                sb.AppendFormat("{0,-40}", address)
-                  .Append('\t')
-                  .Append("=>")
-                  .Append('\t')
+                sb.AppendFormat(CultureInfo.InvariantCulture, "{0,-40}", address)
+                  .Append("\t=>\t")
                   .Append(dottedQuadString)
                   .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
 
         [Fact]
@@ -136,15 +133,13 @@ namespace Arcus.DocExamples
             {
                 var hexString = address.ToHexString();
 
-                sb.AppendFormat("{0,-40}", address)
-                  .Append('\t')
-                  .Append("=>")
-                  .Append('\t')
+                sb.AppendFormat(CultureInfo.InvariantCulture, "{0,-40}", address)
+                  .Append("\t=>\t")
                   .Append(hexString)
                   .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
 
         [Fact]
@@ -169,15 +164,13 @@ namespace Arcus.DocExamples
             {
                 var numericString = address.ToNumericString();
 
-                sb.AppendFormat("{0,-40}", address)
-                  .Append('\t')
-                  .Append("=>")
-                  .Append('\t')
+                sb.AppendFormat(CultureInfo.InvariantCulture, "{0,-40}", address)
+                  .Append("\t=>\t")
                   .Append(numericString)
                   .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
 
         [Fact]
@@ -201,15 +194,13 @@ namespace Arcus.DocExamples
             {
                 var uncompressedString = address.ToUncompressedString();
 
-                sb.AppendFormat("{0,-40}", address)
-                  .Append('\t')
-                  .Append("=>")
-                  .Append('\t')
+                sb.AppendFormat(CultureInfo.InvariantCulture, "{0,-40}", address)
+                  .Append("\t=>\t")
                   .Append(uncompressedString)
                   .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
     }
 }

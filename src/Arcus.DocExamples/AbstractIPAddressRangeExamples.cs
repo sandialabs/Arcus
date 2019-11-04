@@ -1,4 +1,5 @@
-﻿using System.Net;
+using System.Globalization;
+using System.Net;
 using Xunit;
 
 namespace Arcus.DocExamples
@@ -17,7 +18,7 @@ namespace Arcus.DocExamples
             const string expected = "192.168.0.0 - 192.168.128.0";
 
             // Act
-            var formattableString = string.Format("{0:g}", ipAddressRange);
+            var formattableString = string.Format(CultureInfo.InvariantCulture, "{0:g}", ipAddressRange);
 
             // Assert
             Assert.Equal(expected, formattableString);
