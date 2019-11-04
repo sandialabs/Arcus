@@ -1,7 +1,7 @@
 .. _MacAddress:
 
-MAC Address
-===========
+MacAddress
+==========
 
 The ``MacAddress`` type represents a 48-bit MAC Address [#48-BitMAC]_ as per the IEEE EUI standard [#IEEE-Eui]_. It serves the purpose of a Networking Adjacent worker class, and as a handy way to represent, store, format, and compare MAC addresses.
 
