@@ -1,0 +1,8 @@
+Format,Name,Description,Example
+``g``,General Format,Uppercase hexadecimal encoded bytes separated by colons,``AA:BB:CC:DD:EE:FF``
+``H``,Uppercase Hexadecimal,Contiguous uppercase hexadecimal digits,``AABBCCDDEEFF``
+``h``,Lowercase Hexadecimal,Contiguous lowerrcase hexadecimal digits,``aabbccddeeff``
+``c``,Cisco,Three groups of four uppercase hexadecimal digits separated by periods,``AAAA.BBBB.CCCC``
+``s``,Space delimited hextets,Hexadecimal bytes separated by a space character,``AA BB CC DD EE FF``
+``d``,IEEE 802,Hexadecimal encoded bytes separated by a dash characte,``AA-BB-CC-DD-EE-FF``
+``i``,Integer,Big-endian integer value,``187723572702975``

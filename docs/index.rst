@@ -46,6 +46,12 @@ Arcus heavily relies upon one of our other libraries `Gulliver <https://github.c
    IPAddress-Utilities
    IPAddress-Comparers
    AddressFamily-Comparers
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Additional Tools
+
+   MacAddress
 
 .. toctree::
    :maxdepth: 1
