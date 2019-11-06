@@ -34,7 +34,7 @@ Constructor
 ^^^^^^^^^^^
 
 ``IEnumerable<byte>``
-*********************
++++++++++++++++++++++
 
 A new ``MacAddress`` may be constructed by providing an ``IEnumerable<byte>`` of six bytes to the constructor.
 
@@ -46,7 +46,7 @@ Factory
 ^^^^^^^
 
 Parse ``string``
-****************
+++++++++++++++++
 
 A ``MacAddress`` may also be created via either the ``Parse`` or safe ``TryParse`` method. Not that these methods are strict in that they will only succeed with a MAC address in a known format. If you wish to more liberally parse a string into a ``MacAddress`` see the ``ParseAny`` and ``TryParseAny`` defined below.
 
@@ -59,7 +59,7 @@ A ``MacAddress`` may also be created via either the ``Parse`` or safe ``TryParse
     public static bool TryParse(string input, out MacAddress macAddress)
 
 ParseAny ``string``
-*******************
++++++++++++++++++++
 
 ``ParseAny`` and the safe ``TryParseAny`` allow the parsing of an arbitrary string that may be a Mac address into a ``MacAddress``. It looks for six hexadecimal digits within the string, joins them and interprets the result as consecutive big-endian hextets. If six, and only six, hexadecimal digits are not found the parse will fail. 
 
