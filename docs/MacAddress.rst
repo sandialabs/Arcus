@@ -30,7 +30,11 @@ The ``MacAddress`` class implements ``IEquatable<MacAddress>``, ``IComparable<Ma
 Creation
 --------
 
-constructor ``IEnumerable<byte>``
+Constructor
+^^^^^^^^
+
+ ``IEnumerable<byte>``
+ ==============
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A new ``MacAddress`` may be constructed by providing an ``IEnumerable<byte>`` of six bytes to the constructor.
