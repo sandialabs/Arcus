@@ -137,7 +137,7 @@ Operators
 
 .. rubric:: Footnotes
 
-.. [#48-BitMAC] **48-Bit MAC** is a A Media Access Control Address (MAC) following both the now deprecated *MAC-48* and the active *EUI-48* specifications.
+.. [#48-BitMAC] **48-Bit MAC** is a Media Access Control Address (MAC) following both the now deprecated *MAC-48* and the active *EUI-48* specifications.
 
 .. [#EUI-48Default] The recommended null or default value for **EUI-48** is ``FF-FF-FF-FF-FF-FF``
 
