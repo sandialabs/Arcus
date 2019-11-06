@@ -15,7 +15,7 @@ The ``MacAddress`` class implements ``IEquatable<MacAddress>``, ``IComparable<Ma
    -  Common Six groups of two hexadecimal digits separated by colons (``:``). *E.g.* ``AA:BB:CC:DD:EE:FF``
    -  Six groups of two hexadecimal digits separated by a space character. *E.g.* ``AA BB CC DD EE FF``
    -  12 hexadecimal digits with no delimitation. *E.g.* ``AABBCCDDEEFF``
-   -  **Cisco** three groups of four hexadecimal digits separated by dots (``.``). *E.g.* ``AABB.CCDD.EEFF``
+   -  Cisco three groups of four hexadecimal digits separated by dots (``.``). *E.g.* ``AABB.CCDD.EEFF``
 
    For the sake of parsing and reading these formats are case insensitive.
 
