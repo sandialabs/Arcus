@@ -47,7 +47,6 @@ Factory
 
 Parse ``string``
 ================
-^^^^^^^^^^^^^^^^^^^^^^
 
 A ``MacAddress`` may also be created via either the ``Parse`` or safe ``TryParse`` method. Not that these methods are strict in that they will only succeed with a MAC address in a known format. If you wish to more liberally parse a string into a ``MacAddress`` see the ``ParseAny`` and ``TryParseAny`` defined below.
 
