@@ -60,7 +60,6 @@ A ``MacAddress`` may also be created via either the ``Parse`` or safe ``TryParse
 
 ParseAny ``string``
 ===================
-^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``ParseAny`` and the safe ``TryParseAny`` allow the parsing of an arbitrary string that may be a Mac address into a ``MacAddress``. It looks for six hexadecimal digits within the string, joins them and interprets the result as consecutive big-endian hextets. If six, and only six, hexadecimal digits are not found the parse will fail. 
 
