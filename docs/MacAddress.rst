@@ -11,7 +11,7 @@ The ``MacAddress`` class implements ``IEquatable<MacAddress>``, ``IComparable<Ma
 
    Unless otherwise stated recognized readable MAC Address formats include only the following formats:
 
-   -  **IEEE 802** format for printing **EUI-48** and **MAC-48** addresses in six groups of two hexadecimal digits, separated by a dash (``-``). *E.g.* ``AA-BB-CC-DD-EE-FF``
+   -  IEEE 802 format for printing **EUI-48** and **MAC-48** addresses in six groups of two hexadecimal digits, separated by a dash (``-``). *E.g.* ``AA-BB-CC-DD-EE-FF``
    -  **Common** Six groups of two hexadecimal digits separated by colons (``:``). *E.g.* ``AA:BB:CC:DD:EE:FF``
    -  Six groups of two hexadecimal digits separated by a space character. *E.g.* ``AA BB CC DD EE FF``
    -  12 hexadecimal digits with no delimitation. *E.g.* ``AABBCCDDEEFF``
