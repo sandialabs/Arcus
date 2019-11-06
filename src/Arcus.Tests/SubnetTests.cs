@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -59,42 +59,125 @@ namespace Arcus.Tests
             Assert.True(typeof(IIPAddressRange).IsAssignableFrom(subnetType));
             Assert.True(typeof(IComparable<Subnet>).IsAssignableFrom(subnetType));
             Assert.True(typeof(IEquatable<Subnet>).IsAssignableFrom(subnetType));
+            Assert.True(typeof(IComparable).IsAssignableFrom(subnetType));
         }
 
         #endregion // end: Class
 
-        #region CompareTo
+        #region CompareTo / Operators
+
+        public static IEnumerable<object[]> Comparison_Values()
+        {
+            yield return new object[] {0, Subnet.Parse("192.168.0.0/16"), Subnet.Parse("192.168.0.0/16")};
+            yield return new object[] {0, Subnet.Parse("ab:cd::/64"), Subnet.Parse("ab:cd::/64")};
+            yield return new object[] {1, Subnet.Parse("192.168.0.0/16"), null};
+            yield return new object[] {1, Subnet.Parse("ab:cd::/64"), null};
+            yield return new object[] {1, Subnet.Parse("192.168.0.0/16"), Subnet.Parse("192.168.0.0/20")};
+            yield return new object[] {-1, Subnet.Parse("192.168.0.0/20"), Subnet.Parse("192.168.0.0/16")};
+            yield return new object[] {1, Subnet.Parse("ab:cd::/64"), Subnet.Parse("ab:cd::/96")};
+            yield return new object[] {-1, Subnet.Parse("ab:cd::/96"), Subnet.Parse("ab:cd::/64")};
+            yield return new object[] {-1, Subnet.Parse("0.0.0.0/0"), Subnet.Parse("::/0")};
+            yield return new object[] {1, Subnet.Parse("::/0"), Subnet.Parse("0.0.0.0/0")};
+            yield return new object[] {-1, Subnet.Parse("0.0.0.0/32"), Subnet.Parse("::/128")};
+            yield return new object[] {1, Subnet.Parse("::/128"), Subnet.Parse("0.0.0.0/32")};
+        }
 
         [Theory]
-        [InlineData(0, "192.168.0.0/16", "192.168.0.0/16")]
-        [InlineData(0, "ab:cd::/64", "ab:cd::/64")]
-        [InlineData(1, "192.168.0.0/16", null)]
-        [InlineData(1, "ab:cd::/64", null)]
-        [InlineData(1, "192.168.0.0/16", "192.168.0.0/20")]
-        [InlineData(-1, "192.168.0.0/20", "192.168.0.0/16")]
-        [InlineData(1, "ab:cd::/64", "ab:cd::/96")]
-        [InlineData(-1, "ab:cd::/96", "ab:cd::/64")]
-        [InlineData(-1, "0.0.0.0/0", "::/0")]
-        [InlineData(1, "::/0", "0.0.0.0/0")]
-        [InlineData(-1, "0.0.0.0/32", "::/128")]
-        [InlineData(1, "::/128", "0.0.0.0/32")]
+        [MemberData(nameof(Comparison_Values))]
         public void CompareTo_Test(int expected,
-                                   string x,
-                                   string y)
+                                   Subnet left,
+                                   Subnet right)
         {
             // Arrange
-            var thisSubnet = Subnet.Parse(x);
-
-            if (!Subnet.TryParse(y, out var other))
-            {
-                other = null;
-            }
-
             // Act
-            var result = thisSubnet.CompareTo(other);
+            var result = left.CompareTo(right);
 
             // Assert
             Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_Equals_Test(int expected,
+                                          Subnet left,
+                                          Subnet right)
+        {
+            // Arrange
+            // Act
+            var result = left == right;
+
+            // Assert
+            Assert.Equal(expected == 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_NotEquals_Test(int expected,
+                                             Subnet left,
+                                             Subnet right)
+        {
+            // Arrange
+            // Act
+            var result = left != right;
+
+            // Assert
+            Assert.Equal(expected != 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_GreaterThan_Test(int expected,
+                                               Subnet left,
+                                               Subnet right)
+        {
+            // Arrange
+            // Act
+            var result = left > right;
+
+            // Assert
+            Assert.Equal(expected > 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_GreaterThanOrEqual_Test(int expected,
+                                                      Subnet left,
+                                                      Subnet right)
+        {
+            // Arrange
+            // Act
+            var result = left >= right;
+
+            // Assert
+            Assert.Equal(expected >= 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_LessThan_Test(int expected,
+                                            Subnet left,
+                                            Subnet right)
+        {
+            // Arrange
+            // Act
+            var result = left < right;
+
+            // Assert
+            Assert.Equal(expected < 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_LessThanOrEqual_Test(int expected,
+                                                   Subnet left,
+                                                   Subnet right)
+        {
+            // Arrange
+            // Act
+            var result = left <= right;
+
+            // Assert
+            Assert.Equal(expected <= 0, result);
         }
 
         #endregion

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,8 +15,31 @@ namespace Arcus
     [PublicAPI]
     public class IPAddressRange : AbstractIPAddressRange,
                                   IEquatable<IPAddressRange>,
-                                  IComparable<IPAddressRange>
+                                  IComparable<IPAddressRange>,
+                                  IComparable
     {
+        #region From Interface IComparable
+
+        /// <inheritdoc />
+        public int CompareTo(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return 1;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return 0;
+            }
+
+            return obj is IPAddressRange other
+                       ? this.CompareTo(other)
+                       : throw new ArgumentException($"Object must be of type {nameof(IPAddressRange)}");
+        }
+
+        #endregion
+
         #region From Interface IComparable<IPAddressRange>
 
         /// <inheritdoc />
@@ -34,8 +57,8 @@ namespace Arcus
         {
             return !ReferenceEquals(null, other)
                    && (ReferenceEquals(this, other)
-                       || (Equals(Head, other.Head)
-                       && Equals(Tail, other.Tail)));
+                       || Equals(Head, other.Head)
+                       && Equals(Tail, other.Tail));
         }
 
         #endregion
@@ -45,8 +68,8 @@ namespace Arcus
         {
             return !ReferenceEquals(null, obj)
                    && (ReferenceEquals(this, obj)
-                       || (obj.GetType() == GetType()
-                       && this.Equals((IPAddressRange) obj)));
+                       || obj.GetType() == GetType()
+                       && this.Equals((IPAddressRange) obj));
         }
 
         /// <inheritdoc />
@@ -58,12 +81,96 @@ namespace Arcus
             }
         }
 
+        #region operators
+
+        /// <summary>
+        ///     Compares two <see cref="IPAddressRange" /> objects for equality
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when both sides are equal</returns>
+        public static bool operator ==(IPAddressRange left,
+                                       IPAddressRange right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="IPAddressRange" /> objects for non-equality
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when both sides are not equal</returns>
+        public static bool operator !=(IPAddressRange left,
+                                       IPAddressRange right)
+        {
+            return !Equals(left, right);
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being less than
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when <paramref name="left" /> is less than <paramref name="right" /></returns>
+        public static bool operator <(IPAddressRange left,
+                                      IPAddressRange right)
+        {
+            return Comparer<IPAddressRange>.Default.Compare(left, right) < 0;
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being greater than
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns><see langword="true" /> when <paramref name="left" /> is greater than <paramref name="right" /></returns>
+        public static bool operator >(IPAddressRange left,
+                                      IPAddressRange right)
+        {
+            return Comparer<IPAddressRange>.Default.Compare(left, right) > 0;
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being less than or equal
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns>
+        ///     <see langword="true" /> when <paramref name="left" /> is less than or equal to <paramref name="right" />
+        /// </returns>
+        public static bool operator <=(IPAddressRange left,
+                                       IPAddressRange right)
+        {
+            return Comparer<IPAddressRange>.Default.Compare(left, right) <= 0;
+        }
+
+        /// <summary>
+        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being greater than or equal to
+        ///     <paramref name="right" />
+        /// </summary>
+        /// <param name="left">left hand operand</param>
+        /// <param name="right">right hand operand</param>
+        /// <returns>
+        ///     <see langword="true" /> when <paramref name="left" /> is greater than or equal to <paramref name="right" />
+        /// </returns>
+        public static bool operator >=(IPAddressRange left,
+                                       IPAddressRange right)
+        {
+            return Comparer<IPAddressRange>.Default.Compare(left, right) >= 0;
+        }
+
+        #endregion end operators
+
         #region Ctor
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="IPAddressRange"/> class.
+        ///     Initializes a new instance of the <see cref="IPAddressRange" /> class.
         /// </summary>
-        /// <param name="address">the <see cref="IPAddress"/></param>
+        /// <param name="address">the <see cref="IPAddress" /></param>
         public IPAddressRange([NotNull] IPAddress address)
             : base(address, address)
         {
@@ -71,10 +178,10 @@ namespace Arcus
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="IPAddressRange"/> class.
+        ///     Initializes a new instance of the <see cref="IPAddressRange" /> class.
         /// </summary>
-        /// <param name="head">head <see cref="IPAddress"/></param>
-        /// <param name="tail">tail <see cref="IPAddress"/></param>
+        /// <param name="head">head <see cref="IPAddress" /></param>
+        /// <param name="tail">tail <see cref="IPAddress" /></param>
         public IPAddressRange([NotNull] IPAddress head,
                               [NotNull] IPAddress tail)
             : base(head, tail)
@@ -156,9 +263,12 @@ namespace Arcus
         ///     excluded ranges are expected to each be sub ranges of the initial range
         ///     an attempt will be made to TryCollapseAll the excluded
         /// </summary>
-        /// <param name="initialRange">the initial <see cref="IPAddressRange"/> to exclude from</param>
-        /// <param name="excludedRanges">the various <see cref="IPAddressRange"/> to exclude from the <paramref name="initialRange"/></param>
-        /// <param name="result">the resulting  <see cref="IPAddressRange"/> <see cref="IEnumerable{T}"/></param>
+        /// <param name="initialRange">the initial <see cref="IPAddressRange" /> to exclude from</param>
+        /// <param name="excludedRanges">
+        ///     the various <see cref="IPAddressRange" /> to exclude from the
+        ///     <paramref name="initialRange" />
+        /// </param>
+        /// <param name="result">the resulting  <see cref="IPAddressRange" /> <see cref="IEnumerable{T}" /></param>
         /// <exception cref="InvalidOperationException">unexpected invalid operation.</exception>
         public static bool TryExcludeAll(IPAddressRange initialRange,
                                          IEnumerable<IPAddressRange> excludedRanges,
@@ -271,7 +381,7 @@ namespace Arcus
         /// </summary>
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
-        /// <param name="mergedRange">the resulting <see cref="IPAddressRange"/></param>
+        /// <param name="mergedRange">the resulting <see cref="IPAddressRange" /></param>
         public static bool TryMerge(IPAddressRange left,
                                     IPAddressRange right,
                                     out IPAddressRange mergedRange)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -94,9 +94,137 @@ namespace Arcus.Tests
             Assert.True(typeof(IIPAddressRange).IsAssignableFrom(ipAddressRangeType));
             Assert.True(typeof(IComparable<IPAddressRange>).IsAssignableFrom(ipAddressRangeType));
             Assert.True(typeof(IEquatable<IPAddressRange>).IsAssignableFrom(ipAddressRangeType));
+            Assert.True(typeof(IComparable).IsAssignableFrom(ipAddressRangeType));
         }
 
         #endregion //end: Class
+
+        #region CompareTo / Operators
+
+        public static IEnumerable<object[]> Comparison_Values()
+        {
+            var ipv4Slash16 = Subnet.Parse("192.168.0.0/16");
+            var ipv6Slash64 = Subnet.Parse("ab:cd::/64");
+            var ipv4Slash20 = Subnet.Parse("192.168.0.0/20");
+            var ipv6Slash96 = Subnet.Parse("ab:cd::/96");
+            var ipv4All = Subnet.Parse("0.0.0.0/0");
+            var ipv6All = Subnet.Parse("::/0");
+            var ipv4Single = Subnet.Parse("0.0.0.0/32");
+            var ipv6Single = Subnet.Parse("::/128");
+
+            yield return new object[] {0, new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail), new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail)};
+            yield return new object[] {0, new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail), new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail)};
+            yield return new object[] {1, new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail), null};
+            yield return new object[] {1, new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail), null};
+            yield return new object[] {1, new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail), new IPAddressRange(ipv4Slash20.Head, ipv4Slash20.Tail)};
+            yield return new object[] {-1, new IPAddressRange(ipv4Slash20.Head, ipv4Slash20.Tail), new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail)};
+            yield return new object[] {1, new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail), new IPAddressRange(ipv6Slash96.Head, ipv6Slash96.Tail)};
+            yield return new object[] {-1, new IPAddressRange(ipv6Slash96.Head, ipv6Slash96.Tail), new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail)};
+            yield return new object[] {-1, new IPAddressRange(ipv4All.Head, ipv4All.Tail), new IPAddressRange(ipv6All.Head, ipv6All.Tail)};
+            yield return new object[] {1, new IPAddressRange(ipv6All.Head, ipv6All.Tail), new IPAddressRange(ipv4All.Head, ipv4All.Tail)};
+            yield return new object[] {-1, new IPAddressRange(ipv4Single.Head, ipv4Single.Tail), new IPAddressRange(ipv6Single.Head, ipv6Single.Tail)};
+            yield return new object[] {1, new IPAddressRange(ipv6Single.Head, ipv6Single.Tail), new IPAddressRange(ipv4Single.Head, ipv4Single.Tail)};
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void CompareTo_Test(int expected,
+                                   IPAddressRange left,
+                                   IPAddressRange right)
+        {
+            // Arrange
+            // Act
+            var result = left.CompareTo(right);
+
+            // Assert
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_Equals_Test(int expected,
+                                          IPAddressRange left,
+                                          IPAddressRange right)
+        {
+            // Arrange
+            // Act
+            var result = left == right;
+
+            // Assert
+            Assert.Equal(expected == 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_NotEquals_Test(int expected,
+                                             IPAddressRange left,
+                                             IPAddressRange right)
+        {
+            // Arrange
+            // Act
+            var result = left != right;
+
+            // Assert
+            Assert.Equal(expected != 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_GreaterThan_Test(int expected,
+                                               IPAddressRange left,
+                                               IPAddressRange right)
+        {
+            // Arrange
+            // Act
+            var result = left > right;
+
+            // Assert
+            Assert.Equal(expected > 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_GreaterThanOrEqual_Test(int expected,
+                                                      IPAddressRange left,
+                                                      IPAddressRange right)
+        {
+            // Arrange
+            // Act
+            var result = left >= right;
+
+            // Assert
+            Assert.Equal(expected >= 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_LessThan_Test(int expected,
+                                            IPAddressRange left,
+                                            IPAddressRange right)
+        {
+            // Arrange
+            // Act
+            var result = left < right;
+
+            // Assert
+            Assert.Equal(expected < 0, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(Comparison_Values))]
+        public void Operator_LessThanOrEqual_Test(int expected,
+                                                   IPAddressRange left,
+                                                   IPAddressRange right)
+        {
+            // Arrange
+            // Act
+            var result = left <= right;
+
+            // Assert
+            Assert.Equal(expected <= 0, result);
+        }
+
+        #endregion end CompareTo / Operators
 
         #region TailOverlappedBy
 
