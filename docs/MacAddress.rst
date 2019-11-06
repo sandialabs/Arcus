@@ -11,11 +11,11 @@ The ``MacAddress`` class implements ``IEquatable<MacAddress>``, ``IComparable<Ma
 
    Unless otherwise stated recognized readable MAC Address formats include only the following formats:
 
-   -  **IEEE 802** format for printing **EUI-48** and **MAC-48** addresses in six groups of two hexadecimal digits, separated by a dash (``-``). *E.g.* ``AA-BB-CC-DD-EE-FF``
-   -  **Common** Six groups of two hexadecimal digits separated by colons (``:``). *E.g.* ``AA:BB:CC:DD:EE:FF``
+   -  IEEE 802 format for printing **EUI-48** and **MAC-48** addresses in six groups of two hexadecimal digits, separated by a dash (``-``). *E.g.* ``AA-BB-CC-DD-EE-FF``
+   -  Common Six groups of two hexadecimal digits separated by colons (``:``). *E.g.* ``AA:BB:CC:DD:EE:FF``
    -  Six groups of two hexadecimal digits separated by a space character. *E.g.* ``AA BB CC DD EE FF``
    -  12 hexadecimal digits with no delimitation. *E.g.* ``AABBCCDDEEFF``
-   -  **Cisco** three groups of four hexadecimal digits separated by dots (``.``). *E.g.* ``AABB.CCDD.EEFF``
+   -  Cisco three groups of four hexadecimal digits separated by dots (``.``). *E.g.* ``AABB.CCDD.EEFF``
 
    For the sake of parsing and reading these formats are case insensitive.
 
@@ -30,8 +30,11 @@ The ``MacAddress`` class implements ``IEquatable<MacAddress>``, ``IComparable<Ma
 Creation
 --------
 
-constructor ``IEnumerable<byte>``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Constructor
+^^^^^^^^^^^
+
+``IEnumerable<byte>``
++++++++++++++++++++++
 
 A new ``MacAddress`` may be constructed by providing an ``IEnumerable<byte>`` of six bytes to the constructor.
 
@@ -39,8 +42,11 @@ A new ``MacAddress`` may be constructed by providing an ``IEnumerable<byte>`` of
 
    public MacAddress(IEnumerable<byte> bytes)
 
-parse Parse ``string``
-^^^^^^^^^^^^^^^^^^^^^^
+Factory
+^^^^^^^
+
+Parse ``string``
+++++++++++++++++
 
 A ``MacAddress`` may also be created via either the ``Parse`` or safe ``TryParse`` method. Not that these methods are strict in that they will only succeed with a MAC address in a known format. If you wish to more liberally parse a string into a ``MacAddress`` see the ``ParseAny`` and ``TryParseAny`` defined below.
 
@@ -52,8 +58,8 @@ A ``MacAddress`` may also be created via either the ``Parse`` or safe ``TryParse
 
     public static bool TryParse(string input, out MacAddress macAddress)
 
-parse ParseAny ``string``
-^^^^^^^^^^^^^^^^^^^^^^^^^
+ParseAny ``string``
++++++++++++++++++++
 
 ``ParseAny`` and the safe ``TryParseAny`` allow the parsing of an arbitrary string that may be a Mac address into a ``MacAddress``. It looks for six hexadecimal digits within the string, joins them and interprets the result as consecutive big-endian hextets. If six, and only six, hexadecimal digits are not found the parse will fail. 
 
@@ -131,7 +137,7 @@ Operators
 
 .. rubric:: Footnotes
 
-.. [#48-BitMAC] **48-Bit MAC** is a A Media Access Control Address (MAC) following both the now deprecated *MAC-48* and the active *EUI-48* specifications.
+.. [#48-BitMAC] **48-Bit MAC** is a Media Access Control Address (MAC) following both the now deprecated *MAC-48* and the active *EUI-48* specifications.
 
 .. [#EUI-48Default] The recommended null or default value for **EUI-48** is ``FF-FF-FF-FF-FF-FF``
 
