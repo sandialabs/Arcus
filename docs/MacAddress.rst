@@ -35,7 +35,6 @@ Constructor
 
  ``IEnumerable<byte>``
  ==============
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A new ``MacAddress`` may be constructed by providing an ``IEnumerable<byte>`` of six bytes to the constructor.
 
