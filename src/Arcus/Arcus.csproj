@@ -14,6 +14,7 @@
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <packageicon>icon.png</packageicon>
+    <packageiconurl>https://raw.githubusercontent.com/sandialabs/Arcus/master/src/Arcus/icon.png</packageiconurl>
     <PackageLanguage>en-US</PackageLanguage>
     <packagelicenseexpression>Apache-2.0</packagelicenseexpression>
     <PackageProjectUrl>https://github.com/sandialabs/arcus</PackageProjectUrl>
