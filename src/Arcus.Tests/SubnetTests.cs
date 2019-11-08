@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Gulliver;
 using Xunit;
@@ -48,18 +51,22 @@ namespace Arcus.Tests
 
         #region Class
 
-        [Fact]
-        public void Class_Implementation_Test()
+        [Theory]
+        [InlineData(typeof(AbstractIPAddressRange))]
+        [InlineData(typeof(IEquatable<Subnet>))]
+        [InlineData(typeof(IComparable<Subnet>))]
+        [InlineData(typeof(IComparable))]
+        [InlineData(typeof(ISerializable))]
+        public void Assignability_Test(Type assignableFromType)
         {
             // Arrange
-            var subnetType = typeof(Subnet);
+            var type = typeof(Subnet);
 
             // Act
+            var isAssignableFrom = assignableFromType.IsAssignableFrom(type);
+
             // Assert
-            Assert.True(typeof(IIPAddressRange).IsAssignableFrom(subnetType));
-            Assert.True(typeof(IComparable<Subnet>).IsAssignableFrom(subnetType));
-            Assert.True(typeof(IEquatable<Subnet>).IsAssignableFrom(subnetType));
-            Assert.True(typeof(IComparable).IsAssignableFrom(subnetType));
+            Assert.True(isAssignableFrom);
         }
 
         #endregion // end: Class
@@ -717,6 +724,37 @@ namespace Arcus.Tests
         #endregion // end: Ctor(IPAddress, IPAddress)
 
         #endregion // end: Ctor
+
+        #region ISerializable
+
+        public static IEnumerable<object[]> CanSerializable_Test_Values()
+        {
+            yield return new object[] {new Subnet(IPAddress.Parse("192.168.1.0"))};
+            yield return new object[] {new Subnet(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255"))};
+            yield return new object[] {new Subnet(IPAddress.Parse("::"), IPAddress.Parse("::FFFF"))};
+        }
+
+        [Theory]
+        [MemberData(nameof(CanSerializable_Test_Values))]
+        public void CanSerializable_Test(Subnet subnet)
+        {
+            // Arrange
+            var formatter = new BinaryFormatter();
+
+            // Act
+            using var writeStream = new MemoryStream();
+            formatter.Serialize(writeStream, subnet);
+
+            var bytes = writeStream.ToArray();
+            var readStream = new MemoryStream(bytes);
+            var result = formatter.Deserialize(readStream);
+
+            // Assert
+            Assert.IsType<Subnet>(result);
+            Assert.Equal(subnet, result);
+        }
+
+        #endregion end: ISerializable
 
         #region Static Factory Methods
 

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 
 namespace Arcus.Tests
@@ -83,18 +86,22 @@ namespace Arcus.Tests
 
         #region Class
 
-        [Fact]
-        public void Implementation_Test()
+        [Theory]
+        [InlineData(typeof(AbstractIPAddressRange))]
+        [InlineData(typeof(IEquatable<IPAddressRange>))]
+        [InlineData(typeof(IComparable<IPAddressRange>))]
+        [InlineData(typeof(IComparable))]
+        [InlineData(typeof(ISerializable))]
+        public void Assignability_Test(Type assignableFromType)
         {
             // Arrange
-            var ipAddressRangeType = typeof(IPAddressRange);
+            var type = typeof(IPAddressRange);
 
             // Act
+            var isAssignableFrom = assignableFromType.IsAssignableFrom(type);
+
             // Assert
-            Assert.True(typeof(IIPAddressRange).IsAssignableFrom(ipAddressRangeType));
-            Assert.True(typeof(IComparable<IPAddressRange>).IsAssignableFrom(ipAddressRangeType));
-            Assert.True(typeof(IEquatable<IPAddressRange>).IsAssignableFrom(ipAddressRangeType));
-            Assert.True(typeof(IComparable).IsAssignableFrom(ipAddressRangeType));
+            Assert.True(isAssignableFrom);
         }
 
         #endregion //end: Class
@@ -348,6 +355,37 @@ namespace Arcus.Tests
         }
 
         #endregion
+
+        #region ISerializable
+
+        public static IEnumerable<object[]> CanSerializable_Test_Values()
+        {
+            yield return new object[] {new IPAddressRange(IPAddress.Parse("192.168.1.0"))};
+            yield return new object[] {new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255"))};
+            yield return new object[] {new IPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::FFFF:4321"))};
+        }
+
+        [Theory]
+        [MemberData(nameof(CanSerializable_Test_Values))]
+        public void CanSerializable_Test(IPAddressRange ipAddressRange)
+        {
+            // Arrange
+            var formatter = new BinaryFormatter();
+
+            // Act
+            using var writeStream = new MemoryStream();
+            formatter.Serialize(writeStream, ipAddressRange);
+
+            var bytes = writeStream.ToArray();
+            var readStream = new MemoryStream(bytes);
+            var result = formatter.Deserialize(readStream);
+
+            // Assert
+            Assert.IsType<IPAddressRange>(result);
+            Assert.Equal(ipAddressRange, result);
+        }
+
+        #endregion end: ISerializable
 
         #region Equals
 

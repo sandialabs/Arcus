@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -371,10 +371,13 @@ namespace Arcus
         #region Ctors
 
         /// <summary>Initializes a new instance of the <see cref="MacAddress" /> class.</summary>
+        /// <param name="info">serialization info</param>
+        /// <param name="context">serialization context</param>
         /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" /></exception>
         protected MacAddress([NotNull] SerializationInfo info,
                              StreamingContext context)
-            : this((byte[]) info.GetValue(nameof(_address), typeof(byte[]))) { }
+            : this((byte[]) (info ?? throw new ArgumentNullException(nameof(info))).GetValue(nameof(_address),
+                                          typeof(byte[]))) { }
 
         /// <summary>Initializes a new instance of the <see cref="MacAddress" /> class.</summary>
         /// <param name="bytes">a collection of bytes to be copied as the byte of the MAC Address</param>

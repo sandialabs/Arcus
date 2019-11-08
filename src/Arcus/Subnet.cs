@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using Arcus.Comparers;
 using Arcus.Converters;
@@ -19,10 +20,12 @@ namespace Arcus
     ///     An IPv4 or IPv6 subnetwork representation - the work horse and original intention of the Arcus library
     /// </summary>
     [PublicAPI]
+    [Serializable]
     public class Subnet : AbstractIPAddressRange,
                           IEquatable<Subnet>,
                           IComparable<Subnet>,
-                          IComparable
+                          IComparable,
+                          ISerializable
     {
         /// <summary>
         ///     Pattern that passes on valid IPv4 octet partials
@@ -323,6 +326,15 @@ namespace Arcus
 
             this.Netmask = new IPAddress(netmaskBytes);
         }
+
+        /// <summary>Initializes a new instance of the <see cref="Subnet"/> class.</summary>
+        /// <param name="info">serialization info</param>
+        /// <param name="context">serialization context</param>
+        /// <exception cref="ArgumentNullException"><paramref name="info"/> is <see langword="null"/></exception>
+        protected Subnet([NotNull] SerializationInfo info,
+                         StreamingContext context)
+            : this(new IPAddress((byte[]) (info ?? throw new ArgumentNullException(nameof(info))).GetValue(nameof(BroadcastAddress), typeof(byte[]))),
+                   (int) info.GetValue(nameof(RoutingPrefix), typeof(int))) { }
 
         #endregion // end: Ctor
 
@@ -947,6 +959,23 @@ namespace Arcus
             }
         }
 
+        #region From Interface ISerializable
+
+        /// <inheritdoc />
+        /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" /></exception>
+        public void GetObjectData([NotNull] SerializationInfo info,
+                                  StreamingContext context)
+        {
+            if (info == null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
+            info.AddValue(nameof(this.BroadcastAddress), this.BroadcastAddress.GetAddressBytes());
+            info.AddValue(nameof(this.RoutingPrefix), this.RoutingPrefix);
+        }
+
+        #endregion
         #region operators
 
         /// <summary>
