@@ -1,4 +1,4 @@
-# ![Arcus](resources/images/icon_64x64.png) Arcus
+# ![Arcus](src/Gulliver/icon.png) Arcus
 
 [![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Arcus?logo=nuget)](https://www.nuget.org/packages/Arcus/)
 [![Documentation on ReadTheDocs](https://img.shields.io/badge/Read%20the%20Docs-Arcus-lightgrey?logo=read%20the%20docs)](https://arcus.readthedocs.io)
