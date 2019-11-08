@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using Arcus.Comparers;
 using Arcus.Math;
 using JetBrains.Annotations;
@@ -13,11 +14,31 @@ namespace Arcus
     ///     same address family
     /// </summary>
     [PublicAPI]
+    [Serializable]
     public class IPAddressRange : AbstractIPAddressRange,
                                   IEquatable<IPAddressRange>,
                                   IComparable<IPAddressRange>,
-                                  IComparable
+                                  IComparable,
+                                  ISerializable
     {
+        #region From Interface ISerializable
+
+        /// <inheritdoc />
+        /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" /></exception>
+        public void GetObjectData([NotNull] SerializationInfo info,
+                                  StreamingContext context)
+        {
+            if (info == null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
+            info.AddValue(nameof(Head), Head.GetAddressBytes());
+            info.AddValue(nameof(Tail), Tail.GetAddressBytes());
+        }
+
+        #endregion
+
         #region From Interface IComparable
 
         /// <inheritdoc />
@@ -188,6 +209,15 @@ namespace Arcus
         {
             // nothing more to do
         }
+
+        /// <summary>Initializes a new instance of the <see cref="IPAddressRange"/> class.</summary>
+        /// <param name="info">serialization info</param>
+        /// <param name="context">serialization context</param>
+        /// <exception cref="ArgumentNullException"><paramref name="info"/> is <see langword="null"/></exception>
+        protected IPAddressRange([NotNull] SerializationInfo info,
+                                 StreamingContext context)
+            : this(new IPAddress((byte[]) (info ?? throw new ArgumentNullException(nameof(info))).GetValue(nameof(Head), typeof(byte[]))),
+                   new IPAddress((byte[]) info.GetValue(nameof(Tail), typeof(byte[])))) { }
 
         #endregion // end: Ctor
 
