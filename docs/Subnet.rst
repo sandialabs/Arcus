@@ -7,7 +7,7 @@ The ``Subnet`` type, flavored in both IPv4 or IPv6, is a representation of a sub
 
 Keep in mind that a ``Subnet`` is not an arbitrary range of addresses, for that you want an :ref:`IPAddressRange`, but rather conforms to a range of length :math:`2^n` starting a particular position, following the typical rules of `Classless Inter-Domain Routing <https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing>`_.
 
-The ``Subnet`` class extends :ref:`AbstractIPAddressRange` and implements :ref:`IIPAddressRange`, ``IEquatable<Subnet>``, ``IComparable<Subnet>``, ``IFormattable``, and ``IEnumerable<IPAddress>``.
+The ``Subnet`` class extends :ref:`AbstractIPAddressRange` and implements :ref:`IIPAddressRange`, ``IEquatable<Subnet>``, ``IComparable<Subnet>``, ``IFormattable``, ``IEnumerable<IPAddress>``, and ``ISerializable``.
 
 .. note::  Be aware that ``Subnet`` does *not* extend :ref:`IPAddressRange` but does implement :ref:`IIPAddressRange`.
 
