@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using Arcus.Math;
+using Arcus.Utilities;
 using JetBrains.Annotations;
 using Moq;
 using Xunit;
@@ -966,5 +967,103 @@ namespace Arcus.Tests
         #endregion // end: Ovelap and Touches
 
         #endregion // end: Set Operations
+
+        #region Contains Any/All Public/Private Addresses
+
+        public static IEnumerable<object[]> ContainsPublicPrivate_Values()
+        {
+            // known private ranges
+            foreach (var subnet in SubnetUtilities.PrivateIPAddressRangesList)
+            {
+                // has private
+                yield return new object[] {false, true, CreateMockAbstractIPAddressRange(subnet.Head, subnet.Tail)};                            // on the border of private
+                yield return new object[] {false, true, CreateMockAbstractIPAddressRange(subnet.Head.Increment(2), subnet.Tail.Increment(-2))}; // wholly inside of private
+                yield return new object[] {false, true, CreateMockAbstractIPAddressRange(subnet.Head.Increment(2), subnet.Tail)};               // partially within of private
+                yield return new object[] {false, true, CreateMockAbstractIPAddressRange(subnet.Head, subnet.Tail.Increment(-2))};              // partially within of private
+
+                // has private and public
+                yield return new object[] {true, true, CreateMockAbstractIPAddressRange(subnet.Head.Increment(-2), subnet.Tail)}; // partially outside of private
+                yield return new object[] {true, true, CreateMockAbstractIPAddressRange(subnet.Head, subnet.Tail.Increment(2))};  // partially outside of private
+            }
+
+            // public only
+            var publicSpace = new (IPAddress head, IPAddress tail)[]
+                              {
+                                  (IPAddress.Parse("128.64.32.0"), IPAddress.Parse("128.64.32.16")),
+                                  (IPAddress.Parse("FFFF:7FFF:3FFF::"), IPAddress.Parse("FFFF:7FFF:3FFF:1FFF::"))
+                              };
+
+            foreach (var (head, tail) in publicSpace)
+            {
+                yield return new object[] {true, false, CreateMockAbstractIPAddressRange(head, tail)};                            // on the border of public
+                yield return new object[] {true, false, CreateMockAbstractIPAddressRange(head.Increment(2), tail.Increment(-2))}; // wholly inside public
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ContainsPublicPrivate_Values))]
+        public void ContainsAnyPrivateAddresses_Test(bool expectedHasPublic,
+                                                     bool expectedHasPrivate,
+                                                     IIPAddressRange range)
+        {
+            // Arrange
+            // Act
+            var result = range.ContainsAnyPrivateAddresses();
+
+            this._testOutputHelper.WriteLine($"pr:{expectedHasPrivate} pu:{expectedHasPublic} {range.Head} - {range.Tail}");
+
+            // Assert
+            Assert.Equal(expectedHasPrivate, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(ContainsPublicPrivate_Values))]
+        public void ContainsAllPrivateAddresses_Test(bool expectedHasPublic,
+                                                     bool expectedHasPrivate,
+                                                     IIPAddressRange range)
+        {
+            // Arrange
+            // Act
+            var result = range.ContainsAllPrivateAddresses();
+
+            this._testOutputHelper.WriteLine($"pr:{expectedHasPrivate} pu:{expectedHasPublic} {range.Head} - {range.Tail}");
+
+            // Assert
+            Assert.Equal(expectedHasPrivate && !expectedHasPublic, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(ContainsPublicPrivate_Values))]
+        public void ContainsAnyPublicAddresses_Test(bool expectedHasPublic,
+                                                    bool expectedHasPrivate,
+                                                    IIPAddressRange range)
+        {
+            // Arrange
+            // Act
+            var result = range.ContainsAnyPublicAddresses();
+
+            this._testOutputHelper.WriteLine($"pr:{expectedHasPrivate} pu:{expectedHasPublic} {range.Head} - {range.Tail}");
+
+            // Assert
+            Assert.Equal(expectedHasPublic, result);
+        }
+
+        [Theory]
+        [MemberData(nameof(ContainsPublicPrivate_Values))]
+        public void ContainsAllPublicAddresses_Test(bool expectedHasPublic,
+                                                    bool expectedHasPrivate,
+                                                    IIPAddressRange range)
+        {
+            // Arrange
+            // Act
+            var result = range.ContainsAllPublicAddresses();
+
+            this._testOutputHelper.WriteLine($"pr:{expectedHasPrivate} pu:{expectedHasPublic} {range.Head} - {range.Tail}");
+
+            // Assert
+            Assert.Equal(!expectedHasPrivate && expectedHasPublic, result);
+        }
+
+        #endregion end: Contains Any/All Public/Private Addresses
     }
 }

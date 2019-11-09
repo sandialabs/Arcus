@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,13 +13,45 @@ namespace Arcus.Utilities
     public static class SubnetUtilities
     {
         /// <summary>
+        ///     A collection of all known private IP Address ranges
+        /// </summary>
+        [NotNull]
+        [ItemNotNull]
+        public static IReadOnlyList<Subnet> PrivateIPAddressRangesList = new[]
+                                                                         {
+                                                                             // IPv4 RFC 1918
+                                                                             Subnet.Parse("10.0.0.0", 8),
+                                                                             Subnet.Parse("172.16.0.0", 12),
+                                                                             Subnet.Parse("192.168.0.0", 16),
+
+                                                                             // IPv6 RFC 4193
+                                                                             Subnet.Parse("fd00::", 8)
+                                                                         }.ToList()
+                                                                          .AsReadOnly();
+
+        /// <summary>
+        ///     A collection of all known Link Local IP Address ranges
+        /// </summary>
+        [NotNull]
+        [ItemNotNull]
+        public static IReadOnlyList<Subnet> LinkLocalIPAddressRangesList = new[]
+                                                                           {
+                                                                               // RFC 3927
+                                                                               Subnet.Parse("169.254.0.0", 16),
+
+                                                                               // RFC 4291
+                                                                               Subnet.Parse("fe80::", 10)
+                                                                           }.ToList()
+                                                                            .AsReadOnly();
+
+        /// <summary>
         ///     Get The fewest consecutive subnets that would fill the range between the given addresses (inclusive)
         /// </summary>
         /// <param name="left">lowest order IP Address</param>
         /// <param name="right">highest order IP Address</param>
         /// <returns>an enumerable of Subnet</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="left" /> is <see langword="null" />.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="right" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="left"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="right"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">Address families must match</exception>
         /// <exception cref="InvalidOperationException">Address families must be InterNetwork or InternetworkV6</exception>
         [NotNull]

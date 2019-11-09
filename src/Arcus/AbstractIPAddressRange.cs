@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -395,5 +395,37 @@ namespace Arcus
         #endregion // end: Ovelap and Touches
 
         #endregion // end: Set Operations
+
+        #region Contains Any/All Public/Private Addresses
+
+        /// <inheritdoc/>
+        public bool ContainsAnyPrivateAddresses()
+        {
+            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet => subnet.Contains(this.Head)
+                                                                            || subnet.Contains(this.Tail));
+        }
+
+        /// <inheritdoc/>
+        public bool ContainsAllPrivateAddresses()
+        {
+            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet => subnet.Contains(this.Head)
+                                                                            && subnet.Contains(this.Tail));
+        }
+
+        /// <inheritdoc/>
+        public bool ContainsAnyPublicAddresses()
+        {
+            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet => !subnet.Contains(this.Head)
+                                                                            || !subnet.Contains(this.Tail));
+        }
+
+        /// <inheritdoc/>
+        public bool ContainsAllPublicAddresses()
+        {
+            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet => !subnet.Contains(this.Head)
+                                                                            && !subnet.Contains(this.Tail));
+        }
+
+        #endregion end: Contains Any/All Public/Private Addresses
     }
 }

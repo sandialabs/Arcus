@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using Arcus.Math;
 using Arcus.Utilities;
 using Gulliver;
 using Xunit;
@@ -53,6 +54,8 @@ namespace Arcus.Tests.Utilities
 
         #endregion // end: IPv4MinAddress
 
+        #region IPv4OctetCount
+
         [Fact]
         public void IPv4OctetCount_Test()
         {
@@ -62,6 +65,10 @@ namespace Arcus.Tests.Utilities
             Assert.Equal(4, IPAddressUtilities.IPv4OctetCount);
         }
 
+        #endregion end: IPv4OctetCount
+
+        #region IPv6HextetCount
+
         [Fact]
         public void IPv6HextetCount_Test()
         {
@@ -70,6 +77,8 @@ namespace Arcus.Tests.Utilities
             // Assert
             Assert.Equal(8, IPAddressUtilities.IPv6HextetCount);
         }
+
+        #endregion end: IPv6HextetCount
 
         #region IPv6MaxAddress
 
@@ -899,5 +908,38 @@ namespace Arcus.Tests.Utilities
         #endregion // end: ValidAddressFamilies
 
         #endregion // end: Constant Values
+
+        #region IsPrivate
+
+        public static IEnumerable<object[]> IsPrivate_Test_Values()
+        {
+            foreach (var subnet in SubnetUtilities.PrivateIPAddressRangesList)
+            {
+                yield return new object[] {true, subnet.NetworkPrefixAddress};
+                yield return new object[] {true, subnet.NetworkPrefixAddress.Increment(2)};
+                yield return new object[] {true, subnet.BroadcastAddress};
+                yield return new object[] {true, subnet.BroadcastAddress.Increment(-2)};
+            }
+
+            yield return new object[] {false, IPAddressUtilities.IPv4MaxAddress};
+            yield return new object[] {false, IPAddressUtilities.IPv4MinAddress};
+
+            yield return new object[] {false, IPAddressUtilities.IPv6MaxAddress};
+            yield return new object[] {false, IPAddressUtilities.IPv6MinAddress};
+        }
+
+        [Theory]
+        [MemberData(nameof(IsPrivate_Test_Values))]
+        public void IsPrivate_Test(bool expected, IPAddress address)
+        {
+            // Arrange
+            // Act
+            var isPrivate = address.IsPrivate();
+
+            // Assert
+            Assert.Equal(expected, isPrivate);
+        }
+
+        #endregion
     }
 }
