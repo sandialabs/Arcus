@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -11,822 +11,822 @@ using Xunit;
 
 namespace Arcus.Tests
 {
-    /// <summary>Tests for <see cref="MacAddress" /></summary>
-    public class MacAddressTests
-    {
-        #region IComparable<MacAddress>
+   /// <summary>Tests for <see cref="MacAddress" /></summary>
+   public class MacAddressTests
+   {
+      #region IComparable<MacAddress>
 
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void CompareTo_MacAddress_Test(int expected,
-                                              MacAddress left,
-                                              MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left.CompareTo(right);
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void CompareTo_MacAddress_Test(int expected,
+                                            MacAddress left,
+                                            MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left.CompareTo(right);
 
-            // Assert
-            Assert.Equal(expected, result);
-        }
+         // Assert
+         Assert.Equal(expected, result);
+      }
 
-        #endregion end: IComparable<MacAddress>
+      #endregion end: IComparable<MacAddress>
 
-        #region DefaultMacAddress
+      #region DefaultMacAddress
 
-        [Fact]
-        public void DefaultMacAddress_Test()
-        {
-            // Arrange
-            var expected = Enumerable.Repeat((byte) 0xFF, 6)
-                                     .ToArray();
-
-            // Act
-            var defaultMacAddress = MacAddress.DefaultMacAddress;
-
-            // Assert
-            Assert.NotNull(defaultMacAddress);
-            Assert.Equal(0, ByteArrayUtils.CompareUnsignedBigEndian(expected, defaultMacAddress.GetAddressBytes()));
-        }
-
-        #endregion end: DefaultMacAddress
-
-        #region GetAddressBytes
-
-        [Theory]
-        [InlineData(new byte[] {0xff, 0xff, 0xff, 0xff, 0xff, 0xff})]
-        [InlineData(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(new byte[] {0x00, 0xff, 0x00, 0xff, 0x00, 0x00})]
-        public void GetAddressBytes_Test(byte[] bytes)
-        {
-            // Arrange
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var addressBytes = macAddress.GetAddressBytes();
-
-            // Assert
-            Assert.NotNull(addressBytes);
-            Assert.IsType<byte[]>(addressBytes);
-            Assert.Equal(addressBytes.Length, addressBytes.Length);
-            Assert.Equal(0, ByteArrayUtils.CompareUnsignedBigEndian(bytes, addressBytes));
-        }
-
-        #endregion end: GetAddressBytes
-
-        #region GetCidBytes
-
-        [Fact]
-        public void GetCidBytes_Test()
-        {
-            // Arrange
-            var bytes = new byte[] {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB};
-
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var cidBytes = macAddress.GetCidBytes();
-
-            // Assert
-            Assert.Equal(0,
-                         ByteArrayUtils.CompareUnsignedBigEndian(bytes.Skip(3)
-                                                                      .Take(3)
-                                                                      .ToArray(),
-                                                                 cidBytes));
-        }
-
-        #endregion end: GetCidBytes
-
-        #region GetHashCode
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void GetHashCode_Test(int expected,
-                                     MacAddress left,
-                                     MacAddress right)
-        {
-            // Arrange
-            if (left is null
-                || right is null)
-            {
-                return; // skip null values and bail
-            }
-
-            // Act
-            var leftHashCode = left.GetHashCode();
-            var rightHashCode = right.GetHashCode();
-
-            // Assert
-            Assert.Equal(expected == 0, leftHashCode == rightHashCode);
-        }
-
-        #endregion end: GetHashCode
-
-        #region GetOuiBytes
-
-        [Fact]
-        public void GetOuiBytes_Test()
-        {
-            // Arrange
-            var bytes = new byte[] {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB};
-
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var ouiBytes = macAddress.GetOuiBytes();
-
-            // Assert
-            Assert.Equal(0,
-                         ByteArrayUtils.CompareUnsignedBigEndian(bytes.Take(3)
-                                                                      .ToArray(),
-                                                                 ouiBytes));
-        }
-
-        #endregion end: GetOuiBytes
-
-        #region IsGloballyUnique
-
-        [Theory]
-        [InlineData(true, new byte[] {0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(false, new byte[] {0b0000_0010, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(true, new byte[] {0b1111_1101, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        [InlineData(false, new byte[] {0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        public void IsGloballyUnique_Test(bool expected,
-                                          byte[] bytes)
-        {
-            // Arrange
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var isGloballyUnique = macAddress.IsGloballyUnique;
-
-            // Assert
-            Assert.Equal(expected, isGloballyUnique);
-        }
-
-        #endregion end: IsGloballyUnique
-
-        #region IsLocallyAdministered
-
-        [Theory]
-        [InlineData(false, new byte[] {0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(true, new byte[] {0b0000_0010, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(false, new byte[] {0b1111_1101, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        [InlineData(true, new byte[] {0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        public void IsLocallyAdministered_Test(bool expected,
-                                               byte[] bytes)
-        {
-            // Arrange
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var isLocallyAdministered = macAddress.IsLocallyAdministered;
-
-            // Assert
-            Assert.Equal(expected, isLocallyAdministered);
-        }
-
-        #endregion end: IsLocallyAdministered
-
-        #region IsMulticast
-
-        [Theory]
-        [InlineData(false, new byte[] {0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(true, new byte[] {0b0000_0001, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(false, new byte[] {0b1111_1110, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        [InlineData(true, new byte[] {0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        public void IsMulticast_Test(bool expected,
-                                     byte[] bytes)
-        {
-            // Arrange
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var isMulticast = macAddress.IsMulticast;
-
-            // Assert
-            Assert.Equal(expected, isMulticast);
-        }
-
-        #endregion end: IsMulticast
-
-        #region IsUnicast
-
-        [Theory]
-        [InlineData(true, new byte[] {0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(false, new byte[] {0b0000_0001, 0x00, 0x00, 0x00, 0x00, 0x00})]
-        [InlineData(true, new byte[] {0b1111_1110, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        [InlineData(false, new byte[] {0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})]
-        public void IsUnicast_Test(bool expected,
-                                   byte[] bytes)
-        {
-            // Arrange
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var isUnicast = macAddress.IsUnicast;
-
-            // Assert
-            Assert.Equal(expected, isUnicast);
-        }
-
-        #endregion end: IsUnicast
-
-        #region other members
-
-        public static IEnumerable<object[]> Comparison_MacAddress_MacAddress_Values()
-        {
-            var byteArrayMax = Enumerable.Repeat((byte) 0xff, 6)
-                                         .ToArray();
-
-            var byteArrayMin = Enumerable.Repeat((byte) 0x00, 6)
-                                         .ToArray();
-
-            var macAddressMax = new MacAddress(byteArrayMax);
-
-            var macAddressMin = new MacAddress(byteArrayMin);
-
-            yield return new object[] {0, macAddressMin, macAddressMin};                // same equal
-            yield return new object[] {0, macAddressMin, new MacAddress(byteArrayMin)}; // same underlying bytes
-
-            yield return new object[] {-1, macAddressMin, macAddressMax}; // left less than right
-            yield return new object[] {1, macAddressMax, macAddressMin};  // left greater than right
-
-            yield return new object[] {1, macAddressMin, null}; // right is null
-        }
-
-        public static IEnumerable<object[]> Comparison_MacAddress_Object_Values()
-        {
-            var bytes = Enumerable.Repeat((byte) 0xff, 6)
+      [Fact]
+      public void DefaultMacAddress_Test()
+      {
+         // Arrange
+         var expected = Enumerable.Repeat((byte)0xFF, 6)
                                   .ToArray();
-            var macAddress = new MacAddress(bytes);
 
-            yield return new object[] {-1, macAddress, "string"};
-            yield return new object[] {-1, macAddress, 42};
-            yield return new object[] {-1, macAddress, bytes};
-        }
+         // Act
+         var defaultMacAddress = MacAddress.DefaultMacAddress;
 
-        #endregion
+         // Assert
+         Assert.NotNull(defaultMacAddress);
+         Assert.Equal(0, ByteArrayUtils.CompareUnsignedBigEndian(expected, defaultMacAddress.GetAddressBytes()));
+      }
 
-        #region IsDefault
+      #endregion end: DefaultMacAddress
 
-        public static IEnumerable<object[]> IsDefault_Test_Values()
-        {
-            yield return new object[] {true, MacAddress.DefaultMacAddress};
-            yield return new object[] {true, new MacAddress(Enumerable.Repeat((byte) 0xFF, 6))};
-            yield return new object[] {false, new MacAddress(Enumerable.Repeat((byte) 0x00, 6))};
-        }
+      #region GetAddressBytes
 
-        [Theory]
-        [MemberData(nameof(IsDefault_Test_Values))]
-        public void IsDefault_Test(bool expeted,
-                                   MacAddress macAddress)
-        {
-            // Arrange
-            // Act
-            var isDefault = macAddress.IsDefault;
+      [Theory]
+      [InlineData(new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff })]
+      [InlineData(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(new byte[] { 0x00, 0xff, 0x00, 0xff, 0x00, 0x00 })]
+      public void GetAddressBytes_Test(byte[] bytes)
+      {
+         // Arrange
+         var macAddress = new MacAddress(bytes);
 
-            // Assert
-            Assert.Equal(expeted, isDefault);
-        }
+         // Act
+         var addressBytes = macAddress.GetAddressBytes();
 
-        #endregion end: IsDefault
+         // Assert
+         Assert.NotNull(addressBytes);
+         Assert.IsType<byte[]>(addressBytes);
+         Assert.Equal(addressBytes.Length, addressBytes.Length);
+         Assert.Equal(0, ByteArrayUtils.CompareUnsignedBigEndian(bytes, addressBytes));
+      }
 
-        #region IsUnusable
+      #endregion end: GetAddressBytes
 
-        public static IEnumerable<object[]> IsUnusable_Test_Values()
-        {
-            yield return new object[] {false, new MacAddress(Enumerable.Repeat((byte) 0x00, 6))};
-            yield return new object[]
-                         {
+      #region GetCidBytes
+
+      [Fact]
+      public void GetCidBytes_Test()
+      {
+         // Arrange
+         var bytes = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB };
+
+         var macAddress = new MacAddress(bytes);
+
+         // Act
+         var cidBytes = macAddress.GetCidBytes();
+
+         // Assert
+         Assert.Equal(0,
+                      ByteArrayUtils.CompareUnsignedBigEndian(bytes.Skip(3)
+                                                                   .Take(3)
+                                                                   .ToArray(),
+                                                              cidBytes));
+      }
+
+      #endregion end: GetCidBytes
+
+      #region GetHashCode
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void GetHashCode_Test(int expected,
+                                   MacAddress left,
+                                   MacAddress right)
+      {
+         // Arrange
+         if (left is null
+             || right is null)
+         {
+            return; // skip null values and bail
+         }
+
+         // Act
+         var leftHashCode = left.GetHashCode();
+         var rightHashCode = right.GetHashCode();
+
+         // Assert
+         Assert.Equal(expected == 0, leftHashCode == rightHashCode);
+      }
+
+      #endregion end: GetHashCode
+
+      #region GetOuiBytes
+
+      [Fact]
+      public void GetOuiBytes_Test()
+      {
+         // Arrange
+         var bytes = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB };
+
+         var macAddress = new MacAddress(bytes);
+
+         // Act
+         var ouiBytes = macAddress.GetOuiBytes();
+
+         // Assert
+         Assert.Equal(0,
+                      ByteArrayUtils.CompareUnsignedBigEndian(bytes.Take(3)
+                                                                   .ToArray(),
+                                                              ouiBytes));
+      }
+
+      #endregion end: GetOuiBytes
+
+      #region IsGloballyUnique
+
+      [Theory]
+      [InlineData(true, new byte[] { 0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(false, new byte[] { 0b0000_0010, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(true, new byte[] { 0b1111_1101, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      [InlineData(false, new byte[] { 0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      public void IsGloballyUnique_Test(bool expected,
+                                        byte[] bytes)
+      {
+         // Arrange
+         var macAddress = new MacAddress(bytes);
+
+         // Act
+         var isGloballyUnique = macAddress.IsGloballyUnique;
+
+         // Assert
+         Assert.Equal(expected, isGloballyUnique);
+      }
+
+      #endregion end: IsGloballyUnique
+
+      #region IsLocallyAdministered
+
+      [Theory]
+      [InlineData(false, new byte[] { 0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(true, new byte[] { 0b0000_0010, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(false, new byte[] { 0b1111_1101, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      [InlineData(true, new byte[] { 0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      public void IsLocallyAdministered_Test(bool expected,
+                                             byte[] bytes)
+      {
+         // Arrange
+         var macAddress = new MacAddress(bytes);
+
+         // Act
+         var isLocallyAdministered = macAddress.IsLocallyAdministered;
+
+         // Assert
+         Assert.Equal(expected, isLocallyAdministered);
+      }
+
+      #endregion end: IsLocallyAdministered
+
+      #region IsMulticast
+
+      [Theory]
+      [InlineData(false, new byte[] { 0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(true, new byte[] { 0b0000_0001, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(false, new byte[] { 0b1111_1110, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      [InlineData(true, new byte[] { 0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      public void IsMulticast_Test(bool expected,
+                                   byte[] bytes)
+      {
+         // Arrange
+         var macAddress = new MacAddress(bytes);
+
+         // Act
+         var isMulticast = macAddress.IsMulticast;
+
+         // Assert
+         Assert.Equal(expected, isMulticast);
+      }
+
+      #endregion end: IsMulticast
+
+      #region IsUnicast
+
+      [Theory]
+      [InlineData(true, new byte[] { 0b0000_0000, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(false, new byte[] { 0b0000_0001, 0x00, 0x00, 0x00, 0x00, 0x00 })]
+      [InlineData(true, new byte[] { 0b1111_1110, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      [InlineData(false, new byte[] { 0b1111_1111, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })]
+      public void IsUnicast_Test(bool expected,
+                                 byte[] bytes)
+      {
+         // Arrange
+         var macAddress = new MacAddress(bytes);
+
+         // Act
+         var isUnicast = macAddress.IsUnicast;
+
+         // Assert
+         Assert.Equal(expected, isUnicast);
+      }
+
+      #endregion end: IsUnicast
+
+      #region other members
+
+      public static IEnumerable<object[]> Comparison_MacAddress_MacAddress_Values()
+      {
+         var byteArrayMax = Enumerable.Repeat((byte)0xff, 6)
+                                      .ToArray();
+
+         var byteArrayMin = Enumerable.Repeat((byte)0x00, 6)
+                                      .ToArray();
+
+         var macAddressMax = new MacAddress(byteArrayMax);
+
+         var macAddressMin = new MacAddress(byteArrayMin);
+
+         yield return new object[] { 0, macAddressMin, macAddressMin };                // same equal
+         yield return new object[] { 0, macAddressMin, new MacAddress(byteArrayMin) }; // same underlying bytes
+
+         yield return new object[] { -1, macAddressMin, macAddressMax }; // left less than right
+         yield return new object[] { 1, macAddressMax, macAddressMin };  // left greater than right
+
+         yield return new object[] { 1, macAddressMin, null }; // right is null
+      }
+
+      public static IEnumerable<object[]> Comparison_MacAddress_Object_Values()
+      {
+         var bytes = Enumerable.Repeat((byte)0xff, 6)
+                               .ToArray();
+         var macAddress = new MacAddress(bytes);
+
+         yield return new object[] { -1, macAddress, "string" };
+         yield return new object[] { -1, macAddress, 42 };
+         yield return new object[] { -1, macAddress, bytes };
+      }
+
+      #endregion
+
+      #region IsDefault
+
+      public static IEnumerable<object[]> IsDefault_Test_Values()
+      {
+         yield return new object[] { true, MacAddress.DefaultMacAddress };
+         yield return new object[] { true, new MacAddress(Enumerable.Repeat((byte)0xFF, 6)) };
+         yield return new object[] { false, new MacAddress(Enumerable.Repeat((byte)0x00, 6)) };
+      }
+
+      [Theory]
+      [MemberData(nameof(IsDefault_Test_Values))]
+      public void IsDefault_Test(bool expeted,
+                                 MacAddress macAddress)
+      {
+         // Arrange
+         // Act
+         var isDefault = macAddress.IsDefault;
+
+         // Assert
+         Assert.Equal(expeted, isDefault);
+      }
+
+      #endregion end: IsDefault
+
+      #region IsUnusable
+
+      public static IEnumerable<object[]> IsUnusable_Test_Values()
+      {
+         yield return new object[] { false, new MacAddress(Enumerable.Repeat((byte)0x00, 6)) };
+         yield return new object[]
+                      {
                              false, new MacAddress(Enumerable.Repeat((byte) 0x00, 3)
                                                              .Concat(Enumerable.Repeat((byte) 0xFF, 3)))
-                         };
-            yield return new object[] {true, new MacAddress(Enumerable.Repeat((byte) 0x01, 6))};
-            yield return new object[] {true, new MacAddress(Enumerable.Repeat((byte) 0xFF, 6))};
-        }
+                      };
+         yield return new object[] { true, new MacAddress(Enumerable.Repeat((byte)0x01, 6)) };
+         yield return new object[] { true, new MacAddress(Enumerable.Repeat((byte)0xFF, 6)) };
+      }
 
-        [Theory]
-        [MemberData(nameof(IsUnusable_Test_Values))]
-        public void IsUnusable_Test(bool expected,
-                                    MacAddress macAddress)
-        {
-            // Arrange
+      [Theory]
+      [MemberData(nameof(IsUnusable_Test_Values))]
+      public void IsUnusable_Test(bool expected,
+                                  MacAddress macAddress)
+      {
+         // Arrange
 
-            // Act
-            var isUsable = macAddress.IsUnusable;
+         // Act
+         var isUsable = macAddress.IsUnusable;
 
-            // Assert
-            Assert.Equal(expected, isUsable);
-        }
+         // Assert
+         Assert.Equal(expected, isUsable);
+      }
 
-        #endregion end: IsUnusable
+      #endregion end: IsUnusable
 
-        #region ctor bytes[]
+      #region ctor bytes[]
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(5)]
-        [InlineData(7)]
-        public void Ctor_WrongByteCount_Throws_ArgumentException_Test(int byteCount)
-        {
-            // Arrange
-            var bytes = Enumerable.Repeat((byte) 0xAC, byteCount)
-                                  .ToArray();
+      [Theory]
+      [InlineData(0)]
+      [InlineData(5)]
+      [InlineData(7)]
+      public void Ctor_WrongByteCount_Throws_ArgumentException_Test(int byteCount)
+      {
+         // Arrange
+         var bytes = Enumerable.Repeat((byte)0xAC, byteCount)
+                               .ToArray();
 
-            // Act
-            // Assert
-            Assert.Throws<ArgumentException>(() => new MacAddress(bytes));
-        }
+         // Act
+         // Assert
+         Assert.Throws<ArgumentException>(() => new MacAddress(bytes));
+      }
 
-        [Fact]
-        public void Ctor_NullBytes_Throws_ArgumentNullException_Test()
-        {
-            // Arrange
-            // Act
-            // Assert
-            Assert.Throws<ArgumentNullException>(() => new MacAddress(null));
-        }
+      [Fact]
+      public void Ctor_NullBytes_Throws_ArgumentNullException_Test()
+      {
+         // Arrange
+         // Act
+         // Assert
+         Assert.Throws<ArgumentNullException>(() => new MacAddress(null));
+      }
 
-        #endregion end: ctor bytes[]
+      #endregion end: ctor bytes[]
 
-        #region ISerializable
+      #region ISerializable
 
-        public static IEnumerable<object[]> CanSerializable_Test_Values()
-        {
-            yield return new object[] {new MacAddress(Enumerable.Repeat((byte) 0x00, 6))};
-            yield return new object[] {new MacAddress(Enumerable.Repeat((byte) 0xFF, 6))};
-            yield return new object[] {new MacAddress(new byte[] {0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45})};
-        }
+      public static IEnumerable<object[]> CanSerializable_Test_Values()
+      {
+         yield return new object[] { new MacAddress(Enumerable.Repeat((byte)0x00, 6)) };
+         yield return new object[] { new MacAddress(Enumerable.Repeat((byte)0xFF, 6)) };
+         yield return new object[] { new MacAddress(new byte[] { 0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45 }) };
+      }
 
-        [Theory]
-        [MemberData(nameof(CanSerializable_Test_Values))]
-        public void CanSerializable_Test(MacAddress macAddress)
-        {
-            // Arrange
-            var formatter = new BinaryFormatter();
+      [Theory]
+      [MemberData(nameof(CanSerializable_Test_Values))]
+      public void CanSerializable_Test(MacAddress macAddress)
+      {
+         // Arrange
+         var formatter = new BinaryFormatter();
 
-            // Act
-            using var writeStream = new MemoryStream();
-            formatter.Serialize(writeStream, macAddress);
+         // Act
+         using var writeStream = new MemoryStream();
+         formatter.Serialize(writeStream, macAddress);
 
-            var bytes = writeStream.ToArray();
-            var readStream = new MemoryStream(bytes);
-            var result = formatter.Deserialize(readStream);
+         var bytes = writeStream.ToArray();
+         var readStream = new MemoryStream(bytes);
+         var result = formatter.Deserialize(readStream);
 
-            // Assert
-            Assert.IsType<MacAddress>(result);
-            Assert.Equal(macAddress, result);
-        }
+         // Assert
+         Assert.IsType<MacAddress>(result);
+         Assert.Equal(macAddress, result);
+      }
 
-        #endregion end: ISerializable
+      #endregion end: ISerializable
 
-        #region type
+      #region type
 
-        [Theory]
-        [InlineData(typeof(IEquatable<MacAddress>))]
-        [InlineData(typeof(IComparable<MacAddress>))]
-        [InlineData(typeof(IComparable))]
-        [InlineData(typeof(IFormattable))]
-        [InlineData(typeof(ISerializable))]
-        public void Assignability_Test(Type assignableFromType)
-        {
-            // Arrange
-            var type = typeof(MacAddress);
+      [Theory]
+      [InlineData(typeof(IEquatable<MacAddress>))]
+      [InlineData(typeof(IComparable<MacAddress>))]
+      [InlineData(typeof(IComparable))]
+      [InlineData(typeof(IFormattable))]
+      [InlineData(typeof(ISerializable))]
+      public void Assignability_Test(Type assignableFromType)
+      {
+         // Arrange
+         var type = typeof(MacAddress);
 
-            // Act
-            var isAssignableFrom = assignableFromType.IsAssignableFrom(type);
+         // Act
+         var isAssignableFrom = assignableFromType.IsAssignableFrom(type);
 
-            // Assert
-            Assert.True(isAssignableFrom);
-        }
+         // Assert
+         Assert.True(isAssignableFrom);
+      }
 
-        [Fact]
-        public void IsConcrete_Test()
-        {
-            // Arrange
-            var type = typeof(MacAddress);
+      [Fact]
+      public void IsConcrete_Test()
+      {
+         // Arrange
+         var type = typeof(MacAddress);
 
-            // Act
-            var isConcrete = type.IsClass && !type.IsAbstract;
+         // Act
+         var isConcrete = type.IsClass && !type.IsAbstract;
 
-            // Assert
-            Assert.True(isConcrete);
-        }
+         // Assert
+         Assert.True(isConcrete);
+      }
 
-        #endregion end: type
+      #endregion end: type
 
-        #region IComparable
+      #region IComparable
 
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void CompareTo_Object_Test(int expected,
-                                          MacAddress left,
-                                          object right)
-        {
-            // Arrange
-            // Act
-            var result = left.CompareTo(right);
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void CompareTo_Object_Test(int expected,
+                                        MacAddress left,
+                                        object right)
+      {
+         // Arrange
+         // Act
+         var result = left.CompareTo(right);
 
-            // Assert
-            Assert.Equal(expected, result);
-        }
+         // Assert
+         Assert.Equal(expected, result);
+      }
 
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_Object_Values))]
-        public void CompareTo_Object_NotMacAddress_Test(int expected,
-                                                        MacAddress left,
-                                                        object right)
-        {
-            // Arrange
-            // Act
-            // Assert
-            Assert.Throws<ArgumentException>(() => left.CompareTo(right));
-        }
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_Object_Values))]
+      public void CompareTo_Object_NotMacAddress_Test(int expected,
+                                                      MacAddress left,
+                                                      object right)
+      {
+         // Arrange
+         // Act
+         // Assert
+         Assert.Throws<ArgumentException>(() => left.CompareTo(right));
+      }
 
-        #endregion end: IComparable
+      #endregion end: IComparable
 
-        #region Parse
+      #region Parse
 
-        #region Parse string
+      #region Parse string
 
-        [Theory]
-        [MemberData(nameof(Parse_Test_SuccessValues))]
-        public void Parse_HappyPath_Test(MacAddress expected,
-                                         string input)
-        {
-            // Arrange
-
-            // Act
-            var macAddress = MacAddress.Parse(input);
-
-            // Assert
-            Assert.Equal(expected, macAddress);
-        }
-
-        [Theory]
-        [MemberData(nameof(Parse_Test_FailValues))]
-        public void Parse_Failure_Test(MacAddress expected,
+      [Theory]
+      [MemberData(nameof(Parse_Test_SuccessValues))]
+      public void Parse_HappyPath_Test(MacAddress expected,
                                        string input)
-        {
-            // Arrange
-            // Act
-            // Assert
-            Assert.ThrowsAny<Exception>(() => MacAddress.Parse(input));
-        }
+      {
+         // Arrange
 
-        [Theory]
-        [MemberData(nameof(Parse_Test_SuccessValues))]
-        [MemberData(nameof(Parse_Test_FailValues))]
-        public void TryParse_Test(MacAddress expected,
-                                  string input)
-        {
-            // Arrange
+         // Act
+         var macAddress = MacAddress.Parse(input);
 
-            // Act
-            var success = MacAddress.TryParse(input, out var macAddress);
+         // Assert
+         Assert.Equal(expected, macAddress);
+      }
 
-            // Assert
-            Assert.True(expected is null ^ success);
-            Assert.Equal(expected, macAddress);
-        }
+      [Theory]
+      [MemberData(nameof(Parse_Test_FailValues))]
+      public void Parse_Failure_Test(MacAddress expected,
+                                     string input)
+      {
+         // Arrange
+         // Act
+         // Assert
+         Assert.ThrowsAny<Exception>(() => MacAddress.Parse(input));
+      }
 
-        public static IEnumerable<object[]> Parse_Test_FailValues()
-        {
-            yield return new object[] {null, null};
-            yield return new object[] {null, string.Empty};
-            yield return new object[] {null, "A"};
-            yield return new object[] {null, "potato"};
-        }
+      [Theory]
+      [MemberData(nameof(Parse_Test_SuccessValues))]
+      [MemberData(nameof(Parse_Test_FailValues))]
+      public void TryParse_Test(MacAddress expected,
+                                string input)
+      {
+         // Arrange
 
-        public static IEnumerable<object[]> Parse_Test_SuccessValues()
-        {
+         // Act
+         var success = MacAddress.TryParse(input, out var macAddress);
+
+         // Assert
+         Assert.True(expected is null ^ success);
+         Assert.Equal(expected, macAddress);
+      }
+
+      public static IEnumerable<object[]> Parse_Test_FailValues()
+      {
+         yield return new object[] { null, null };
+         yield return new object[] { null, string.Empty };
+         yield return new object[] { null, "A" };
+         yield return new object[] { null, "potato" };
+      }
+
+      public static IEnumerable<object[]> Parse_Test_SuccessValues()
+      {
+         var formatProvider = CultureInfo.InvariantCulture;
+         var formats = new[] { "g", "c", "s", "d", "X" };
+
+         var bytes = new byte[] { 0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45 };
+
+         var macAddresses = new[]
+                            {
+                                   new MacAddress(bytes),
+                                   new MacAddress(bytes.ReverseBytes())
+                            };
+
+         foreach (var macAddress in macAddresses)
+         {
+            foreach (var format in formats)
+            {
+               var s = macAddress.ToString(format, formatProvider);
+               yield return new object[] { macAddress, s };
+               yield return new object[] { macAddress, s.ToLowerInvariant() };
+            }
+         }
+      }
+
+      #endregion end: Parse string
+
+      #region ParseAny
+
+      [Theory]
+      [MemberData(nameof(ParseAny_Test_SuccessValues))]
+      public void ParseAny_HappyPath_Test(MacAddress expected,
+                                          string input)
+      {
+         // Arrange
+
+         // Act
+         var macAddress = MacAddress.ParseAny(input);
+
+         // Assert
+         Assert.Equal(expected, macAddress);
+      }
+
+      [Theory]
+      [MemberData(nameof(ParseAny_Test_FailValues))]
+      public void ParseAny_Failure_Test(MacAddress expected,
+                                        string input)
+      {
+         // Arrange
+         // Act
+         // Assert
+         Assert.ThrowsAny<Exception>(() => MacAddress.ParseAny(input));
+      }
+
+      [Theory]
+      [MemberData(nameof(ParseAny_Test_SuccessValues))]
+      [MemberData(nameof(ParseAny_Test_FailValues))]
+      public void TryParseAny_Test(MacAddress expected,
+                                   string input)
+      {
+         // Arrange
+
+         // Act
+         var success = MacAddress.TryParseAny(input, out var macAddress);
+
+         // Assert
+         Assert.True(expected is null ^ success);
+         Assert.Equal(expected, macAddress);
+      }
+
+      public static IEnumerable<object[]> ParseAny_Test_FailValues()
+      {
+         yield return new object[] { null, null };
+         yield return new object[] { null, string.Empty };
+         yield return new object[] { null, "A" };
+         yield return new object[] { null, "potato" };
+      }
+
+      public static IEnumerable<object[]> ParseAny_Test_SuccessValues()
+      {
+         foreach (var testCase in StandardFormatTestCases())
+         {
+            yield return testCase;
+         }
+
+         foreach (var testCase in NonStandardFormatTestCases())
+         {
+            yield return testCase;
+         }
+
+         static IEnumerable<object[]> NonStandardFormatTestCases()
+         {
+            var bytes = new byte[] { 0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45 };
+            var expected = new MacAddress(bytes);
+            var byteStrings = bytes.Select(b => $"{b:X2}")
+                                   .ToArray();
+
+            yield return new object[] { expected, string.Join("?!&*", byteStrings) };
+            yield return new object[] { expected, $"-_={string.Join(string.Empty, byteStrings)}=_-" };
+            yield return new object[]
+                         {
+                                 expected, string.Join("_",
+                                                       string.Join(string.Empty, byteStrings)
+                                                             .Select(c => $"{c}"))
+                         };
+         }
+
+         static IEnumerable<object[]> StandardFormatTestCases()
+         {
             var formatProvider = CultureInfo.InvariantCulture;
-            var formats = new[] {"g", "c", "s", "d", "X"};
+            var formats = new[] { "g", "c", "s", "d", "X" };
 
-            var bytes = new byte[] {0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45};
+            var bytes = new byte[] { 0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45 };
 
             var macAddresses = new[]
                                {
-                                   new MacAddress(bytes),
-                                   new MacAddress(bytes.ReverseBytes())
+                                       new MacAddress(bytes),
+                                       new MacAddress(bytes.ReverseBytes())
                                };
 
             foreach (var macAddress in macAddresses)
             {
-                foreach (var format in formats)
-                {
-                    var s = macAddress.ToString(format, formatProvider);
-                    yield return new object[] {macAddress, s};
-                    yield return new object[] {macAddress, s.ToLower(CultureInfo.InvariantCulture)};
-                }
+               foreach (var format in formats)
+               {
+                  var s = macAddress.ToString(format, formatProvider);
+                  yield return new object[] { macAddress, s };
+                  yield return new object[] { macAddress, s.ToLowerInvariant() };
+               }
             }
-        }
-
-        #endregion end: Parse string
-
-        #region ParseAny
-
-        [Theory]
-        [MemberData(nameof(ParseAny_Test_SuccessValues))]
-        public void ParseAny_HappyPath_Test(MacAddress expected,
-                                            string input)
-        {
-            // Arrange
-
-            // Act
-            var macAddress = MacAddress.ParseAny(input);
-
-            // Assert
-            Assert.Equal(expected, macAddress);
-        }
-
-        [Theory]
-        [MemberData(nameof(ParseAny_Test_FailValues))]
-        public void ParseAny_Failure_Test(MacAddress expected,
-                                          string input)
-        {
-            // Arrange
-            // Act
-            // Assert
-            Assert.ThrowsAny<Exception>(() => MacAddress.ParseAny(input));
-        }
-
-        [Theory]
-        [MemberData(nameof(ParseAny_Test_SuccessValues))]
-        [MemberData(nameof(ParseAny_Test_FailValues))]
-        public void TryParseAny_Test(MacAddress expected,
-                                     string input)
-        {
-            // Arrange
-
-            // Act
-            var success = MacAddress.TryParseAny(input, out var macAddress);
-
-            // Assert
-            Assert.True(expected is null ^ success);
-            Assert.Equal(expected, macAddress);
-        }
-
-        public static IEnumerable<object[]> ParseAny_Test_FailValues()
-        {
-            yield return new object[] {null, null};
-            yield return new object[] {null, string.Empty};
-            yield return new object[] {null, "A"};
-            yield return new object[] {null, "potato"};
-        }
-
-        public static IEnumerable<object[]> ParseAny_Test_SuccessValues()
-        {
-            foreach (var testCase in StandardFormatTestCases())
-            {
-                yield return testCase;
-            }
-
-            foreach (var testCase in NonStandardFormatTestCases())
-            {
-                yield return testCase;
-            }
-
-            static IEnumerable<object[]> NonStandardFormatTestCases()
-            {
-                var bytes = new byte[] {0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45};
-                var expected = new MacAddress(bytes);
-                var byteStrings = bytes.Select(b => $"{b:X2}")
-                                       .ToArray();
-
-                yield return new object[] {expected, string.Join("?!&*", byteStrings)};
-                yield return new object[] {expected, $"-_={string.Join(string.Empty, byteStrings)}=_-"};
-                yield return new object[]
-                             {
-                                 expected, string.Join("_",
-                                                       string.Join(string.Empty, byteStrings)
-                                                             .Select(c => $"{c}"))
-                             };
-            }
-
-            static IEnumerable<object[]> StandardFormatTestCases()
-            {
-                var formatProvider = CultureInfo.InvariantCulture;
-                var formats = new[] {"g", "c", "s", "d", "X"};
-
-                var bytes = new byte[] {0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45};
-
-                var macAddresses = new[]
-                                   {
-                                       new MacAddress(bytes),
-                                       new MacAddress(bytes.ReverseBytes())
-                                   };
-
-                foreach (var macAddress in macAddresses)
-                {
-                    foreach (var format in formats)
-                    {
-                        var s = macAddress.ToString(format, formatProvider);
-                        yield return new object[] {macAddress, s};
-                        yield return new object[] {macAddress, s.ToLower(CultureInfo.InvariantCulture)};
-                    }
-                }
-            }
-        }
-
-        #endregion end: ParseAny
-
-        #endregion end: Parse
-
-        #region IFormattable
-
-        public static IEnumerable<object[]> IFormattable_Test_Values()
-        {
-            var formatProvider = CultureInfo.InvariantCulture;
-            var bytes = new byte[] {0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45};
-
-            yield return new object[] {"00:CD:EF:01:23:45", bytes, null, formatProvider};
-            yield return new object[] {"00:CD:EF:01:23:45", bytes, string.Empty, formatProvider};
-            yield return new object[] {"00:CD:EF:01:23:45", bytes, "g", formatProvider};
-
-            yield return new object[] {"00cdef012345", bytes, "x", formatProvider};
-            yield return new object[] {"00CDEF012345", bytes, "X", formatProvider};
-
-            yield return new object[] {"00CD.EF01.2345", bytes, "c", formatProvider};
-
-            yield return new object[] {"00 CD EF 01 23 45", bytes, "s", formatProvider};
-
-            yield return new object[] {"884478124869", bytes, "i", formatProvider};
-
-            yield return new object[] {"00-CD-EF-01-23-45", bytes, "d", formatProvider};
-        }
-
-        [Theory]
-        [MemberData(nameof(IFormattable_Test_Values))]
-        public void IFormattable_Test(string expected,
-                                      byte[] bytes,
-                                      string format,
-                                      IFormatProvider formatProvider)
-        {
-            // Arrange
-            var macAddress = new MacAddress(bytes);
-
-            // Act
-            var result = macAddress.ToString(format, formatProvider);
-
-            // Assert
-            Assert.Equal(expected, result, StringComparer.Ordinal);
-        }
-
-        #endregion end: IFormattable
-
-        #region IEquatable<MacAddress>
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void Equals_MacAddress_Test(int expected,
-                                           MacAddress left,
-                                           MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left.Equals(right);
-
-            // Assert
-            Assert.Equal(expected == 0, result);
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        [MemberData(nameof(Comparison_MacAddress_Object_Values))]
-        public void Equals_Object_Test(int expected,
-                                       MacAddress left,
-                                       object right)
-        {
-            // Arrange
-            // Act
-            var result = left.Equals(right);
-
-            // Assert
-            Assert.Equal(expected == 0, result);
-        }
-
-        #endregion end: IEquatable<MacAddress>
-
-        #region operators
-
-        #region equal
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void Operator_Equal_Test(int expected,
-                                        MacAddress left,
-                                        MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left == right;
-
-            // Assert
-            Assert.Equal(expected == 0, result);
-        }
-
-        #endregion end: equal
-
-        #region not equal
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void Operator_NotEqual_Test(int expected,
-                                           MacAddress left,
-                                           MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left != right;
-
-            // Assert
-            Assert.Equal(expected != 0, result);
-        }
-
-        #endregion end: not equal
-
-        #region less than
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void Operator_LessThan_Test(int expected,
-                                           MacAddress left,
-                                           MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left < right;
-
-            // Assert
-            Assert.Equal(expected == -1, result);
-        }
-
-        #endregion end: less than
-
-        #region greater than
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void Operator_GreaterThan_Test(int expected,
-                                              MacAddress left,
-                                              MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left > right;
-
-            // Assert
-            Assert.Equal(expected == 1, result);
-        }
-
-        #endregion end: greater than
-
-        #region less than or equal
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void Operator_LessThanOrEqualTo_Test(int expected,
-                                                    MacAddress left,
-                                                    MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left <= right;
-
-            // Assert
-            Assert.Equal(expected <= 0, result);
-        }
-
-        #endregion end: less than or equal
-
-        #region greater than or equal
-
-        [Theory]
-        [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
-        public void Operator_GreaterThanOrEqual_Test(int expected,
-                                                     MacAddress left,
-                                                     MacAddress right)
-        {
-            // Arrange
-            // Act
-            var result = left >= right;
-
-            // Assert
-            Assert.Equal(expected >= 0, result);
-        }
-
-        #endregion end: greater than or equal
-
-        #endregion end: operators
-
-        #region AllFormatMacAddressRegularExpression
-
-        public static IEnumerable<object[]> AllFormantMacAddressRefularExpressionMatches()
-        {
-            var values = new[]
-                         {
+         }
+      }
+
+      #endregion end: ParseAny
+
+      #endregion end: Parse
+
+      #region IFormattable
+
+      public static IEnumerable<object[]> IFormattable_Test_Values()
+      {
+         var formatProvider = CultureInfo.InvariantCulture;
+         var bytes = new byte[] { 0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45 };
+
+         yield return new object[] { "00:CD:EF:01:23:45", bytes, null, formatProvider };
+         yield return new object[] { "00:CD:EF:01:23:45", bytes, string.Empty, formatProvider };
+         yield return new object[] { "00:CD:EF:01:23:45", bytes, "g", formatProvider };
+
+         yield return new object[] { "00cdef012345", bytes, "x", formatProvider };
+         yield return new object[] { "00CDEF012345", bytes, "X", formatProvider };
+
+         yield return new object[] { "00CD.EF01.2345", bytes, "c", formatProvider };
+
+         yield return new object[] { "00 CD EF 01 23 45", bytes, "s", formatProvider };
+
+         yield return new object[] { "884478124869", bytes, "i", formatProvider };
+
+         yield return new object[] { "00-CD-EF-01-23-45", bytes, "d", formatProvider };
+      }
+
+      [Theory]
+      [MemberData(nameof(IFormattable_Test_Values))]
+      public void IFormattable_Test(string expected,
+                                    byte[] bytes,
+                                    string format,
+                                    IFormatProvider formatProvider)
+      {
+         // Arrange
+         var macAddress = new MacAddress(bytes);
+
+         // Act
+         var result = macAddress.ToString(format, formatProvider);
+
+         // Assert
+         Assert.Equal(expected, result, StringComparer.Ordinal);
+      }
+
+      #endregion end: IFormattable
+
+      #region IEquatable<MacAddress>
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void Equals_MacAddress_Test(int expected,
+                                         MacAddress left,
+                                         MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left.Equals(right);
+
+         // Assert
+         Assert.Equal(expected == 0, result);
+      }
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      [MemberData(nameof(Comparison_MacAddress_Object_Values))]
+      public void Equals_Object_Test(int expected,
+                                     MacAddress left,
+                                     object right)
+      {
+         // Arrange
+         // Act
+         var result = left.Equals(right);
+
+         // Assert
+         Assert.Equal(expected == 0, result);
+      }
+
+      #endregion end: IEquatable<MacAddress>
+
+      #region operators
+
+      #region equal
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void Operator_Equal_Test(int expected,
+                                      MacAddress left,
+                                      MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left == right;
+
+         // Assert
+         Assert.Equal(expected == 0, result);
+      }
+
+      #endregion end: equal
+
+      #region not equal
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void Operator_NotEqual_Test(int expected,
+                                         MacAddress left,
+                                         MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left != right;
+
+         // Assert
+         Assert.Equal(expected != 0, result);
+      }
+
+      #endregion end: not equal
+
+      #region less than
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void Operator_LessThan_Test(int expected,
+                                         MacAddress left,
+                                         MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left < right;
+
+         // Assert
+         Assert.Equal(expected == -1, result);
+      }
+
+      #endregion end: less than
+
+      #region greater than
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void Operator_GreaterThan_Test(int expected,
+                                            MacAddress left,
+                                            MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left > right;
+
+         // Assert
+         Assert.Equal(expected == 1, result);
+      }
+
+      #endregion end: greater than
+
+      #region less than or equal
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void Operator_LessThanOrEqualTo_Test(int expected,
+                                                  MacAddress left,
+                                                  MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left <= right;
+
+         // Assert
+         Assert.Equal(expected <= 0, result);
+      }
+
+      #endregion end: less than or equal
+
+      #region greater than or equal
+
+      [Theory]
+      [MemberData(nameof(Comparison_MacAddress_MacAddress_Values))]
+      public void Operator_GreaterThanOrEqual_Test(int expected,
+                                                   MacAddress left,
+                                                   MacAddress right)
+      {
+         // Arrange
+         // Act
+         var result = left >= right;
+
+         // Assert
+         Assert.Equal(expected >= 0, result);
+      }
+
+      #endregion end: greater than or equal
+
+      #endregion end: operators
+
+      #region AllFormatMacAddressRegularExpression
+
+      public static IEnumerable<object[]> AllFormantMacAddressRefularExpressionMatches()
+      {
+         var values = new[]
+                      {
                              "00D.7FB.576.F14",
                              "01 D5 7A D5 18 9B",
                              "015.721.263.754",
@@ -877,39 +877,39 @@ namespace Arcus.Tests
                              "72 71 DC 01 99 79",
                              "75BB2A7F454A",
                              "765.E80.3FE.05D"
-                         };
+                      };
 
-            foreach (var value in values)
-            {
-                yield return new object[] {value};
-                yield return new object[] {value.ToLowerInvariant()};
-            }
-        }
+         foreach (var value in values)
+         {
+            yield return new object[] { value };
+            yield return new object[] { value.ToLowerInvariant() };
+         }
+      }
 
-        [Theory]
-        [MemberData(nameof(AllFormantMacAddressRefularExpressionMatches))]
-        public void AllFormantMacAddressRefularExpression_Matches_Test(string input)
-        {
-            // Arrange
-            // Act
-            var isMatch = MacAddress.AllFormatMacAddressRegularExpression.IsMatch(input);
+      [Theory]
+      [MemberData(nameof(AllFormantMacAddressRefularExpressionMatches))]
+      public void AllFormantMacAddressRefularExpression_Matches_Test(string input)
+      {
+         // Arrange
+         // Act
+         var isMatch = MacAddress.AllFormatMacAddressRegularExpression.IsMatch(input);
 
-            // Assert
-            Assert.True(isMatch);
-            var count = Regex.Matches(input, @"[\dA-Fa-f]")
-                             .Count;
-            Assert.Equal(12,
-                         count);
-        }
+         // Assert
+         Assert.True(isMatch);
+         var count = Regex.Matches(input, @"[\dA-Fa-f]")
+                          .Count;
+         Assert.Equal(12,
+                      count);
+      }
 
-        #endregion end: AllFormatMacAddressRegularExpression
+      #endregion end: AllFormatMacAddressRegularExpression
 
-        #region CommonFormatMacAddressRegularExpression
+      #region CommonFormatMacAddressRegularExpression
 
-        public static IEnumerable<object[]> CommonFormatMacAddressRegularExpressionMatches()
-        {
-            var values = new[]
-                         {
+      public static IEnumerable<object[]> CommonFormatMacAddressRegularExpressionMatches()
+      {
+         var values = new[]
+                      {
                              "DC:F1:EE:7C:9A:E1",
                              "67:2F:7C:7A:FF:C8",
                              "B9:53:18:2A:71:7D",
@@ -960,30 +960,30 @@ namespace Arcus.Tests
                              "A0:09:97:78:65:95",
                              "E6:01:AC:DF:D3:DC",
                              "49:24:6D:2E:30:58"
-                         };
+                      };
 
-            foreach (var value in values)
-            {
-                yield return new object[] {value};
-                yield return new object[] {value.ToLowerInvariant()};
-            }
-        }
+         foreach (var value in values)
+         {
+            yield return new object[] { value };
+            yield return new object[] { value.ToLowerInvariant() };
+         }
+      }
 
-        [Theory]
-        [MemberData(nameof(CommonFormatMacAddressRegularExpressionMatches))]
-        public void CommonFormatMacAddressRegularExpression_Matches_Test(string input)
-        {
-            // Arrange
-            // Act
-            var isMatch = MacAddress.CommonFormatMacAddressRegularExpression.IsMatch(input);
+      [Theory]
+      [MemberData(nameof(CommonFormatMacAddressRegularExpressionMatches))]
+      public void CommonFormatMacAddressRegularExpression_Matches_Test(string input)
+      {
+         // Arrange
+         // Act
+         var isMatch = MacAddress.CommonFormatMacAddressRegularExpression.IsMatch(input);
 
-            // Assert
-            Assert.True(isMatch);
-            var count = Regex.Matches(input, @"[\dA-Fa-f]")
-                             .Count;
-            Assert.Equal(12, count);
-        }
+         // Assert
+         Assert.True(isMatch);
+         var count = Regex.Matches(input, @"[\dA-Fa-f]")
+                          .Count;
+         Assert.Equal(12, count);
+      }
 
-        #endregion end: CommonFormatMacAddressRegularExpression
-    }
+      #endregion end: CommonFormatMacAddressRegularExpression
+   }
 }
