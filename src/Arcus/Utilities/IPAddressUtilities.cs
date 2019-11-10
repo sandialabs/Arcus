@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -436,5 +436,25 @@ namespace Arcus.Utilities
         #endregion // end: Parse byte[]
 
         #endregion
+
+        #region IsPrivate
+
+        /// <summary>
+        ///     Determines if an <see cref="IPAddress"/> is a private address.
+        /// </summary>
+        /// <param name="address">the input address</param>
+        /// <returns><see langword="true"/> iff the <paramref name="address"/> is private.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="address"/> is <see langword="null"/></exception>
+        public static bool IsPrivate([NotNull] this IPAddress address)
+        {
+            if (address is null)
+            {
+                throw new ArgumentNullException(nameof(address));
+            }
+
+            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet => subnet.Contains(address));
+        }
+
+        #endregion end: IsPrivate
     }
 }

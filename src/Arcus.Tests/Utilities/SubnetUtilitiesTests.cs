@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,6 +11,80 @@ namespace Arcus.Tests.Utilities
 #pragma warning disable SA1404
     public class SubnetUtilitiesTests
     {
+        #region PrivateIPAddressRangesList
+
+        [Fact]
+        public void PrivateIPAddressRangesList_Test()
+        {
+            // Arrange
+            var expectedSubnets = new[]
+                                  {
+                                      Subnet.Parse("10.0.0.0", 8),
+                                      Subnet.Parse("172.16.0.0", 12),
+                                      Subnet.Parse("192.168.0.0", 16),
+                                      Subnet.Parse("fd00::", 8)
+                                  };
+
+            // Act
+            var list = SubnetUtilities.PrivateIPAddressRangesList;
+
+            // Assert
+            Assert.IsAssignableFrom<IReadOnlyList<Subnet>>(list);
+            Assert.Equal(4, list.Count);
+            Assert.Equal(list.Count,
+                         list.Distinct()
+                             .Count());
+
+            Assert.Contains(list, s => s.IsIPv4);
+            Assert.Contains(list, s => s.IsIPv6);
+
+            Assert.All(list,
+                       subnet =>
+                       {
+                           Assert.NotNull(subnet);
+                           Assert.Contains(subnet,
+                                           expectedSubnets);
+                       });
+        }
+
+        #endregion end: PrivateIPAddressRangesList
+
+        #region LinkLocalIPAddressRangesList
+
+        [Fact]
+        public void LinkLocalIPAddressRangesList_Test()
+        {
+            // Arrange
+            var expectedSubnets = new[]
+                                  {
+                                      Subnet.Parse("169.254.0.0", 16),
+                                      Subnet.Parse("fe80::", 10)
+                                  };
+
+            // Act
+            var list = SubnetUtilities.LinkLocalIPAddressRangesList;
+
+            // Assert
+            Assert.IsAssignableFrom<IReadOnlyList<Subnet>>(list);
+            Assert.Equal(2, list.Count);
+            Assert.Equal(list.Count,
+                         list.Distinct()
+                             .Count());
+
+            Assert.Contains(list, s => s.IsIPv4);
+            Assert.Contains(list, s => s.IsIPv6);
+
+            Assert.All(list,
+                       subnet =>
+                       {
+                           Assert.NotNull(subnet);
+                           Assert.Contains(subnet,
+                                           expectedSubnets);
+                       });
+        }
+
+        #endregion end: LinkLocalIPAddressRangesList
+
         #region FewestConsecutiveSubnetsFor
 
         public static IEnumerable<object[]> FewestConsecutiveSubnetsFor_Test_Values()
