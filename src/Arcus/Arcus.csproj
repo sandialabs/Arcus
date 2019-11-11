@@ -27,7 +27,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <TargetFramework>netstandard1.3</TargetFramework>
     <Title>Arcus</Title>
-    <Version>2.2.0-preview20191111a</Version>
+    <Version>2.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
