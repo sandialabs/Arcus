@@ -52,7 +52,7 @@ namespace Arcus
       ///     <para>this regular expression pattern is expected to be used in matches ignoring case</para>
       /// </remarks>
       public const string AllFormatMacAddressPattern =
-          @"^[\dA-F]{2}([ -:]?)(?:[\dA-F]{2}\1){4}[\dA-F]{2}$|^(?:[\dA-F]{4}\.){2}[\dA-F]{4}$|^(?:[\dA-F]{3}\.){3}[\dA-F]{3}$";
+          @"^(?:[0-9A-F]{2}([-: ]?))(?:[0-9A-F]{2}\1){4}[0-9A-F]{2}$|^(?:[0-9A-F]{4}\.){2}[0-9A-F]{4}$|^(?:[0-9A-F]{3}\.){3}[0-9A-F]{3}$";
 
       /// <summary>
       ///     MAC Address Regular Expression pattern for matching the "common" six groups of two uppercase hexadecimal digits
