@@ -8,7 +8,6 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using Arcus.Utilities;
 using Gulliver;
-using JetBrains.Annotations;
 
 namespace Arcus.Converters
 {
@@ -28,7 +27,7 @@ namespace Arcus.Converters
         /// <returns>the route prefix</returns>
         /// <exception cref="InvalidOperationException"><paramref name="netmask" /> is <see langword="null" />.</exception>
         /// <exception cref="InvalidOperationException">not a valid netmask</exception>
-        public static int NetmaskToCidrRoutePrefix([NotNull] this IPAddress netmask)
+        public static int NetmaskToCidrRoutePrefix(this IPAddress netmask)
         {
             #region defense
 
@@ -49,7 +48,7 @@ namespace Arcus.Converters
 
             for (var i = 0; i < IPAddressUtilities.IPv4BitCount; i++)
             {
-                var bitMask = (byte) (0x80 >> (i % 8)); // bit mask built from current bit position in byte
+                var bitMask = (byte)(0x80 >> (i % 8)); // bit mask built from current bit position in byte
 
                 if ((netmaskBytes[i / 8] & bitMask) != 0) // if set bits are common
                 {
@@ -76,27 +75,24 @@ namespace Arcus.Converters
         /// </summary>
         /// <param name="ipAddress">the ip address to convert</param>
         /// <returns>Ascii85/Base85 representation of IPv6 Address, or an empty string on failure</returns>
-        [CanBeNull]
-        public static string ToBase85String([CanBeNull] this IPAddress ipAddress)
+        public static string ToBase85String(this IPAddress ipAddress)
         {
-            if (ipAddress == null
-                || !ipAddress.IsIPv6())
+            if (ipAddress == null || !ipAddress.IsIPv6())
             {
                 return null;
             }
 
-            return string.Concat(GetBase85Chars(ipAddress)
-                                     .Reverse())
-                         .PadLeft(20, '0');
+            return string.Concat(GetBase85Chars(ipAddress).Reverse()).PadLeft(20, '0');
 
+#if NET6_0_OR_GREATER
+            static
+#endif
             IEnumerable<char> GetBase85Chars(IPAddress input)
             {
                 const string alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
 
                 // get little endian unsigned byte value
-                var addressBytes = input.GetAddressBytes()
-                                        .Reverse()
-                                        .ToList();
+                var addressBytes = input.GetAddressBytes().Reverse().ToList();
 
                 addressBytes.Add(0x00);
 
@@ -106,9 +102,8 @@ namespace Arcus.Converters
                 do
                 {
                     bigInteger = BigInteger.DivRem(bigInteger, 85, out var charIndex);
-                    yield return alphabet[(int) charIndex];
-                }
-                while (bigInteger > 0);
+                    yield return alphabet[(int)charIndex];
+                } while (bigInteger > 0);
             }
         }
 
@@ -118,8 +113,7 @@ namespace Arcus.Converters
         /// <param name="ipAddress">the ip address to convert</param>
         /// <returns>dotted quad version of the given address</returns>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
-        [CanBeNull]
-        public static string ToDottedQuadString([CanBeNull] this IPAddress ipAddress)
+        public static string ToDottedQuadString(this IPAddress ipAddress)
         {
             if (ipAddress == null)
             {
@@ -134,45 +128,37 @@ namespace Arcus.Converters
             // TODO candidate for clean up / simplification
             var bytes = ipAddress.GetAddressBytes(); // get the bytes of the ip address
 
-            var leadingBytes = bytes.Take(12)
-                                    .ToArray(); // capture the non ipv4 bytes
+            var leadingBytes = bytes.Take(12).ToArray(); // capture the non ipv4 bytes
 
-            var hextets = Enumerable.Range(0, 6)
-                                    .Select(i =>
-                                            {
-                                                var index = i * 2;
-                                                return new byte[]
-                                                       {
-                                                           leadingBytes[index + 1],
-                                                           leadingBytes[index],
-                                                           0x0,
-                                                           0x0
-                                                       };
-                                            })                                 // get bytes in pairs with leading 0's to force unsigned form
-                                    .Select(bs => BitConverter.ToInt32(bs, 0)) // convert byte pairs to 16 bit integers
-                                    .Select(i => $"{i:x}");                    // combine bytes to a hex string
+            var hextets = Enumerable
+                .Range(0, 6)
+                .Select(i =>
+                {
+                    var index = i * 2;
+                    return new byte[] { leadingBytes[index + 1], leadingBytes[index], 0x0, 0x0 };
+                }) // get bytes in pairs with leading 0's to force unsigned form
+                .Select(bs => BitConverter.ToInt32(bs, 0)) // convert byte pairs to 16 bit integers
+                .Select(i => $"{i:x}"); // combine bytes to a hex string
 
             var hextetString = string.Join(":", hextets); // join the hextets on a colon
 
             var longestMatch = new Regex(@"((:|\b)0\b)+") // find 0's surrounded by colons or word breaks
-                               .Matches(hextetString)     // match across the hextet string
-                               .Cast<Match>()
-                               .Select(match => match.Value) // get the match value
-                               .OrderByDescending(s => s?.StartsWith("0", StringComparison.OrdinalIgnoreCase) == true
-                                                           ? s.Length + 1
-                                                           : s.Length) // order by length accounting for matches at beginning of string
-                               .FirstOrDefault();                      // find the longest span of 0 valued hextets, or null if one does not exist
+                .Matches(hextetString) // match across the hextet string
+                .Cast<Match>()
+                .Select(match => match.Value) // get the match value
+                .OrderByDescending(s =>
+                    s?.StartsWith("0", StringComparison.OrdinalIgnoreCase) == true ? s.Length + 1 : s.Length
+                ) // order by length accounting for matches at beginning of string
+                .FirstOrDefault(); // find the longest span of 0 valued hextets, or null if one does not exist
 
             if (longestMatch != null)
             {
                 // get the first index of the longest match
                 var index = hextetString.IndexOf(longestMatch, StringComparison.Ordinal);
-                hextetString = hextetString.Remove(index, longestMatch.Length)
-                                           .Insert(index, ":"); // replace first occurrence with a ":" char
+                hextetString = hextetString.Remove(index, longestMatch.Length).Insert(index, ":"); // replace first occurrence with a ":" char
             }
 
-            var followingBytes = bytes.Skip(12)
-                                      .ToArray(); // capture IPv4 bytes (last 4)
+            var followingBytes = bytes.Skip(12).ToArray(); // capture IPv4 bytes (last 4)
             var ipv4Address = new IPAddress(followingBytes).ToString();
 
             return hextetString + ":" + ipv4Address;
@@ -184,11 +170,9 @@ namespace Arcus.Converters
         /// <param name="ipAddress">the ip address to convert</param>
         /// <returns>Hex version of the given IP Address</returns>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
-        [CanBeNull]
-        public static string ToHexString([CanBeNull] this IPAddress ipAddress)
+        public static string ToHexString(this IPAddress ipAddress)
         {
-            return ipAddress?.GetAddressBytes()
-                            .ToString("HC", CultureInfo.InvariantCulture);
+            return ipAddress?.GetAddressBytes().ToString("HC", CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -197,11 +181,9 @@ namespace Arcus.Converters
         /// <param name="ipAddress">The ip address to convert</param>
         /// <returns>an integral representation of the IP address</returns>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
-        [CanBeNull]
-        public static string ToNumericString([CanBeNull] this IPAddress ipAddress)
+        public static string ToNumericString(this IPAddress ipAddress)
         {
-            return ipAddress?.GetAddressBytes()
-                            .ToString("IBE", CultureInfo.InvariantCulture);
+            return ipAddress?.GetAddressBytes().ToString("IBE", CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -210,8 +192,7 @@ namespace Arcus.Converters
         /// <param name="ipAddress">the address to expand</param>
         /// <returns>the expanded for of IPv4/IPv6, or ToString() otherwise</returns>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
-        [CanBeNull]
-        public static string ToUncompressedString([CanBeNull] this IPAddress ipAddress)
+        public static string ToUncompressedString(this IPAddress ipAddress)
         {
             if (ipAddress == null)
             {
@@ -230,8 +211,7 @@ namespace Arcus.Converters
 
             string IPv4ToString()
             {
-                var octets = ipAddress.GetAddressBytes()
-                                      .Select(b => $"{b:D3}");
+                var octets = ipAddress.GetAddressBytes().Select(b => $"{b:D3}");
 
                 return string.Join(".", octets); // join padded strings with '.' character
             }
@@ -240,9 +220,10 @@ namespace Arcus.Converters
             {
                 var addressBytes = ipAddress.GetAddressBytes();
 
-                var hextets = Enumerable.Range(0, IPAddressUtilities.IPv6HextetCount)
-                                        .Select(i => i * 2)
-                                        .Select(i => $"{addressBytes[i]:x2}{addressBytes[i + 1]:x2}");
+                var hextets = Enumerable
+                    .Range(0, IPAddressUtilities.IPv6HextetCount)
+                    .Select(i => i * 2)
+                    .Select(i => $"{addressBytes[i]:x2}{addressBytes[i + 1]:x2}");
 
                 return string.Join(":", hextets);
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,19 +9,20 @@ using System.Numerics;
 using Arcus.Math;
 using Arcus.Utilities;
 using Gulliver;
-using JetBrains.Annotations;
 
 namespace Arcus
 {
     /// <summary>
     ///     An <see langword="abstract" /> implementation of <see cref="IIPAddressRange" /> built to work with IPv4 and IPv6
     /// </summary>
-    [PublicAPI]
     public abstract class AbstractIPAddressRange : IIPAddressRange
     {
         /// <summary>
-        ///     <see langword="true" /> if the subnet describes a single ip address
+        ///     <see langword="true" /> Gets a value indicating whether if the subnet describes a single ip address
         /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the subnet describes a single ip address
+        /// </value>
         public bool IsSingleIP => this.Length == 1;
 
         /// <inheritdoc />
@@ -47,8 +48,7 @@ namespace Arcus
         #region Deconstructors
 
         /// <inheritdoc />
-        public void Deconstruct(out IPAddress head,
-                                out IPAddress tail)
+        public void Deconstruct(out IPAddress head, out IPAddress tail)
         {
             head = this.Head;
             tail = this.Tail;
@@ -70,30 +70,32 @@ namespace Arcus
             /// </summary>
             /// <param name="head">the head address</param>
             /// <param name="tail">the tail address</param>
-            public AddressTuple([NotNull] IPAddress head,
-                                [NotNull] IPAddress tail)
+            public AddressTuple(IPAddress head, IPAddress tail)
             {
                 this.Head = head ?? throw new ArgumentNullException(nameof(head));
                 this.Tail = tail ?? throw new ArgumentNullException(nameof(tail));
             }
 
             /// <summary>
-            ///     Head
+            ///     Gets head
             /// </summary>
-            [NotNull]
+            /// <value>
+            /// Head
+            /// </value>
             public IPAddress Head { get; }
 
             /// <summary>
-            ///     Tail
+            ///     Gets tail
             /// </summary>
-            [NotNull]
+            /// <value>
+            /// Tail
+            /// </value>
             public IPAddress Tail { get; }
 
             /// <inheritdoc />
             public bool Equals(AddressTuple other)
             {
-                return this.Head.Equals(other.Head)
-                       && this.Tail.Equals(other.Tail);
+                return this.Head.Equals(other.Head) && this.Tail.Equals(other.Tail);
             }
 
             /// <inheritdoc />
@@ -117,8 +119,7 @@ namespace Arcus
             /// <param name="left">left operand</param>
             /// <param name="right">right operand</param>
             /// <returns><see langword="true" /> if <paramref name="left"></paramref> and <paramref name="right" />are equal</returns>
-            public static bool operator ==(AddressTuple left,
-                                           AddressTuple right)
+            public static bool operator ==(AddressTuple left, AddressTuple right)
             {
                 return left.Equals(right);
             }
@@ -129,8 +130,7 @@ namespace Arcus
             /// <param name="left">left operand</param>
             /// <param name="right">right operand</param>
             /// <returns><see langword="true" /> if <paramref name="left"></paramref> and <paramref name="right" />are equal</returns>
-            public static bool operator !=(AddressTuple left,
-                                           AddressTuple right)
+            public static bool operator !=(AddressTuple left, AddressTuple right)
             {
                 return !(left == right);
             }
@@ -145,8 +145,7 @@ namespace Arcus
         /// </summary>
         /// <param name="head">the range head (lowest valued <see cref="IPAddress" />)</param>
         /// <param name="tail">the range tail (highest valued <see cref="IPAddress" />)</param>
-        protected AbstractIPAddressRange([NotNull] IPAddress head,
-                                         [NotNull] IPAddress tail)
+        protected AbstractIPAddressRange(IPAddress head, IPAddress tail)
         {
             #region defense
 
@@ -162,12 +161,18 @@ namespace Arcus
 
             if (!IPAddressUtilities.ValidAddressFamilies.Contains(head.AddressFamily))
             {
-                throw new ArgumentException($"{nameof(head)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}", nameof(head));
+                throw new ArgumentException(
+                    $"{nameof(head)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}",
+                    nameof(head)
+                );
             }
 
             if (!IPAddressUtilities.ValidAddressFamilies.Contains(tail.AddressFamily))
             {
-                throw new ArgumentException($"{nameof(tail)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}", nameof(tail));
+                throw new ArgumentException(
+                    $"{nameof(tail)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}",
+                    nameof(tail)
+                );
             }
 
             if (head.AddressFamily != tail.AddressFamily)
@@ -198,7 +203,7 @@ namespace Arcus
                     unsignedLittleEndianBytes[differenceBytesLength - 1 - i] = differenceBytes[i];
                 }
 
-                return new BigInteger(unsignedLittleEndianBytes) + 1; // a rare but valid use of BigInteger;
+                return new BigInteger(unsignedLittleEndianBytes) + 1; // a rare but valid use of BigInteger
             }
         }
 
@@ -223,7 +228,7 @@ namespace Arcus
 
             if (actualLength <= int.MaxValue)
             {
-                length = (int) actualLength;
+                length = (int)actualLength;
                 return true;
             }
 
@@ -238,7 +243,7 @@ namespace Arcus
 
             if (actualLength <= long.MaxValue)
             {
-                length = (long) actualLength;
+                length = (long)actualLength;
                 return true;
             }
 
@@ -254,16 +259,12 @@ namespace Arcus
         public IEnumerator<IPAddress> GetEnumerator()
         {
             // determine maximum possible address for iteration
-            var addressLimit = IPAddressMath.Min(this.Tail,
-                                                 this.IsIPv4
-                                                     ? IPAddressUtilities.IPv4MaxAddress
-                                                     : IPAddressUtilities.IPv6MaxAddress)
-                                            .GetAddressBytes();
+            var addressLimit = IPAddressMath
+                .Min(this.Tail, this.IsIPv4 ? IPAddressUtilities.IPv4MaxAddress : IPAddressUtilities.IPv6MaxAddress)
+                .GetAddressBytes();
 
             // determine the width of the bye array for the address address
-            var addressByteWidth = this.IsIPv4
-                                       ? IPAddressUtilities.IPv4ByteCount
-                                       : IPAddressUtilities.IPv6ByteCount;
+            var addressByteWidth = this.IsIPv4 ? IPAddressUtilities.IPv4ByteCount : IPAddressUtilities.IPv6ByteCount;
 
             var currentAddressBytes = this.Head.GetAddressBytes();
 
@@ -286,7 +287,13 @@ namespace Arcus
 
                 // copy appropriate portion of next address with prefixed 0x00 bytes
                 currentAddressBytes = new byte[addressByteWidth];
-                Array.Copy(nextAddressBytes, 0, currentAddressBytes, addressByteWidth - nextAddressByteWidth, nextAddressByteWidth);
+                Array.Copy(
+                    nextAddressBytes,
+                    0,
+                    currentAddressBytes,
+                    addressByteWidth - nextAddressByteWidth,
+                    nextAddressByteWidth
+                );
             }
         }
 
@@ -307,8 +314,7 @@ namespace Arcus
         }
 
         /// <inheritdoc />
-        public virtual string ToString(string format,
-                                       IFormatProvider formatProvider)
+        public virtual string ToString(string format, IFormatProvider formatProvider)
         {
             switch (format?.Trim())
             {
@@ -334,18 +340,14 @@ namespace Arcus
         public bool Contains(IIPAddressRange that)
         {
             return ReferenceEquals(this, that)
-                   || Equals(this, that)
-                   || (that != null
-                   && this.Contains(that.Head)
-                   && this.Contains(that.Tail));
+                || Equals(this, that)
+                || (that != null && this.Contains(that.Head) && this.Contains(that.Tail));
         }
 
         /// <inheritdoc />
         public bool Contains(IPAddress address)
         {
-            return address != null
-                   && address.AddressFamily == this.AddressFamily
-                   && address.IsBetween(this.Head, this.Tail);
+            return address != null && address.AddressFamily == this.AddressFamily && address.IsBetween(this.Head, this.Tail);
         }
 
         #endregion // end: Contains
@@ -355,41 +357,38 @@ namespace Arcus
         /// <inheritdoc />
         public bool HeadOverlappedBy(IIPAddressRange that)
         {
-            return ReferenceEquals(this, that)
-                   || Equals(this, that)
-                   || (that != null
-                   && that.Contains(this.Head));
+            return ReferenceEquals(this, that) || Equals(this, that) || (that != null && that.Contains(this.Head));
         }
 
         /// <inheritdoc />
         public bool TailOverlappedBy(IIPAddressRange that)
         {
-            return ReferenceEquals(this, that)
-                   || Equals(this, that)
-                   || (that != null
-                   && that.Contains(this.Tail));
+            return ReferenceEquals(this, that) || Equals(this, that) || (that != null && that.Contains(this.Tail));
         }
 
         /// <inheritdoc />
         public bool Overlaps(IIPAddressRange that)
         {
             return ReferenceEquals(this, that)
-                   || Equals(this, that)
-                   || (that != null
-                   && (this.Contains(that)
-                       || this.Contains(that.Head)
-                       || this.Contains(that.Tail)));
+                || Equals(this, that)
+                || (that != null && (this.Contains(that) || this.Contains(that.Head) || this.Contains(that.Tail)));
         }
 
         /// <inheritdoc />
         public bool Touches(IIPAddressRange that)
         {
             return that != null
-                   && this.AddressFamily == that.AddressFamily
-                   && ((this.Tail.IsLessThan(this.Tail.AddressFamily.MaxIPAddress())    // prevent overflow
-                       && Equals(this.Tail.Increment(), that.Head))                     // this tail appears directly before that head
-                       || (that.Tail.IsLessThan(that.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
-                       && Equals(that.Tail.Increment(), this.Head)));                   // that tail appears directly before this head
+                && this.AddressFamily == that.AddressFamily
+                && (
+                    (
+                        this.Tail.IsLessThan(this.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
+                        && Equals(this.Tail.Increment(), that.Head)
+                    ) // this tail appears directly before that head
+                    || (
+                        that.Tail.IsLessThan(that.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
+                        && Equals(that.Tail.Increment(), this.Head)
+                    )
+                ); // that tail appears directly before this head
         }
 
         #endregion // end: Ovelap and Touches
@@ -401,29 +400,33 @@ namespace Arcus
         /// <inheritdoc/>
         public bool ContainsAnyPrivateAddresses()
         {
-            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet => subnet.Contains(this.Head)
-                                                                            || subnet.Contains(this.Tail));
+            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet =>
+                subnet.Contains(this.Head) || subnet.Contains(this.Tail)
+            );
         }
 
         /// <inheritdoc/>
         public bool ContainsAllPrivateAddresses()
         {
-            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet => subnet.Contains(this.Head)
-                                                                            && subnet.Contains(this.Tail));
+            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet =>
+                subnet.Contains(this.Head) && subnet.Contains(this.Tail)
+            );
         }
 
         /// <inheritdoc/>
         public bool ContainsAnyPublicAddresses()
         {
-            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet => !subnet.Contains(this.Head)
-                                                                            || !subnet.Contains(this.Tail));
+            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet =>
+                !subnet.Contains(this.Head) || !subnet.Contains(this.Tail)
+            );
         }
 
         /// <inheritdoc/>
         public bool ContainsAllPublicAddresses()
         {
-            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet => !subnet.Contains(this.Head)
-                                                                            && !subnet.Contains(this.Tail));
+            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet =>
+                !subnet.Contains(this.Head) && !subnet.Contains(this.Tail)
+            );
         }
 
         #endregion end: Contains Any/All Public/Private Addresses

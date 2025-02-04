@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
-using JetBrains.Annotations;
 
 namespace Arcus
 {
@@ -12,46 +11,64 @@ namespace Arcus
     ///     A range must contain a head (the first address) and a tail (the last address) inclusive
     ///     The tail should NEVER appear numerically previous to a head
     /// </summary>
-    [PublicAPI]
-    public interface IIPAddressRange : IFormattable,
-                                       IEnumerable<IPAddress>
+    public interface IIPAddressRange : IFormattable, IEnumerable<IPAddress>
     {
         /// <summary>
-        ///     The address family of the Address Range
+        ///     Gets the address family of the Address Range
         ///     Typically Internetwork or InternetworkV6
         /// </summary>
+        /// <value>
+        /// The address family of the Address Range
+        ///     Typically Internetwork or InternetworkV6
+        /// </value>
         AddressFamily AddressFamily { get; }
 
         /// <summary>
-        ///     The length of a <see cref="IIPAddressRange" />
+        ///     Gets the length of a <see cref="IIPAddressRange" />
         /// </summary>
+        /// <value>
+        /// The length of a <see cref="IIPAddressRange" />
+        /// </value>
         BigInteger Length { get; }
 
         /// <summary>
-        ///     The head of a <see cref="IIPAddressRange" />
+        ///     Gets the head of a <see cref="IIPAddressRange" />
         /// </summary>
-        [NotNull]
+        /// <value>
+        /// The head of a <see cref="IIPAddressRange" />
+        /// </value>
         IPAddress Head { get; }
 
         /// <summary>
-        ///     The tail of a <see cref="IIPAddressRange" />
+        ///     Gets the tail of a <see cref="IIPAddressRange" />
         /// </summary>
-        [NotNull]
+        /// <value>
+        /// The tail of a <see cref="IIPAddressRange" />
+        /// </value>
         IPAddress Tail { get; }
 
         /// <summary>
-        ///     <see langword="true" /> if the subnet describes a single ip address
+        ///     <see langword="true" /> Gets a value indicating whether if the subnet describes a single ip address
         /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the subnet describes a single ip address
+        /// </value>
         bool IsSingleIP { get; }
 
         /// <summary>
-        ///     Determine if IIPAddress Range is IPv4
+        ///     Gets a value indicating whether determine if IIPAddress Range is IPv4
         /// </summary>
+        /// <value>
+        /// Determine if IIPAddress Range is IPv4
+        /// </value>
         bool IsIPv4 { get; }
 
         /// <summary>
-        ///     Determine if IIPAddress Range is IPv6
+        ///     Gets a value indicating whether determine if IIPAddress Range is IPv6
         /// </summary>
+        /// <value>
+        /// Determine if IIPAddress Range is IPv6
+        /// </value>
         bool IsIPv6 { get; }
 
         /// <summary>
@@ -75,8 +92,7 @@ namespace Arcus
         /// </summary>
         /// <param name="head">the head <see cref="IPAddress"/></param>
         /// <param name="tail">the tail <see cref="IPAddress"/></param>
-        void Deconstruct([NotNull] out IPAddress head,
-                         [NotNull] out IPAddress tail);
+        void Deconstruct(out IPAddress head, out IPAddress tail);
 
         #endregion // end: Deconstructors
 
@@ -86,12 +102,14 @@ namespace Arcus
         ///     determine if a <see cref="IIPAddressRange" /> contains another <see cref="IIPAddressRange" />
         /// </summary>
         /// <param name="that">the secondary operand</param>
+        /// <returns></returns>
         bool Contains(IIPAddressRange that);
 
         /// <summary>
         ///     determine if a <see cref="IIPAddressRange" /> contains an <paramref name="address" />
         /// </summary>
         /// <param name="address">the secondary operand</param>
+        /// <returns></returns>
         bool Contains(IPAddress address);
 
         #region Ovelap and Touches
@@ -100,12 +118,14 @@ namespace Arcus
         ///     Return <see langword="true" /> if the head of this is within the range of <paramref name="that" />
         /// </summary>
         /// <param name="that">the secondary operand</param>
+        /// <returns></returns>
         bool HeadOverlappedBy(IIPAddressRange that);
 
         /// <summary>
         ///     Return <see langword="true" /> if the tail of this is within the range of <paramref name="that" />
         /// </summary>
         /// <param name="that">the secondary operand</param>
+        /// <returns></returns>
         bool TailOverlappedBy(IIPAddressRange that);
 
         /// <summary>
@@ -113,6 +133,7 @@ namespace Arcus
         ///     tail)
         /// </summary>
         /// <param name="that">the secondary operand</param>
+        /// <returns></returns>
         bool Overlaps(IIPAddressRange that);
 
         /// <summary>
@@ -120,6 +141,7 @@ namespace Arcus
         ///     eg in sequence with no gaps in between
         /// </summary>
         /// <param name="that">the secondary operand</param>
+        /// <returns></returns>
         bool Touches(IIPAddressRange that);
 
         #endregion // end: Ovelap and Touches
@@ -153,6 +175,5 @@ namespace Arcus
         bool ContainsAllPublicAddresses();
 
         #endregion end: Contains Any/All Public/Private Addresses
-
     }
 }

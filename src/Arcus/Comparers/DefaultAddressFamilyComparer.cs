@@ -11,8 +11,7 @@ namespace Arcus.Comparers
     public class DefaultAddressFamilyComparer : Comparer<AddressFamily>
     {
         /// <inheritdoc />
-        public override int Compare(AddressFamily x,
-                                    AddressFamily y)
+        public override int Compare(AddressFamily x, AddressFamily y)
         {
             return x.CompareTo(y);
         }

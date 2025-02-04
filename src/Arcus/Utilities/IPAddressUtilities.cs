@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using Gulliver;
-using JetBrains.Annotations;
 
 namespace Arcus.Utilities
 {
@@ -49,38 +48,49 @@ namespace Arcus.Utilities
         /// </summary>
         public const int IPv6HextetCount = 8;
 
-        private static readonly Regex HexLikeRegularExpression = new Regex(HexLikePattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        private static readonly Regex DottedQuadLeadingZerosRegularExpression = new Regex(DottedQuadLeadingZerosPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
-        private static readonly Regex DottedQuadStringRegularExpression = new Regex(DottedQuadRegularExpressionPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex HexLikeRegularExpression = new Regex(
+            HexLikePattern,
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant
+        );
+        private static readonly Regex DottedQuadLeadingZerosRegularExpression = new Regex(
+            DottedQuadLeadingZerosPattern,
+            RegexOptions.Compiled | RegexOptions.CultureInvariant
+        );
+        private static readonly Regex DottedQuadStringRegularExpression = new Regex(
+            DottedQuadRegularExpressionPattern,
+            RegexOptions.Compiled | RegexOptions.CultureInvariant
+        );
 
         /// <summary>
         ///     Maximum IPv4 Address value (255.255.255.255)
         /// </summary>
-        [NotNull]
         public static readonly IPAddress IPv4MaxAddress = new IPAddress(uint.MaxValue);
 
         /// <summary>
         ///     Minimum IPv4 Address value (0.0.0.0)
         /// </summary>
-        [NotNull]
         public static readonly IPAddress IPv4MinAddress = new IPAddress(0);
 
         /// <summary>
         ///     Maximum IPv6 value (ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff)
         /// </summary>
-        [NotNull]
-        public static readonly IPAddress IPv6MaxAddress = new IPAddress(new byte[] {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, 0L);
+        public static readonly IPAddress IPv6MaxAddress = new IPAddress(
+            new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
+            0L
+        );
 
         /// <summary>
         ///     Standard valid <see cref="AddressFamily" />
         /// </summary>
-        [NotNull]
-        public static readonly IReadOnlyCollection<AddressFamily> ValidAddressFamilies = new List<AddressFamily> {AddressFamily.InterNetwork, AddressFamily.InterNetworkV6}.AsReadOnly();
+        public static readonly IReadOnlyCollection<AddressFamily> ValidAddressFamilies = new List<AddressFamily>
+        {
+            AddressFamily.InterNetwork,
+            AddressFamily.InterNetworkV6,
+        }.AsReadOnly();
 
         /// <summary>
         ///     Minimum IPv6 value (::)
         /// </summary>
-        [NotNull]
         public static readonly IPAddress IPv6MinAddress = new IPAddress(new byte[IPv6ByteCount], 0L);
 
         #region Address Max / Minimum
@@ -90,7 +100,7 @@ namespace Arcus.Utilities
         ///     <see cref="AddressFamily.InterNetworkV6" />)
         /// </summary>
         /// <param name="addressFamily">the <see cref="AddressFamily"/></param>
-        [NotNull]
+        /// <returns></returns>
         public static IPAddress MaxIPAddress(this AddressFamily addressFamily)
         {
             switch (addressFamily)
@@ -109,7 +119,7 @@ namespace Arcus.Utilities
         ///     <see cref="AddressFamily.InterNetworkV6" />)
         /// </summary>
         /// <param name="addressFamily">the <see cref="AddressFamily"/></param>
-        [NotNull]
+        /// <returns></returns>
         public static IPAddress MinIPAddress(this AddressFamily addressFamily)
         {
             switch (addressFamily)
@@ -132,7 +142,7 @@ namespace Arcus.Utilities
         /// </summary>
         /// <param name="ipAddress">the IPAddress to test</param>
         /// <returns>true if ipv4</returns>
-        public static bool IsIPv4([CanBeNull] this IPAddress ipAddress)
+        public static bool IsIPv4(this IPAddress ipAddress)
         {
             return ipAddress != null && ipAddress.AddressFamily == AddressFamily.InterNetwork;
         }
@@ -142,7 +152,7 @@ namespace Arcus.Utilities
         /// </summary>
         /// <param name="ipAddress">the IPAddress to test</param>
         /// <returns>true if ipv6</returns>
-        public static bool IsIPv6([CanBeNull] this IPAddress ipAddress)
+        public static bool IsIPv6(this IPAddress ipAddress)
         {
             return ipAddress != null && ipAddress.AddressFamily == AddressFamily.InterNetworkV6;
         }
@@ -158,20 +168,16 @@ namespace Arcus.Utilities
         /// <param name="ipAddress">the IPAddress to test</param>
         /// <returns>true if is an IPv4 address mapped to IPv6</returns>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
-        public static bool IsIPv4MappedIPv6([CanBeNull] this IPAddress ipAddress)
+        public static bool IsIPv4MappedIPv6(this IPAddress ipAddress)
         {
-            if (ipAddress == null
-                || !ipAddress.IsIPv6())
+            if (ipAddress == null || !ipAddress.IsIPv6())
             {
                 return false;
             }
 
             var addressBytes = ipAddress.GetAddressBytes();
 
-            return addressBytes.Take(10)
-                               .All(b => b == 0x00)
-                   && addressBytes[10] == 0xff
-                   && addressBytes[11] == 0xff;
+            return addressBytes.Take(10).All(b => b == 0x00) && addressBytes[10] == 0xff && addressBytes[11] == 0xff;
         }
 
         /// <summary>
@@ -179,10 +185,9 @@ namespace Arcus.Utilities
         /// </summary>
         /// <param name="netmask">the netmask to test</param>
         /// <returns>true if the given input is a valid netmask</returns>
-        public static bool IsValidNetMask([CanBeNull] this IPAddress netmask)
+        public static bool IsValidNetMask(this IPAddress netmask)
         {
-            if (netmask == null
-                || netmask.AddressFamily != AddressFamily.InterNetwork)
+            if (netmask == null || netmask.AddressFamily != AddressFamily.InterNetwork)
             {
                 return false;
             }
@@ -191,7 +196,7 @@ namespace Arcus.Utilities
             var netmaskBytes = netmask.GetAddressBytes();
             for (var i = 0; i < netmaskBytes.Length * 8; i++)
             {
-                var bitMask = (byte) (0x80 >> (i % 8));
+                var bitMask = (byte)(0x80 >> (i % 8));
                 var indexSet = (netmaskBytes[i / 8] & bitMask) != 0;
 
                 if (!set && indexSet)
@@ -220,9 +225,7 @@ namespace Arcus.Utilities
         /// <param name="input">hex input</param>
         /// <param name="addressFamily">address family</param>
         /// <returns>IP Address, or <see langword="null" /> if parse fails</returns>
-        [NotNull]
-        public static IPAddress ParseFromHexString([NotNull] string input,
-                                                   AddressFamily addressFamily)
+        public static IPAddress ParseFromHexString(string input, AddressFamily addressFamily)
         {
             #region defense
 
@@ -238,15 +241,18 @@ namespace Arcus.Utilities
 
             if (!ValidAddressFamilies.Contains(addressFamily))
             {
-                throw new ArgumentException($"{nameof(addressFamily)} must be in {string.Join(", ", ValidAddressFamilies)}", nameof(addressFamily));
+                throw new ArgumentException(
+                    $"{nameof(addressFamily)} must be in {string.Join(", ", ValidAddressFamilies)}",
+                    nameof(addressFamily)
+                );
             }
 
             #endregion // end: defense
 
             // ignore "0x" prefix, and trim most significant 0s
-            var byteString = (input.StartsWith("0x", StringComparison.OrdinalIgnoreCase)
-                                  ? input.Substring(2, input.Length - 2)
-                                  : input).TrimStart('0');
+            var byteString = (
+                input.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? input.Substring(2, input.Length - 2) : input
+            ).TrimStart('0');
 
             // if the byte string has an odd number of characters provide a single significant 0
             if (byteString.Length % 2 != 0)
@@ -261,10 +267,11 @@ namespace Arcus.Utilities
             }
 
             // for each i%2, convert i, i+1 into a byte, reverse, and convert into an array
-            var byteArray = Enumerable.Range(0, byteString.Length / 2)
-                                      .Select(i => i * 2)
-                                      .Select(i => Convert.ToByte(byteString.Substring(i, 2), 16))
-                                      .ToArray();
+            var byteArray = Enumerable
+                .Range(0, byteString.Length / 2)
+                .Select(i => i * 2)
+                .Select(i => Convert.ToByte(byteString.Substring(i, 2), 16))
+                .ToArray();
 
             return Parse(byteArray, addressFamily);
         }
@@ -277,9 +284,7 @@ namespace Arcus.Utilities
         /// <param name="addressFamily">the desired address family</param>
         /// <param name="address">the address that was parsed</param>
         /// <returns>true on success</returns>
-        public static bool TryParseFromHexString([CanBeNull] string input,
-                                                 AddressFamily addressFamily,
-                                                 [CanBeNull] out IPAddress address)
+        public static bool TryParseFromHexString(string input, AddressFamily addressFamily, out IPAddress address)
         {
             if (input == null)
             {
@@ -314,8 +319,7 @@ namespace Arcus.Utilities
         ///     notation for IPv6
         /// </param>
         /// <returns>An <see cref="System.Net.IPAddress" /> instance</returns>
-        [NotNull]
-        public static IPAddress ParseIgnoreOctalInIPv4([NotNull] string input)
+        public static IPAddress ParseIgnoreOctalInIPv4(string input)
         {
             #region defense
 
@@ -347,8 +351,7 @@ namespace Arcus.Utilities
         /// <param name="input">The string to validate.</param>
         /// <param name="address">The <see cref="System.Net.IPAddress" /> version of the string.</param>
         /// <returns>true if ipString is a valid IP address; otherwise, false.</returns>
-        public static bool TryParseIgnoreOctalInIPv4([CanBeNull] string input,
-                                                     [CanBeNull] out IPAddress address)
+        public static bool TryParseIgnoreOctalInIPv4(string input, out IPAddress address)
         {
             if (input == null)
             {
@@ -379,8 +382,8 @@ namespace Arcus.Utilities
         /// </summary>
         /// <param name="input">the big endian IPAddress</param>
         /// <param name="addressFamily">the desired address family</param>
-        public static IPAddress Parse([NotNull] byte[] input,
-                                      AddressFamily addressFamily)
+        /// <returns></returns>
+        public static IPAddress Parse(byte[] input, AddressFamily addressFamily)
         {
             if (input == null)
             {
@@ -402,7 +405,10 @@ namespace Arcus.Utilities
 
             if (input.Length > expectedByteCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(input), $"{nameof(input)} length is greater than the expected byte count of {expectedByteCount} for {addressFamily}");
+                throw new ArgumentOutOfRangeException(
+                    nameof(input),
+                    $"{nameof(input)} length is greater than the expected byte count of {expectedByteCount} for {addressFamily}"
+                );
             }
 
             return new IPAddress(input.PadBigEndianMostSignificantBytes(expectedByteCount));
@@ -415,9 +421,7 @@ namespace Arcus.Utilities
         /// <param name="addressFamily">the desired address family</param>
         /// <param name="address">the address on success</param>
         /// <returns>true on success</returns>
-        public static bool TryParse(byte[] input,
-                                    AddressFamily addressFamily,
-                                    [CanBeNull] out IPAddress address)
+        public static bool TryParse(byte[] input, AddressFamily addressFamily, out IPAddress address)
         {
             try
             {
@@ -445,7 +449,7 @@ namespace Arcus.Utilities
         /// <param name="address">the input address</param>
         /// <returns><see langword="true"/> iff the <paramref name="address"/> is private.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="address"/> is <see langword="null"/></exception>
-        public static bool IsPrivate([NotNull] this IPAddress address)
+        public static bool IsPrivate(this IPAddress address)
         {
             if (address is null)
             {

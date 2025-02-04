@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,23 +7,14 @@ using Arcus.Math;
 using Arcus.Utilities;
 using Gulliver;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Tests.Utilities
 {
+#if NET6_0_OR_GREATER
+#pragma warning disable IDE0062 // Make local function static (IDE0062); purposely allowing non-static functions that could be static for .net4.8 compatibility
+#endif
     public class IPAddressUtilitiesTests
     {
-        #region Setup / Teardown
-
-        public IPAddressUtilitiesTests(ITestOutputHelper testOutputHelper)
-        {
-            this._testOutputHelper = testOutputHelper;
-        }
-
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        #endregion
-
         #region IPv4MaxAddress
 
         [Fact]
@@ -118,8 +109,7 @@ namespace Arcus.Tests.Utilities
         [InlineData(false, "ffff::")]
         [InlineData(true, "192.168.1.1")]
         [InlineData(true, "0.0.0.0")]
-        public void IsIPv4_Test(bool expected,
-                                string input)
+        public void IsIPv4_Test(bool expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -143,8 +133,7 @@ namespace Arcus.Tests.Utilities
         [InlineData(true, "::ffff:ab:cd")]
         [InlineData(false, "1234::ffff:222.1.41.90")]
         [InlineData(false, "1234::ffff:ab:cd")]
-        public void IsIPv4MappedIPv6_Test(bool expected,
-                                          string input)
+        public void IsIPv4MappedIPv6_Test(bool expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -166,8 +155,7 @@ namespace Arcus.Tests.Utilities
         [InlineData(true, "ffff::")]
         [InlineData(false, "192.168.1.1")]
         [InlineData(false, "0.0.0.0")]
-        public void IsIPv6_Test(bool expected,
-                                string input)
+        public void IsIPv6_Test(bool expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -186,39 +174,28 @@ namespace Arcus.Tests.Utilities
         private static IEnumerable<AddressFamily> NonStandardAddressFamilies()
         {
             return Enum.GetValues(typeof(AddressFamily))
-                       .Cast<AddressFamily>()
-                       .Except(new[]
-                               {
-                                   AddressFamily.InterNetwork,
-                                   AddressFamily.InterNetworkV6
-                               });
+                .Cast<AddressFamily>()
+                .Except(new[] { AddressFamily.InterNetwork, AddressFamily.InterNetworkV6 });
         }
 
         public static IEnumerable<object[]> InvalidAddressFamily_Values()
         {
             return Enum.GetValues(typeof(AddressFamily))
-                       .Cast<AddressFamily>()
-                       .Where(addressFamily => addressFamily != AddressFamily.InterNetworkV6)
-                       .Where(addressFamily => addressFamily != AddressFamily.InterNetwork)
-                       .Select(e => new object[] {e});
+                .Cast<AddressFamily>()
+                .Where(addressFamily => addressFamily != AddressFamily.InterNetworkV6)
+                .Where(addressFamily => addressFamily != AddressFamily.InterNetwork)
+                .Select(e => new object[] { e });
         }
 
         public static IEnumerable<object[]> ValidAddressFamily_Values()
         {
-            yield return new object[] {AddressFamily.InterNetwork};
-            yield return new object[] {AddressFamily.InterNetworkV6};
+            yield return new object[] { AddressFamily.InterNetwork };
+            yield return new object[] { AddressFamily.InterNetworkV6 };
         }
 
         private static IEnumerable<IPAddress> GeneralPurposeIPv4Addresses()
         {
-            var addressStrings = new[]
-                                 {
-                                     "10.0.0.0",
-                                     "10.0.0.128",
-                                     "0.0.0.0",
-                                     "255.255.255.255",
-                                     "192.168.1.1"
-                                 };
+            var addressStrings = new[] { "10.0.0.0", "10.0.0.128", "0.0.0.0", "255.255.255.255", "192.168.1.1" };
 
             foreach (var addressString in addressStrings)
             {
@@ -234,21 +211,21 @@ namespace Arcus.Tests.Utilities
         private static IEnumerable<IPAddress> GeneralPurposeIPv6Addresses()
         {
             var addressStrings = new[]
-                                 {
-                                     "::",
-                                     "::1",
-                                     "1::",
-                                     "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
-                                     "1234:ffff:ffff:ffff::",
-                                     "::ffff:ffff:ffff:abcd",
-                                     "1234::abcd",
-                                     "1234::ffff:abcd",
-                                     "1234:ffff::abcd",
-                                     "1234:ffff::ffff:abcd",
-                                     "1:2:3:4:5:6:7:8",
-                                     "a:b:c::",
-                                     "::a:b:c"
-                                 };
+            {
+                "::",
+                "::1",
+                "1::",
+                "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+                "1234:ffff:ffff:ffff::",
+                "::ffff:ffff:ffff:abcd",
+                "1234::abcd",
+                "1234::ffff:abcd",
+                "1234:ffff::abcd",
+                "1234:ffff::ffff:abcd",
+                "1:2:3:4:5:6:7:8",
+                "a:b:c::",
+                "::a:b:c",
+            };
 
             foreach (var addressString in addressStrings)
             {
@@ -268,36 +245,33 @@ namespace Arcus.Tests.Utilities
             // all valid netmask values
             for (var i = 0; i <= 32; i++)
             {
-                var netmaskBytes = Enumerable.Repeat((byte) 0xFF, 4)
-                                             .ToArray()
-                                             .ShiftBitsLeft(32 - i);
+                var netmaskBytes = Enumerable.Repeat((byte)0xFF, 4).ToArray().ShiftBitsLeft(32 - i);
 
-                yield return new object[] {true, new IPAddress(netmaskBytes)};
+                yield return new object[] { true, new IPAddress(netmaskBytes) };
             }
 
-            yield return new object[] {false, null};
+            yield return new object[] { false, null };
 
             var invalidNetmaskAddressStrings = new[]
-                                               {
-                                                   "::",
-                                                   "ffff::",
-                                                   "255.255.0.255",
-                                                   "255.255.0.255",
-                                                   "255.0.255.255",
-                                                   "0.255.255.255",
-                                                   "0.0.0.255",
-                                                   "0.0.0.1"
-                                               };
+            {
+                "::",
+                "ffff::",
+                "255.255.0.255",
+                "255.255.0.255",
+                "255.0.255.255",
+                "0.255.255.255",
+                "0.0.0.255",
+                "0.0.0.1",
+            };
             foreach (var s in invalidNetmaskAddressStrings)
             {
-                yield return new object[] {false, IPAddress.Parse(s)};
+                yield return new object[] { false, IPAddress.Parse(s) };
             }
         }
 
         [Theory]
         [MemberData(nameof(IsValidNetMask_Test_Values))]
-        public void IsValidNetMask_Test(bool expected,
-                                        IPAddress input)
+        public void IsValidNetMask_Test(bool expected, IPAddress input)
         {
             // Arrange
             // Act
@@ -319,47 +293,39 @@ namespace Arcus.Tests.Utilities
             {
                 var asHex = AddressToHexString(address);
 
-                yield return new object[] {address, asHex.ToUpperInvariant(), address.AddressFamily};
-#pragma warning disable CA1308 // purposely testing lower case
-                yield return new object[] {address, asHex.ToLowerInvariant(), address.AddressFamily};
-#pragma warning restore CA1308
-
-                yield return new object[] {address, $"0x{asHex}".ToUpperInvariant(), address.AddressFamily};
-
-#pragma warning disable CA1308 // purposely testing lower case
-                yield return new object[] {address, $"0x{asHex}".ToLowerInvariant(), address.AddressFamily};
-#pragma warning restore CA1308
+                yield return new object[] { address, asHex.ToUpperInvariant(), address.AddressFamily };
+                yield return new object[] { address, asHex.ToLowerInvariant(), address.AddressFamily };
+                yield return new object[] { address, $"0x{asHex}".ToUpperInvariant(), address.AddressFamily };
+                yield return new object[] { address, $"0x{asHex}".ToLowerInvariant(), address.AddressFamily };
 
                 // removed most significant zero bytes
-                var msbZeroTrim = new string(asHex.SkipWhile(c => c == '0')
-                                                  .ToArray());
+                var msbZeroTrim = new string(asHex.SkipWhile(c => c == '0').ToArray());
 
                 if (!string.IsNullOrEmpty(msbZeroTrim))
                 {
-                    yield return new object[] {address, msbZeroTrim.ToUpperInvariant(), address.AddressFamily};
-#pragma warning disable CA1308 // purposely testing lower case
-                    yield return new object[] {address, msbZeroTrim.ToLowerInvariant(), address.AddressFamily};
-#pragma warning restore CA1308
-
-                    yield return new object[] {address, $"0x{msbZeroTrim}".ToUpperInvariant(), address.AddressFamily};
-
-#pragma warning disable CA1308 // purposely testing lower case
-                    yield return new object[] {address, $"0x{msbZeroTrim}".ToLowerInvariant(), address.AddressFamily};
-#pragma warning restore CA1308
+                    yield return new object[] { address, msbZeroTrim.ToUpperInvariant(), address.AddressFamily };
+                    yield return new object[] { address, msbZeroTrim.ToLowerInvariant(), address.AddressFamily };
+                    yield return new object[] { address, $"0x{msbZeroTrim}".ToUpperInvariant(), address.AddressFamily };
+                    yield return new object[] { address, $"0x{msbZeroTrim}".ToLowerInvariant(), address.AddressFamily };
                 }
             }
 
-            yield return new object[] {IPAddress.Parse("128.128.128.128"), "00000000080808080", AddressFamily.InterNetwork}; // extra zero msb
+            yield return new object[] { IPAddress.Parse("128.128.128.128"), "00000000080808080", AddressFamily.InterNetwork }; // extra zero msb
 
             // expected failures
-            yield return new object[] {null, null, AddressFamily.InterNetwork};
-            yield return new object[] {null, null, AddressFamily.InterNetworkV6};
-            yield return new object[] {null, AddressToHexString(IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")), AddressFamily.InterNetwork};
+            yield return new object[] { null, null, AddressFamily.InterNetwork };
+            yield return new object[] { null, null, AddressFamily.InterNetworkV6 };
+            yield return new object[]
+            {
+                null,
+                AddressToHexString(IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                AddressFamily.InterNetwork,
+            };
 
             // non standard address family
             foreach (var addressFamily in NonStandardAddressFamilies())
             {
-                yield return new object[] {null, "0", addressFamily};
+                yield return new object[] { null, "0", addressFamily };
             }
 
             IEnumerable<IPAddress> Addresses()
@@ -380,17 +346,13 @@ namespace Arcus.Tests.Utilities
 
             string AddressToHexString(IPAddress address)
             {
-                return string.Concat(address.GetAddressBytes()
-                                            .Select(b => Convert.ToString(b, 16)
-                                                                .PadLeft(2, '0')));
+                return string.Concat(address.GetAddressBytes().Select(b => Convert.ToString(b, 16).PadLeft(2, '0')));
             }
         }
 
         [Theory]
         [MemberData(nameof(ParseFromHexString_Test_Values))]
-        public void ParseFromHexString_Test(IPAddress expected,
-                                            string addressString,
-                                            AddressFamily addressFamily)
+        public void ParseFromHexString_Test(IPAddress expected, string addressString, AddressFamily addressFamily)
         {
             // Arrange
             if (expected == null)
@@ -411,7 +373,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentNullException>(() => IPAddressUtilities.ParseFromHexString(null, default));
         }
 
@@ -424,7 +386,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentException>(() => IPAddressUtilities.ParseFromHexString(input, default));
         }
 
@@ -435,7 +397,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentException>(() => IPAddressUtilities.ParseFromHexString("abc123", addressFamily));
         }
 
@@ -448,15 +410,13 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentException>(() => IPAddressUtilities.ParseFromHexString(input, AddressFamily.InterNetwork));
         }
 
         [Theory]
         [MemberData(nameof(ParseFromHexString_Test_Values))]
-        public void TryParseFromHexString_Test(IPAddress expected,
-                                               string addressString,
-                                               AddressFamily addressFamily)
+        public void TryParseFromHexString_Test(IPAddress expected, string addressString, AddressFamily addressFamily)
         {
             // Arrange
             // Act
@@ -475,25 +435,25 @@ namespace Arcus.Tests.Utilities
         {
             foreach (var address in Addresses())
             {
-                yield return new object[] {address, address.ToString()};
+                yield return new object[] { address, address.ToString() };
 
                 if (address.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    yield return new object[] {address, AddressToQuads(address)};
+                    yield return new object[] { address, AddressToQuads(address) };
                 }
             }
 
-            yield return new object[] {IPAddress.Parse("0.0.0.192"), "192"};
-            yield return new object[] {IPAddress.Parse("1.0.0.192"), "1.192"};
-            yield return new object[] {IPAddress.Parse("1.255.0.192"), "1.255.192"};
+            yield return new object[] { IPAddress.Parse("0.0.0.192"), "192" };
+            yield return new object[] { IPAddress.Parse("1.0.0.192"), "1.192" };
+            yield return new object[] { IPAddress.Parse("1.255.0.192"), "1.255.192" };
 
             // octal case
-            yield return new object[] {IPAddress.Parse("7.7.7.0"), "007.007.7.0"};
+            yield return new object[] { IPAddress.Parse("7.7.7.0"), "007.007.7.0" };
 
             // expected failures
-            yield return new object[] {null, null};
-            yield return new object[] {null, "potato"};
-            yield return new object[] {null, "255.255.255.255.255"};
+            yield return new object[] { null, null };
+            yield return new object[] { null, "potato" };
+            yield return new object[] { null, "255.255.255.255.255" };
 
             IEnumerable<IPAddress> Addresses()
             {
@@ -515,17 +475,13 @@ namespace Arcus.Tests.Utilities
 
             string AddressToQuads(IPAddress address)
             {
-                return string.Join(".",
-                                   address.GetAddressBytes()
-                                          .Select(b => Convert.ToString(b, 10)
-                                                              .PadLeft(3, '0')));
+                return string.Join(".", address.GetAddressBytes().Select(b => Convert.ToString(b, 10).PadLeft(3, '0')));
             }
         }
 
         [Theory]
         [MemberData(nameof(ParseIgnoreOctalInIPv4_Test_Values))]
-        public void ParseIgnoreOctalInIPv4_Test(IPAddress expected,
-                                                string input)
+        public void ParseIgnoreOctalInIPv4_Test(IPAddress expected, string input)
         {
             // Arrange
             if (expected == null)
@@ -546,7 +502,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentNullException>(() => IPAddressUtilities.ParseIgnoreOctalInIPv4(null));
         }
 
@@ -559,14 +515,13 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentException>(() => IPAddressUtilities.ParseIgnoreOctalInIPv4(input));
         }
 
         [Theory]
         [MemberData(nameof(ParseIgnoreOctalInIPv4_Test_Values))]
-        public void TryParseIgnoreOctalInIPv4_Test(IPAddress expected,
-                                                   string input)
+        public void TryParseIgnoreOctalInIPv4_Test(IPAddress expected, string input)
         {
             // Arrange
             var success = IPAddressUtilities.TryParseIgnoreOctalInIPv4(input, out var result);
@@ -584,50 +539,39 @@ namespace Arcus.Tests.Utilities
         {
             foreach (var address in Addresses())
             {
-                yield return new object[]
-                             {
-                                 address, address.GetAddressBytes()
-                                                 .ToArray(),
-                                 address.AddressFamily
-                             };
+                yield return new object[] { address, address.GetAddressBytes().ToArray(), address.AddressFamily };
             }
 
             // underflow, add msb zeros
-            yield return new object[] {IPAddress.Parse("0.0.0.0"), Array.Empty<byte>(), AddressFamily.InterNetwork};
-            yield return new object[] {IPAddress.Parse("::"), Array.Empty<byte>(), AddressFamily.InterNetworkV6};
+            yield return new object[] { IPAddress.Parse("0.0.0.0"), Array.Empty<byte>(), AddressFamily.InterNetwork };
+            yield return new object[] { IPAddress.Parse("::"), Array.Empty<byte>(), AddressFamily.InterNetworkV6 };
 
-            yield return new object[] {IPAddress.Parse("0.0.0.255"), new byte[] {0x00, 0xff}, AddressFamily.InterNetwork};
-            yield return new object[] {IPAddress.Parse("::acca"), new byte[] {0x00, 0x00, 0xac, 0xca}, AddressFamily.InterNetworkV6};
+            yield return new object[] { IPAddress.Parse("0.0.0.255"), new byte[] { 0x00, 0xff }, AddressFamily.InterNetwork };
+            yield return new object[]
+            {
+                IPAddress.Parse("::acca"),
+                new byte[] { 0x00, 0x00, 0xac, 0xca },
+                AddressFamily.InterNetworkV6,
+            };
 
             // ipv4 overflow
-            yield return new object[]
-                         {
-                             null, Enumerable.Repeat((byte) 0xff, 5)
-                                             .ToArray(),
-                             AddressFamily.InterNetwork
-                         };
+            yield return new object[] { null, Enumerable.Repeat((byte)0xff, 5).ToArray(), AddressFamily.InterNetwork };
 
             // ipv6 overflow
-            yield return new object[]
-                         {
-                             null, Enumerable.Repeat((byte) 0xff, 17)
-                                             .ToArray(),
-                             AddressFamily.InterNetworkV6
-                         };
+            yield return new object[] { null, Enumerable.Repeat((byte)0xff, 17).ToArray(), AddressFamily.InterNetworkV6 };
 
-            yield return new object[] {null, null, AddressFamily.InterNetwork};
-            yield return new object[] {null, null, AddressFamily.InterNetworkV6};
+            yield return new object[] { null, null, AddressFamily.InterNetwork };
+            yield return new object[] { null, null, AddressFamily.InterNetworkV6 };
 
             // non standard address family
             foreach (var addressFamily in NonStandardAddressFamilies())
             {
-                yield return new object[] {null, Array.Empty<byte>(), addressFamily};
+                yield return new object[] { null, Array.Empty<byte>(), addressFamily };
             }
 
             IEnumerable<IPAddress> Addresses()
             {
-                foreach (var address in GeneralPurposeIPv4Addresses()
-                    .Concat(GeneralPurposeIPv6Addresses()))
+                foreach (var address in GeneralPurposeIPv4Addresses().Concat(GeneralPurposeIPv6Addresses()))
                 {
                     yield return address;
                 }
@@ -636,9 +580,7 @@ namespace Arcus.Tests.Utilities
 
         [Theory]
         [MemberData(nameof(Parse_BytesArray_Test_Values))]
-        public void Parse_ByteArray_Test(IPAddress expected,
-                                         byte[] bytes,
-                                         AddressFamily addressFamily)
+        public void Parse_ByteArray_Test(IPAddress expected, byte[] bytes, AddressFamily addressFamily)
         {
             // Arrange
             if (expected == null)
@@ -660,28 +602,25 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Assert
             // Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() => IPAddressUtilities.Parse(new byte[] {0x42}, addressFamily));
+            Assert.Throws<ArgumentOutOfRangeException>(() => IPAddressUtilities.Parse(new byte[] { 0x42 }, addressFamily));
         }
 
         [Theory]
         [InlineData(17, AddressFamily.InterNetworkV6)]
         [InlineData(5, AddressFamily.InterNetwork)]
-        public void Parse_Bytes_InputTooLong_Throws_ArgumentOutOfRangeException_Test(int count,
-                                                                                     AddressFamily addressFamily)
+        public void Parse_Bytes_InputTooLong_Throws_ArgumentOutOfRangeException_Test(int count, AddressFamily addressFamily)
         {
             // Arrange
             // Assert
             // Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() => IPAddressUtilities.Parse(Enumerable.Repeat((byte) 0x00, count)
-                                                                                                .ToArray(),
-                                                                                      addressFamily));
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => IPAddressUtilities.Parse(Enumerable.Repeat((byte)0x00, count).ToArray(), addressFamily)
+            );
         }
 
         [Theory]
         [MemberData(nameof(Parse_BytesArray_Test_Values))]
-        public void TryParse_ByteArray_Test(IPAddress expected,
-                                            byte[] bytes,
-                                            AddressFamily addressFamily)
+        public void TryParse_ByteArray_Test(IPAddress expected, byte[] bytes, AddressFamily addressFamily)
         {
             // Arrange
             // Act
@@ -778,10 +717,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            Assert.Equal(IPAddress.Any.GetAddressBytes()
-                                  .Length
-                         * 8,
-                         IPAddressUtilities.IPv4BitCount);
+            Assert.Equal(IPAddressUtilities.IPv4BitCount, IPAddress.Any.GetAddressBytes().Length * 8);
         }
 
         [Fact]
@@ -790,10 +726,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            Assert.Equal(IPAddress.IPv6Any.GetAddressBytes()
-                                  .Length
-                         * 8,
-                         IPAddressUtilities.IPv6BitCount);
+            Assert.Equal(IPAddressUtilities.IPv6BitCount, IPAddress.IPv6Any.GetAddressBytes().Length * 8);
         }
 
         #endregion // end: BitCount
@@ -806,9 +739,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            Assert.Equal(IPAddress.Any.GetAddressBytes()
-                                  .Length,
-                         IPAddressUtilities.IPv4ByteCount);
+            Assert.Equal(IPAddressUtilities.IPv4ByteCount, IPAddress.Any.GetAddressBytes().Length);
         }
 
         [Fact]
@@ -817,9 +748,7 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Act
             // Assert
-            Assert.Equal(IPAddress.IPv6Any.GetAddressBytes()
-                                  .Length,
-                         IPAddressUtilities.IPv6ByteCount);
+            Assert.Equal(IPAddressUtilities.IPv6ByteCount, IPAddress.IPv6Any.GetAddressBytes().Length);
         }
 
         #endregion // end: ByteCount
@@ -834,9 +763,7 @@ namespace Arcus.Tests.Utilities
             var address = IPAddressUtilities.IPv6MaxAddress;
 
             // Assert
-            Assert.Equal(new IPAddress(Enumerable.Repeat((byte) 0xff, 16)
-                                                 .ToArray()),
-                         address);
+            Assert.Equal(new IPAddress(Enumerable.Repeat((byte)0xff, 16).ToArray()), address);
             Assert.Equal(AddressFamily.InterNetworkV6, address.AddressFamily);
         }
 
@@ -848,9 +775,7 @@ namespace Arcus.Tests.Utilities
             var address = IPAddressUtilities.IPv4MaxAddress;
 
             // Assert
-            Assert.Equal(new IPAddress(Enumerable.Repeat((byte) 0xff, 4)
-                                                 .ToArray()),
-                         address);
+            Assert.Equal(new IPAddress(Enumerable.Repeat((byte)0xff, 4).ToArray()), address);
             Assert.Equal(AddressFamily.InterNetwork, address.AddressFamily);
         }
 
@@ -866,9 +791,7 @@ namespace Arcus.Tests.Utilities
             var address = IPAddressUtilities.IPv6MinAddress;
 
             // Assert
-            Assert.Equal(new IPAddress(Enumerable.Repeat((byte) 0x00, 16)
-                                                 .ToArray()),
-                         address);
+            Assert.Equal(new IPAddress(Enumerable.Repeat((byte)0x00, 16).ToArray()), address);
             Assert.Equal(AddressFamily.InterNetworkV6, address.AddressFamily);
         }
 
@@ -880,9 +803,7 @@ namespace Arcus.Tests.Utilities
             var address = IPAddressUtilities.IPv4MinAddress;
 
             // Assert
-            Assert.Equal(new IPAddress(Enumerable.Repeat((byte) 0x00, 4)
-                                                 .ToArray()),
-                         address);
+            Assert.Equal(new IPAddress(Enumerable.Repeat((byte)0x00, 4).ToArray()), address);
             Assert.Equal(AddressFamily.InterNetwork, address.AddressFamily);
         }
 
@@ -915,17 +836,17 @@ namespace Arcus.Tests.Utilities
         {
             foreach (var subnet in SubnetUtilities.PrivateIPAddressRangesList)
             {
-                yield return new object[] {true, subnet.NetworkPrefixAddress};
-                yield return new object[] {true, subnet.NetworkPrefixAddress.Increment(2)};
-                yield return new object[] {true, subnet.BroadcastAddress};
-                yield return new object[] {true, subnet.BroadcastAddress.Increment(-2)};
+                yield return new object[] { true, subnet.NetworkPrefixAddress };
+                yield return new object[] { true, subnet.NetworkPrefixAddress.Increment(2) };
+                yield return new object[] { true, subnet.BroadcastAddress };
+                yield return new object[] { true, subnet.BroadcastAddress.Increment(-2) };
             }
 
-            yield return new object[] {false, IPAddressUtilities.IPv4MaxAddress};
-            yield return new object[] {false, IPAddressUtilities.IPv4MinAddress};
+            yield return new object[] { false, IPAddressUtilities.IPv4MaxAddress };
+            yield return new object[] { false, IPAddressUtilities.IPv4MinAddress };
 
-            yield return new object[] {false, IPAddressUtilities.IPv6MaxAddress};
-            yield return new object[] {false, IPAddressUtilities.IPv6MinAddress};
+            yield return new object[] { false, IPAddressUtilities.IPv6MaxAddress };
+            yield return new object[] { false, IPAddressUtilities.IPv6MinAddress };
         }
 
         [Theory]

@@ -14,13 +14,13 @@ namespace Arcus.Tests.Math
         {
             foreach (var testCase in NonTransitiveTestCases())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
             }
 
             foreach (var testCase in TransitiveTestCases())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
-                yield return new object[] {testCase.expected, testCase.right, testCase.left}; // Transitive law test
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
+                yield return new object[] { testCase.expected, testCase.right, testCase.left }; // Transitive law test
             }
 
             IEnumerable<(bool expected, IPAddress left, IPAddress right)> NonTransitiveTestCases()
@@ -57,9 +57,7 @@ namespace Arcus.Tests.Math
 
         [Theory]
         [MemberData(nameof(IsEqualTo_Test_Values))]
-        public void IsEqualTo_Test(bool expected,
-                                   IPAddress left,
-                                   IPAddress right)
+        public void IsEqualTo_Test(bool expected, IPAddress left, IPAddress right)
         {
             // Arrange
             // Act
@@ -77,13 +75,13 @@ namespace Arcus.Tests.Math
         {
             foreach (var testCase in NonTransitiveTestCases())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
             }
 
             foreach (var testCase in TransitiveInverse())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
-                yield return new object[] {!testCase.expected, testCase.right, testCase.left}; // Transitive law test
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
+                yield return new object[] { !testCase.expected, testCase.right, testCase.left }; // Transitive law test
             }
 
             IEnumerable<(bool expected, IPAddress left, IPAddress right)> NonTransitiveTestCases()
@@ -125,9 +123,7 @@ namespace Arcus.Tests.Math
 
         [Theory]
         [MemberData(nameof(IsGreaterThan_Test_Values))]
-        public void IsGreaterThan_Test(bool expected,
-                                       IPAddress left,
-                                       IPAddress right)
+        public void IsGreaterThan_Test(bool expected, IPAddress left, IPAddress right)
         {
             // Arrange
             // Act
@@ -145,13 +141,13 @@ namespace Arcus.Tests.Math
         {
             foreach (var testCase in NonTransitiveTestCases())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
             }
 
             foreach (var testCase in TransitiveInverse())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
-                yield return new object[] {!testCase.expected, testCase.right, testCase.left}; // Transitive law test
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
+                yield return new object[] { !testCase.expected, testCase.right, testCase.left }; // Transitive law test
             }
 
             IEnumerable<(bool expected, IPAddress left, IPAddress right)> NonTransitiveTestCases()
@@ -193,9 +189,7 @@ namespace Arcus.Tests.Math
 
         [Theory]
         [MemberData(nameof(IsGreaterThanOrEqualTo_Test_Values))]
-        public void IsGreaterThanOrEqualTo_Test(bool expected,
-                                                IPAddress left,
-                                                IPAddress right)
+        public void IsGreaterThanOrEqualTo_Test(bool expected, IPAddress left, IPAddress right)
         {
             // Arrange
             // Act
@@ -213,13 +207,13 @@ namespace Arcus.Tests.Math
         {
             foreach (var testCase in NonTransitiveTestCases())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
             }
 
             foreach (var testCase in TransitiveInverse())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
-                yield return new object[] {!testCase.expected, testCase.right, testCase.left}; // Transitive law test
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
+                yield return new object[] { !testCase.expected, testCase.right, testCase.left }; // Transitive law test
             }
 
             IEnumerable<(bool expected, IPAddress left, IPAddress right)> NonTransitiveTestCases()
@@ -261,9 +255,7 @@ namespace Arcus.Tests.Math
 
         [Theory]
         [MemberData(nameof(IsLessThan_Test_Values))]
-        public void IsLessThan_Test(bool expected,
-                                    IPAddress left,
-                                    IPAddress right)
+        public void IsLessThan_Test(bool expected, IPAddress left, IPAddress right)
         {
             // Arrange
             // Act
@@ -281,13 +273,13 @@ namespace Arcus.Tests.Math
         {
             foreach (var testCase in NonTransitiveTestCases())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
             }
 
             foreach (var testCase in TransitiveInverse())
             {
-                yield return new object[] {testCase.expected, testCase.left, testCase.right};
-                yield return new object[] {!testCase.expected, testCase.right, testCase.left}; // Transitive law test
+                yield return new object[] { testCase.expected, testCase.left, testCase.right };
+                yield return new object[] { !testCase.expected, testCase.right, testCase.left }; // Transitive law test
             }
 
             IEnumerable<(bool expected, IPAddress left, IPAddress right)> NonTransitiveTestCases()
@@ -329,9 +321,7 @@ namespace Arcus.Tests.Math
 
         [Theory]
         [MemberData(nameof(IsLessThanOrEqualTo_Test_Values))]
-        public void IsLessThanOrEqualTo_Test(bool expected,
-                                             IPAddress left,
-                                             IPAddress right)
+        public void IsLessThanOrEqualTo_Test(bool expected, IPAddress left, IPAddress right)
         {
             // Arrange
             // Act
@@ -350,15 +340,15 @@ namespace Arcus.Tests.Math
             // inclusive tests
             foreach (var testCase in EdgeEqualityTestCases())
             {
-                yield return new object[] {true, testCase.input, testCase.low, testCase.high, true};
-                yield return new object[] {false, testCase.input, testCase.low, testCase.high, false};
+                yield return new object[] { true, testCase.input, testCase.low, testCase.high, true };
+                yield return new object[] { false, testCase.input, testCase.low, testCase.high, false };
             }
 
             // exclusive tests
             foreach (var testCase in OverlappedTestCases())
             {
-                yield return new object[] {testCase.expected, testCase.input, testCase.low, testCase.high, true};
-                yield return new object[] {testCase.expected, testCase.input, testCase.low, testCase.high, false};
+                yield return new object[] { testCase.expected, testCase.input, testCase.low, testCase.high, true };
+                yield return new object[] { testCase.expected, testCase.input, testCase.low, testCase.high, false };
             }
 
             // edges are equal
@@ -398,26 +388,37 @@ namespace Arcus.Tests.Math
             IEnumerable<(bool expected, IPAddress input, IPAddress low, IPAddress high)> OverlappedTestCases()
             {
                 // before low
-                yield return (false, IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.10.0"), IPAddress.Parse("192.168.10.255"));
+                yield return (
+                    false,
+                    IPAddress.Parse("192.168.1.0"),
+                    IPAddress.Parse("192.168.10.0"),
+                    IPAddress.Parse("192.168.10.255")
+                );
                 yield return (false, IPAddress.Parse("abc::"), IPAddress.Parse("abc::ff"), IPAddress.Parse("abc::ffff"));
 
                 // after high
-                yield return (false, IPAddress.Parse("192.168.20.0"), IPAddress.Parse("192.168.10.0"), IPAddress.Parse("192.168.10.255"));
+                yield return (
+                    false,
+                    IPAddress.Parse("192.168.20.0"),
+                    IPAddress.Parse("192.168.10.0"),
+                    IPAddress.Parse("192.168.10.255")
+                );
                 yield return (false, IPAddress.Parse("abcd::"), IPAddress.Parse("abc::ff"), IPAddress.Parse("abc::ffff"));
 
                 // inside range
-                yield return (true, IPAddress.Parse("192.168.10.128"), IPAddress.Parse("192.168.10.0"), IPAddress.Parse("192.168.10.255"));
+                yield return (
+                    true,
+                    IPAddress.Parse("192.168.10.128"),
+                    IPAddress.Parse("192.168.10.0"),
+                    IPAddress.Parse("192.168.10.255")
+                );
                 yield return (true, IPAddress.Parse("abc::fff0"), IPAddress.Parse("abc::ff"), IPAddress.Parse("abc::ffff"));
             }
         }
 
         [Theory]
         [MemberData(nameof(IsBetween_Test_Values))]
-        public void IsBetween_Test(bool expected,
-                                   IPAddress input,
-                                   IPAddress low,
-                                   IPAddress high,
-                                   bool inclusive)
+        public void IsBetween_Test(bool expected, IPAddress input, IPAddress low, IPAddress high, bool inclusive)
         {
             // Arrange
             // Act
@@ -433,8 +434,8 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => ((IPAddress) null).IsBetween(IPAddress.Any, IPAddress.Any));
+
+            Assert.Throws<ArgumentNullException>(() => ((IPAddress)null).IsBetween(IPAddress.Any, IPAddress.Any));
         }
 
         [Fact]
@@ -443,7 +444,7 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentNullException>(() => IPAddress.Any.IsBetween(IPAddress.Any, null));
         }
 
@@ -453,7 +454,7 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentNullException>(() => IPAddress.Any.IsBetween(null, IPAddress.Any));
         }
 
@@ -463,8 +464,10 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<InvalidOperationException>(() => IPAddress.Any.IsBetween(IPAddress.Parse("100.1.1.1"), IPAddress.Parse("10.1.1.1")));
+
+            Assert.Throws<InvalidOperationException>(
+                () => IPAddress.Any.IsBetween(IPAddress.Parse("100.1.1.1"), IPAddress.Parse("10.1.1.1"))
+            );
         }
 
         public static IEnumerable<object[]> IsBetween_UnmatchedAddressFamilies_Test_Values()
@@ -472,20 +475,22 @@ namespace Arcus.Tests.Math
             var ipv4 = IPAddress.Any;
             var ipv6 = IPAddress.IPv6Any;
 
-            yield return new object[] {ipv4, ipv4, ipv6};
-            yield return new object[] {ipv4, ipv6, ipv4};
-            yield return new object[] {ipv6, ipv4, ipv4};
+            yield return new object[] { ipv4, ipv4, ipv6 };
+            yield return new object[] { ipv4, ipv6, ipv4 };
+            yield return new object[] { ipv6, ipv4, ipv4 };
 
-            yield return new object[] {ipv6, ipv6, ipv4};
-            yield return new object[] {ipv6, ipv4, ipv6};
-            yield return new object[] {ipv4, ipv6, ipv6};
+            yield return new object[] { ipv6, ipv6, ipv4 };
+            yield return new object[] { ipv6, ipv4, ipv6 };
+            yield return new object[] { ipv4, ipv6, ipv6 };
         }
 
         [Theory]
         [MemberData(nameof(IsBetween_UnmatchedAddressFamilies_Test_Values))]
-        public void IsBetween_UnmatchedAddressFamilies_Throws_InvalidOperationException_Test(IPAddress input,
-                                                                                             IPAddress low,
-                                                                                             IPAddress high)
+        public void IsBetween_UnmatchedAddressFamilies_Throws_InvalidOperationException_Test(
+            IPAddress input,
+            IPAddress low,
+            IPAddress high
+        )
         {
             // Arrange
             // Act
@@ -504,8 +509,7 @@ namespace Arcus.Tests.Math
         [InlineData(false, "7777:7777:7777:7777:7777:7777:7777:7777")]
         [InlineData(true, "255.255.255.255")]
         [InlineData(true, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
-        public void IsAtMax_Test(bool expected,
-                                 string input)
+        public void IsAtMax_Test(bool expected, string input)
         {
             // Arrange
             var address = IPAddress.Parse(input);
@@ -523,8 +527,8 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => ((IPAddress) null).IsAtMax());
+
+            Assert.Throws<ArgumentNullException>(() => ((IPAddress)null).IsAtMax());
         }
 
         #endregion // end: IsAtMax
@@ -538,8 +542,7 @@ namespace Arcus.Tests.Math
         [InlineData(false, "7777:7777:7777:7777:7777:7777:7777:7777")]
         [InlineData(true, "::")]
         [InlineData(true, "0.0.0.0")]
-        public void IsAtMin_Test(bool expected,
-                                 string input)
+        public void IsAtMin_Test(bool expected, string input)
         {
             // Arrange
             var address = IPAddress.Parse(input);
@@ -557,8 +560,8 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => ((IPAddress) null).IsAtMin());
+
+            Assert.Throws<ArgumentNullException>(() => ((IPAddress)null).IsAtMin());
         }
 
         #endregion // end: IsAtMin
@@ -570,23 +573,21 @@ namespace Arcus.Tests.Math
             var minIpv4 = IPAddress.Parse("192.168.1.1");
             var maxIpv4 = IPAddress.Parse("192.168.100.1");
 
-            yield return new object[] {maxIpv4, maxIpv4, maxIpv4};
-            yield return new object[] {maxIpv4, minIpv4, maxIpv4};
-            yield return new object[] {maxIpv4, maxIpv4, minIpv4};
+            yield return new object[] { maxIpv4, maxIpv4, maxIpv4 };
+            yield return new object[] { maxIpv4, minIpv4, maxIpv4 };
+            yield return new object[] { maxIpv4, maxIpv4, minIpv4 };
 
             var minIpv6 = IPAddress.Parse("abc::01");
             var maxIpv6 = IPAddress.Parse("ffff::f123");
 
-            yield return new object[] {maxIpv6, maxIpv6, maxIpv6};
-            yield return new object[] {maxIpv6, minIpv6, maxIpv6};
-            yield return new object[] {maxIpv6, maxIpv6, minIpv6};
+            yield return new object[] { maxIpv6, maxIpv6, maxIpv6 };
+            yield return new object[] { maxIpv6, minIpv6, maxIpv6 };
+            yield return new object[] { maxIpv6, maxIpv6, minIpv6 };
         }
 
         [Theory]
         [MemberData(nameof(Max_Test_Values))]
-        public void Max_Test(IPAddress expected,
-                             IPAddress left,
-                             IPAddress right)
+        public void Max_Test(IPAddress expected, IPAddress left, IPAddress right)
         {
             // Arrange
             // Act
@@ -602,7 +603,7 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentNullException>(() => IPAddressMath.Max(null, IPAddress.Any));
             Assert.Throws<ArgumentNullException>(() => IPAddressMath.Max(IPAddress.Any, null));
             Assert.Throws<ArgumentNullException>(() => IPAddressMath.Max(null, null));
@@ -627,23 +628,21 @@ namespace Arcus.Tests.Math
             var minIpv4 = IPAddress.Parse("192.168.1.1");
             var maxIpv4 = IPAddress.Parse("192.168.100.1");
 
-            yield return new object[] {minIpv4, minIpv4, minIpv4};
-            yield return new object[] {minIpv4, minIpv4, maxIpv4};
-            yield return new object[] {minIpv4, maxIpv4, minIpv4};
+            yield return new object[] { minIpv4, minIpv4, minIpv4 };
+            yield return new object[] { minIpv4, minIpv4, maxIpv4 };
+            yield return new object[] { minIpv4, maxIpv4, minIpv4 };
 
             var minIpv6 = IPAddress.Parse("abc::01");
             var maxIpv6 = IPAddress.Parse("ffff::f123");
 
-            yield return new object[] {minIpv6, minIpv6, minIpv6};
-            yield return new object[] {minIpv6, minIpv6, maxIpv6};
-            yield return new object[] {minIpv6, maxIpv6, minIpv6};
+            yield return new object[] { minIpv6, minIpv6, minIpv6 };
+            yield return new object[] { minIpv6, minIpv6, maxIpv6 };
+            yield return new object[] { minIpv6, maxIpv6, minIpv6 };
         }
 
         [Theory]
         [MemberData(nameof(Min_Test_Values))]
-        public void Min_Test(IPAddress expected,
-                             IPAddress left,
-                             IPAddress right)
+        public void Min_Test(IPAddress expected, IPAddress left, IPAddress right)
         {
             // Arrange
             // Act
@@ -659,7 +658,7 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable AssignNullToNotNullAttribute
+
             Assert.Throws<ArgumentNullException>(() => IPAddressMath.Min(null, IPAddress.Any));
             Assert.Throws<ArgumentNullException>(() => IPAddressMath.Min(IPAddress.Any, null));
             Assert.Throws<ArgumentNullException>(() => IPAddressMath.Min(null, null));
@@ -700,9 +699,7 @@ namespace Arcus.Tests.Math
         [InlineData("255.255.255.254", "255.255.255.255", -1)]
         [InlineData("255.255.255.255", "255.255.255.254", 1)]
         [InlineData("255.255.255.255", "255.255.255.255", 0)]
-        public void Increment_Test(string expected,
-                                   string input,
-                                   long delta)
+        public void Increment_Test(string expected, string input, long delta)
         {
             // Arrange
             var address = IPAddress.Parse(input);
@@ -719,8 +716,7 @@ namespace Arcus.Tests.Math
         [InlineData("::FF", -1024)]
         [InlineData("0.0.0.0", -1)]
         [InlineData("0.0.0.255", -1024)]
-        public void Increment_Underflow_Throws_InvalidOperationException_Test(string input,
-                                                                              long delta)
+        public void Increment_Underflow_Throws_InvalidOperationException_Test(string input, long delta)
         {
             // Arrange
             var address = IPAddress.Parse(input);
@@ -735,8 +731,7 @@ namespace Arcus.Tests.Math
         [InlineData("255.255.255.255", 1)]
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff", 65535)]
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 1)]
-        public void Increment_OverflowThrows_InvalidOperationException_Test(string input,
-                                                                            long delta)
+        public void Increment_OverflowThrows_InvalidOperationException_Test(string input, long delta)
         {
             // Arrange
             var address = IPAddress.Parse(input);
@@ -752,8 +747,8 @@ namespace Arcus.Tests.Math
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => ((IPAddress) null).Increment());
+
+            Assert.Throws<ArgumentNullException>(() => ((IPAddress)null).Increment());
         }
 
         #region TryIncrement
@@ -788,10 +783,7 @@ namespace Arcus.Tests.Math
         [InlineData(true, "255.255.255.254", "255.255.255.255", -1)]
         [InlineData(true, "255.255.255.255", "255.255.255.254", 1)]
         [InlineData(true, "255.255.255.255", "255.255.255.255", 0)]
-        public void TryIncrement_Test(bool expectedSuccess,
-                                      string expectedResultString,
-                                      string inputString,
-                                      long delta)
+        public void TryIncrement_Test(bool expectedSuccess, string expectedResultString, string inputString, long delta)
         {
             // Arrange
             _ = IPAddress.TryParse(inputString, out var input);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Gulliver;
-using JetBrains.Annotations;
 
 namespace Arcus.Comparers
 {
@@ -21,14 +20,15 @@ namespace Arcus.Comparers
         /// </summary>
         /// <param name="addressFamilyComparer">the <see cref="AddressFamily" /> comparer</param>
         /// <exception cref="ArgumentNullException"><paramref name="addressFamilyComparer" /> is <see langword="null" />.</exception>
-        public DefaultIPAddressComparer([NotNull] IComparer<AddressFamily> addressFamilyComparer)
+        public DefaultIPAddressComparer(IComparer<AddressFamily> addressFamilyComparer)
         {
             if (addressFamilyComparer == null)
             {
                 throw new ArgumentNullException(nameof(addressFamilyComparer));
             }
 
-            this._addressFamilyComparer = addressFamilyComparer ?? throw new ArgumentNullException(nameof(addressFamilyComparer));
+            this._addressFamilyComparer =
+                addressFamilyComparer ?? throw new ArgumentNullException(nameof(addressFamilyComparer));
         }
 
         /// <summary>
@@ -38,8 +38,7 @@ namespace Arcus.Comparers
             : this(new DefaultAddressFamilyComparer()) { }
 
         /// <inheritdoc />
-        public override int Compare(IPAddress x,
-                                    IPAddress y)
+        public override int Compare(IPAddress x, IPAddress y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -59,8 +58,8 @@ namespace Arcus.Comparers
             var addressFamilyComparison = this._addressFamilyComparer.Compare(x.AddressFamily, y.AddressFamily);
 
             return addressFamilyComparison == 0
-                       ? ByteArrayUtils.CompareUnsignedBigEndian(x.GetAddressBytes(), y.GetAddressBytes())
-                       : addressFamilyComparison;
+                ? ByteArrayUtils.CompareUnsignedBigEndian(x.GetAddressBytes(), y.GetAddressBytes())
+                : addressFamilyComparison;
         }
     }
 }

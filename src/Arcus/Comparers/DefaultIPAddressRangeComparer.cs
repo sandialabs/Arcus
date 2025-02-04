@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using JetBrains.Annotations;
 
 namespace Arcus.Comparers
 {
@@ -18,7 +17,7 @@ namespace Arcus.Comparers
         /// </summary>
         /// <param name="ipAddressComparer">comparer used to compare <see cref="IPAddress" /></param>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddressComparer" /> is <see langword="null" />.</exception>
-        public DefaultIPAddressRangeComparer([NotNull] IComparer<IPAddress> ipAddressComparer)
+        public DefaultIPAddressRangeComparer(IComparer<IPAddress> ipAddressComparer)
         {
             this._ipAddressComparer = ipAddressComparer ?? throw new ArgumentNullException(nameof(ipAddressComparer));
         }
@@ -31,8 +30,7 @@ namespace Arcus.Comparers
             : this(new DefaultIPAddressComparer()) { }
 
         /// <inheritdoc />
-        public override int Compare(IIPAddressRange x,
-                                    IIPAddressRange y)
+        public override int Compare(IIPAddressRange x, IIPAddressRange y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -50,9 +48,7 @@ namespace Arcus.Comparers
             }
 
             var headComparison = this._ipAddressComparer.Compare(x.Head, y.Head);
-            return headComparison != 0
-                       ? headComparison
-                       : x.Length.CompareTo(y.Length);
+            return headComparison != 0 ? headComparison : x.Length.CompareTo(y.Length);
         }
     }
 }

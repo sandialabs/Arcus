@@ -5,25 +5,11 @@ using System.Net;
 using Arcus.Converters;
 using Gulliver;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Tests.Converters
 {
-#pragma warning disable SA1404
-
     public class IPAddressConvertersTests
     {
-        #region Setup / Teardown
-
-        public IPAddressConvertersTests(ITestOutputHelper testOutputHelper)
-        {
-            this._testOutputHelper = testOutputHelper;
-        }
-
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        #endregion
-
         #region ToUncompressedString
 
         [Theory]
@@ -41,8 +27,7 @@ namespace Arcus.Tests.Converters
         [InlineData("0000:0000:0000:0000:0000:0000:0000:0000", "::")]
         [InlineData("0001:0002:ffff:0000:00ab:0000:0000:0123", "1:2:ffff:0:ab:0:0:123")]
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
-        public void IPAddressToUncompressedStringConversion_Test(string expected,
-                                                                 string input)
+        public void IPAddressToUncompressedStringConversion_Test(string expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -67,8 +52,7 @@ namespace Arcus.Tests.Converters
         [InlineData("00000000000000000000", "::")]
         [InlineData("000000000000000-mSjx", "::dead:beef")]
         [InlineData("4)+k&C#VzJ4br>0wv%Yp", "1080:0:0:0:8:800:200C:417A")] // specific example from RFC 1924
-        public void ToBase85Test(string expected,
-                                 string input)
+        public void ToBase85Test(string expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -101,8 +85,7 @@ namespace Arcus.Tests.Converters
         [InlineData("ffff::ffff:ffff:ffff:ffff:255.255.255.255", "ffff::ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData("::0.0.0.0", "::")]
         [InlineData("192.168.1.1", "192.168.1.1")]
-        public void ToDottedQuadTestTest(string expected,
-                                         string input)
+        public void ToDottedQuadTestTest(string expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -130,8 +113,7 @@ namespace Arcus.Tests.Converters
         [InlineData("80808080", "128.128.128.128")]
         [InlineData("00808080", "0.128.128.128")]
         [InlineData("80808000", "128.128.128.0")]
-        public void ToHexTest(string expected,
-                              string input)
+        public void ToHexTest(string expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -159,8 +141,7 @@ namespace Arcus.Tests.Converters
         [InlineData("2155905152", "128.128.128.128")]
         [InlineData("8421504", "0.128.128.128")]
         [InlineData("2155905024", "128.128.128.0")]
-        public void ToNumericTest(string expected,
-                                  string input)
+        public void ToNumericTest(string expected, string input)
         {
             // Arrange
             _ = IPAddress.TryParse(input, out var address);
@@ -180,20 +161,17 @@ namespace Arcus.Tests.Converters
         {
             for (var i = 0; i <= 32; i++)
             {
-                var netmaskBytes = Enumerable.Repeat((byte) 0xFF, 4)
-                                             .ToArray()
-                                             .ShiftBitsLeft(32 - i);
+                var netmaskBytes = Enumerable.Repeat((byte)0xFF, 4).ToArray().ShiftBitsLeft(32 - i);
 
                 var netmask = new IPAddress(netmaskBytes);
 
-                yield return new object[] {i, netmask};
+                yield return new object[] { i, netmask };
             }
         }
 
         [Theory]
         [MemberData(nameof(NetmaskToCidrRoutePrefix_Test_Values))]
-        public void NetmaskToCidrRoutePrefix_Test(int expected,
-                                                  IPAddress address)
+        public void NetmaskToCidrRoutePrefix_Test(int expected, IPAddress address)
         {
             // Arrange
             // Act
@@ -223,8 +201,8 @@ namespace Arcus.Tests.Converters
             // Arrange
             // Act
             // Assert
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => ((IPAddress) null).NetmaskToCidrRoutePrefix());
+
+            Assert.Throws<ArgumentNullException>(() => ((IPAddress)null).NetmaskToCidrRoutePrefix());
         }
 
         #endregion // end: NetmaskToCidrRoutePrefix
