@@ -219,13 +219,13 @@ namespace Arcus
         /// </summary>
         /// <param name="ranges">ranges to collapse</param>
         /// <param name="result">resulting ranges post collapse</param>
-        /// <returns></returns>
+        /// <returns>true on success</returns>
         public static bool TryCollapseAll(IEnumerable<IPAddressRange> ranges, out IEnumerable<IPAddressRange> result)
         {
             var rangeList = (ranges ?? Enumerable.Empty<IPAddressRange>()).ToList();
 
             // item null check
-            if (rangeList.Any(r => r == null))
+            if (rangeList.Contains(null))
             {
                 result = Enumerable.Empty<IPAddressRange>();
                 return false;
@@ -287,7 +287,7 @@ namespace Arcus
         /// </param>
         /// <param name="result">the resulting  <see cref="IPAddressRange" /> <see cref="IEnumerable{T}" /></param>
         /// <exception cref="InvalidOperationException">unexpected invalid operation.</exception>
-        /// <returns></returns>
+        /// <returns>true on success</returns>
         public static bool TryExcludeAll(
             IPAddressRange initialRange,
             IEnumerable<IPAddressRange> excludedRanges,
@@ -381,7 +381,7 @@ namespace Arcus
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
         /// <param name="mergedRange">the resulting <see cref="IPAddressRange" /></param>
-        /// <returns></returns>
+        /// <returns>true on success</returns>
         public static bool TryMerge(IPAddressRange left, IPAddressRange right, out IPAddressRange mergedRange)
         {
             if (left == null || right == null || left.AddressFamily != right.AddressFamily)

@@ -63,7 +63,7 @@ namespace Arcus
         /// <summary>
         ///     AddressTuple for moving around a pair of <see cref="IPAddress" /> objects as a unit
         /// </summary>
-        protected struct AddressTuple : IEquatable<AddressTuple>
+        protected readonly struct AddressTuple : IEquatable<AddressTuple>
         {
             /// <summary>
             ///     Initializes a new instance of the <see cref="AddressTuple" /> struct.
@@ -337,11 +337,11 @@ namespace Arcus
         #region Contains
 
         /// <inheritdoc />
-        public bool Contains(IIPAddressRange that)
+        public bool Contains(IIPAddressRange addressRange)
         {
-            return ReferenceEquals(this, that)
-                || Equals(this, that)
-                || (that != null && this.Contains(that.Head) && this.Contains(that.Tail));
+            return ReferenceEquals(this, addressRange)
+                || Equals(this, addressRange)
+                || (addressRange != null && this.Contains(addressRange.Head) && this.Contains(addressRange.Tail));
         }
 
         /// <inheritdoc />
@@ -355,38 +355,45 @@ namespace Arcus
         #region Ovelap and Touches
 
         /// <inheritdoc />
-        public bool HeadOverlappedBy(IIPAddressRange that)
+        public bool HeadOverlappedBy(IIPAddressRange addressRange)
         {
-            return ReferenceEquals(this, that) || Equals(this, that) || (that != null && that.Contains(this.Head));
+            return ReferenceEquals(this, addressRange)
+                || Equals(this, addressRange)
+                || (addressRange != null && addressRange.Contains(this.Head));
         }
 
         /// <inheritdoc />
-        public bool TailOverlappedBy(IIPAddressRange that)
+        public bool TailOverlappedBy(IIPAddressRange addressRange)
         {
-            return ReferenceEquals(this, that) || Equals(this, that) || (that != null && that.Contains(this.Tail));
+            return ReferenceEquals(this, addressRange)
+                || Equals(this, addressRange)
+                || (addressRange != null && addressRange.Contains(this.Tail));
         }
 
         /// <inheritdoc />
-        public bool Overlaps(IIPAddressRange that)
+        public bool Overlaps(IIPAddressRange addressRange)
         {
-            return ReferenceEquals(this, that)
-                || Equals(this, that)
-                || (that != null && (this.Contains(that) || this.Contains(that.Head) || this.Contains(that.Tail)));
+            return ReferenceEquals(this, addressRange)
+                || Equals(this, addressRange)
+                || (
+                    addressRange != null
+                    && (this.Contains(addressRange) || this.Contains(addressRange.Head) || this.Contains(addressRange.Tail))
+                );
         }
 
         /// <inheritdoc />
-        public bool Touches(IIPAddressRange that)
+        public bool Touches(IIPAddressRange addressRange)
         {
-            return that != null
-                && this.AddressFamily == that.AddressFamily
+            return addressRange != null
+                && this.AddressFamily == addressRange.AddressFamily
                 && (
                     (
                         this.Tail.IsLessThan(this.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
-                        && Equals(this.Tail.Increment(), that.Head)
+                        && Equals(this.Tail.Increment(), addressRange.Head)
                     ) // this tail appears directly before that head
                     || (
-                        that.Tail.IsLessThan(that.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
-                        && Equals(that.Tail.Increment(), this.Head)
+                        addressRange.Tail.IsLessThan(addressRange.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
+                        && Equals(addressRange.Tail.Increment(), this.Head)
                     )
                 ); // that tail appears directly before this head
         }

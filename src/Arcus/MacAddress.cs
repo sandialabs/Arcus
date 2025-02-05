@@ -138,10 +138,20 @@ namespace Arcus
         /// <inheritdoc />
         public int CompareTo(object obj)
         {
-            return ReferenceEquals(null, obj) ? 1
-                : ReferenceEquals(this, obj) ? 0
-                : obj is MacAddress other ? this.CompareTo(other)
-                : throw new ArgumentException($"Object must be of type {nameof(MacAddress)}");
+            if (ReferenceEquals(null, obj))
+            {
+                return 1;
+            }
+            else if (ReferenceEquals(this, obj))
+            {
+                return 0;
+            }
+            else if (obj is MacAddress other)
+            {
+                return this.CompareTo(other);
+            }
+
+            throw new ArgumentException($"Object must be of type {nameof(MacAddress)}");
         }
 
         #endregion
@@ -360,13 +370,7 @@ namespace Arcus
         /// <param name="info">serialization info</param>
         /// <param name="context">serialization context</param>
         /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" /></exception>
-        protected MacAddress(SerializationInfo info,
-#pragma warning disable CA1801
-            /* CA1801 Parameter context of method .ctor is never used. Remove the parameter or use it in the method body.
-             * parameter "StreamingContext context" is required for proper deserialization
-             */
-            StreamingContext context)
-#pragma warning restore CA1801
+        protected MacAddress(SerializationInfo info, StreamingContext context)
             : this((byte[])(info ?? throw new ArgumentNullException(nameof(info))).GetValue(nameof(_address), typeof(byte[])))
         { }
 
@@ -412,7 +416,7 @@ namespace Arcus
             // remove all non hexadecimal characters from the input, upper case the result
             var matches = matchValues.Matches(input).OfType<Match>().Select(match => match.Value);
 
-            var join = string.Join(string.Empty, matches);
+            var join = string.Concat(matches);
 
             if (join.Length != 12)
             {
@@ -506,9 +510,7 @@ namespace Arcus
                 macAddress = Parse(input);
                 return true;
             }
-#pragma warning disable CA1031 // Modify 'TryParseAny' to catch a more specific exception type, or rethrow the exception.
             catch // explicitly catching all for the sake of standard bool Try*(out) pattern
-#pragma warning restore CA1031
             {
                 macAddress = null;
                 return false;
@@ -548,9 +550,7 @@ namespace Arcus
                 macAddress = ParseAny(input);
                 return true;
             }
-#pragma warning disable CA1031 // Modify 'TryParseAny' to catch a more specific exception type, or rethrow the exception.
             catch // explicitly catching all for the sake of standard bool Try*(out) pattern
-#pragma warning restore CA1031
             {
                 macAddress = null;
                 return false;

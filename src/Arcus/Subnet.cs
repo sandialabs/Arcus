@@ -428,7 +428,7 @@ namespace Arcus
         /// </summary>
         /// <param name="lowAddressBytes">the lower address <see cref="byte" /> array</param>
         /// <param name="highAddressBytes">the high address <see cref="byte" /> array</param>
-        /// <returns></returns>
+        /// <returns>The created <see cref="Subnet"/></returns>
         public static Subnet FromBytes(byte[] lowAddressBytes, byte[] highAddressBytes)
         {
             if (lowAddressBytes == null)
@@ -612,7 +612,7 @@ namespace Arcus
         ///     <paramref name="routingPrefix" /> is out of range of the provided
         ///     <see cref="AddressFamily" />
         /// </exception>
-        /// <returns></returns>
+        /// <returns>The parsed <see cref="Subnet"/></returns>
         public static Subnet Parse(string addressString, int routingPrefix)
         {
             if (addressString == null)
@@ -689,7 +689,7 @@ namespace Arcus
         /// </summary>
         /// <param name="lowAddressString">the low address string</param>
         /// <param name="highAddressString">the high address string</param>
-        /// <returns></returns>
+        /// <returns>The parsed <see cref="Subnet"/></returns>
         public static Subnet Parse(string lowAddressString, string highAddressString)
         {
             if (lowAddressString == null)
@@ -1067,7 +1067,7 @@ namespace Arcus
 
         #region Static metods, may be appropriate for extracting
 
-        private struct AddressMaskAndPrefixTuple
+        private readonly struct AddressMaskAndPrefixTuple
         {
             public AddressMaskAndPrefixTuple(IPAddress head, IPAddress tail, IPAddress mask, int prefix)
             {
@@ -1135,7 +1135,7 @@ namespace Arcus
             }
         }
 
-        private struct AddressAndMaskTuple
+        private readonly struct AddressAndMaskTuple
         {
             public AddressAndMaskTuple(IPAddress head, IPAddress tail, IPAddress mask)
             {

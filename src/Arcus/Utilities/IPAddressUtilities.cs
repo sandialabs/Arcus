@@ -100,7 +100,7 @@ namespace Arcus.Utilities
         ///     <see cref="AddressFamily.InterNetworkV6" />)
         /// </summary>
         /// <param name="addressFamily">the <see cref="AddressFamily"/></param>
-        /// <returns></returns>
+        /// <returns><see cref="IPv4MaxAddress"/> when <paramref name="addressFamily"/> is <see cref="AddressFamily.InterNetwork" /> or <see cref="IPv6MaxAddress"/> when <see cref="AddressFamily.InterNetworkV6" /> </returns>
         public static IPAddress MaxIPAddress(this AddressFamily addressFamily)
         {
             switch (addressFamily)
@@ -119,7 +119,7 @@ namespace Arcus.Utilities
         ///     <see cref="AddressFamily.InterNetworkV6" />)
         /// </summary>
         /// <param name="addressFamily">the <see cref="AddressFamily"/></param>
-        /// <returns></returns>
+        /// <returns><see cref="IPv4MinAddress"/> when <paramref name="addressFamily"/> is <see cref="AddressFamily.InterNetwork" /> or <see cref="IPv6MinAddress"/> when <see cref="AddressFamily.InterNetworkV6" /> </returns>
         public static IPAddress MinIPAddress(this AddressFamily addressFamily)
         {
             switch (addressFamily)
@@ -297,9 +297,7 @@ namespace Arcus.Utilities
                 address = ParseFromHexString(input, addressFamily);
                 return true;
             }
-#pragma warning disable CA1031 // catch is purposely general
             catch
-#pragma warning restore CA1031
             {
                 address = null;
                 return false;
@@ -364,9 +362,7 @@ namespace Arcus.Utilities
                 address = ParseIgnoreOctalInIPv4(input);
                 return true;
             }
-#pragma warning disable CA1031 // catch is purposely general
             catch
-#pragma warning restore CA1031
             {
                 address = null;
                 return false;
@@ -382,7 +378,7 @@ namespace Arcus.Utilities
         /// </summary>
         /// <param name="input">the big endian IPAddress</param>
         /// <param name="addressFamily">the desired address family</param>
-        /// <returns></returns>
+        /// <returns>The parsed <see cref="IPAddress"/></returns>
         public static IPAddress Parse(byte[] input, AddressFamily addressFamily)
         {
             if (input == null)
@@ -428,9 +424,7 @@ namespace Arcus.Utilities
                 address = Parse(input, addressFamily);
                 return true;
             }
-#pragma warning disable CA1031 // catch is purposely general
             catch
-#pragma warning restore CA1031
             {
                 address = null;
                 return false;

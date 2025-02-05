@@ -101,48 +101,48 @@ namespace Arcus
         /// <summary>
         ///     determine if a <see cref="IIPAddressRange" /> contains another <see cref="IIPAddressRange" />
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        /// <returns></returns>
-        bool Contains(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns>true if the <paramref name="addressRange"/> is contained within</returns>
+        bool Contains(IIPAddressRange addressRange);
 
         /// <summary>
         ///     determine if a <see cref="IIPAddressRange" /> contains an <paramref name="address" />
         /// </summary>
         /// <param name="address">the secondary operand</param>
-        /// <returns></returns>
+        /// <returns>true if the <paramref name="address"/> is contained within</returns>
         bool Contains(IPAddress address);
 
         #region Ovelap and Touches
 
         /// <summary>
-        ///     Return <see langword="true" /> if the head of this is within the range of <paramref name="that" />
+        ///     Return <see langword="true" /> if the head of this is within the range of <paramref name="addressRange" />
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        /// <returns></returns>
-        bool HeadOverlappedBy(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if the head of this is within the range of <paramref name="addressRange" /></returns>
+        bool HeadOverlappedBy(IIPAddressRange addressRange);
 
         /// <summary>
-        ///     Return <see langword="true" /> if the tail of this is within the range of <paramref name="that" />
+        ///     Return <see langword="true" /> if the tail of this is within the range of <paramref name="addressRange" />
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        /// <returns></returns>
-        bool TailOverlappedBy(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if the tail of this is within the range of <paramref name="addressRange" /></returns>
+        bool TailOverlappedBy(IIPAddressRange addressRange);
 
         /// <summary>
         ///     return <see langword="true" /> if this overlaps that (totally contained within, or contains either the head or the
         ///     tail)
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        /// <returns></returns>
-        bool Overlaps(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if <paramref name="addressRange"/> overlaps</returns>
+        bool Overlaps(IIPAddressRange addressRange);
 
         /// <summary>
         ///     <see langword="true" /> if tail of one item is consecutively in order of head of other item
         ///     eg in sequence with no gaps in between
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        /// <returns></returns>
-        bool Touches(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if <paramref name="addressRange"/> is mathamaticaly consecutive</returns>
+        bool Touches(IIPAddressRange addressRange);
 
         #endregion // end: Ovelap and Touches
 

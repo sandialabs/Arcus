@@ -70,7 +70,7 @@ namespace Arcus.Math
         /// <param name="input">the <see cref="IPAddress"/> to increment</param>
         /// <param name="address">the resulting <see cref="IPAddress"/> post increment</param>
         /// <param name="delta">the amount to increment by</param>
-        /// <returns></returns>
+        /// <returns>true on success</returns>
         public static bool TryIncrement(IPAddress input, out IPAddress address, long delta = 1)
         {
             if (input == null)
@@ -84,9 +84,7 @@ namespace Arcus.Math
                 address = input.Increment(delta);
                 return true;
             }
-#pragma warning disable CA1031 // catch is purposely general
             catch
-#pragma warning restore CA1031
             {
                 address = null;
                 return false;
@@ -102,7 +100,7 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        /// <returns></returns>
+        /// <returns>true if <paramref name="left"/> is logically equal to <paramref name="left"/></returns>
         public static bool IsEqualTo(this IPAddress left, IPAddress right)
         {
             return ReferenceEquals(left, right) || (!ReferenceEquals(left, null) && left.Equals(right));
@@ -113,7 +111,7 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        /// <returns></returns>
+        /// <returns>true if <paramref name="left"/> is logically greater than <paramref name="left"/></returns>
         public static bool IsGreaterThan(this IPAddress left, IPAddress right)
         {
             if (
@@ -135,7 +133,7 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        /// <returns></returns>
+        /// <returns>true if <paramref name="left"/> is logically greater than or equal to <paramref name="left"/></returns>
         public static bool IsGreaterThanOrEqualTo(this IPAddress left, IPAddress right)
         {
             return ReferenceEquals(left, right)
@@ -151,7 +149,7 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        /// <returns>true if alpha is less than beta</returns>
+        /// <returns>true if <paramref name="left"/> is logically less than <paramref name="left"/></returns>
         /// <exception cref="InvalidOperationException">Address families must be InterNetwork or InternetworkV6</exception>
         public static bool IsLessThan(this IPAddress left, IPAddress right)
         {
@@ -168,7 +166,7 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        /// <returns></returns>
+        /// <returns>true if <paramref name="left"/> is logically less than or equal to <paramref name="left"/></returns>
         public static bool IsLessThanOrEqualTo(this IPAddress left, IPAddress right)
         {
             return ReferenceEquals(left, right)
@@ -180,7 +178,7 @@ namespace Arcus.Math
         }
 
         /// <summary>
-        ///     Determine if the tested IP Address occurs numerically between the given high and low IP addresses
+        ///     Determine if the <paramref name="input"/> occurs numerically between the given high and low IP addresses
         ///     Inclusivity contingent on inclusive bit
         /// </summary>
         /// <param name="input">IP address to test</param>
@@ -190,7 +188,7 @@ namespace Arcus.Math
         /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="low" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="high" /> is <see langword="null" />.</exception>
-        /// <returns></returns>
+        /// <returns>true if <paramref name="input"/> is between <paramref name="low"/> and <paramref name="high"/></returns>
         public static bool IsBetween(this IPAddress input, IPAddress low, IPAddress high, bool inclusive = true)
         {
             #region defense
