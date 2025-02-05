@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using Arcus.Math;
 using Arcus.Utilities;
-using Moq;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -38,7 +38,7 @@ namespace Arcus.Tests
             var tail = IPAddress.Parse(tailString);
 
             // Act
-            var (resultHead, resultTail) = CreateMockAbstractIPAddressRange(head, tail);
+            var (resultHead, resultTail) = CreateSubstituteIPAddressRange(head, tail);
 
             // Assert
             Assert.Equal(resultHead, head);
@@ -49,9 +49,9 @@ namespace Arcus.Tests
 
         #region other members
 
-        private static AbstractIPAddressRange CreateMockAbstractIPAddressRange(IPAddress head, IPAddress tail)
+        private static AbstractIPAddressRange CreateSubstituteIPAddressRange(IPAddress head, IPAddress tail)
         {
-            return new Mock<AbstractIPAddressRange>(MockBehavior.Strict, head, tail).Object;
+            return Substitute.For<AbstractIPAddressRange>(head, tail);
         }
 
         #endregion
@@ -74,7 +74,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse(headAddressString);
             var tail = IPAddress.Parse(tailAddressString);
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             var ipAddressArray = iPAddressRange.ToArray();
@@ -101,7 +101,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse(headAddressString);
             var tail = IPAddress.Parse(tailAddressString);
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             var result = new List<IPAddress>();
@@ -123,11 +123,11 @@ namespace Arcus.Tests
 
         public static IEnumerable<object[]> IsSingleIP_Test_Values()
         {
-            yield return new object[] { true, CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Any) };
-            yield return new object[] { true, CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.IPv6Any) };
+            yield return new object[] { true, CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Any) };
+            yield return new object[] { true, CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.IPv6Any) };
 
-            yield return new object[] { false, CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast) };
-            yield return new object[] { false, CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.IPv6Loopback) };
+            yield return new object[] { false, CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast) };
+            yield return new object[] { false, CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.IPv6Loopback) };
         }
 
         [Theory]
@@ -149,25 +149,25 @@ namespace Arcus.Tests
         public static IEnumerable<object[]> Length_Test_Values()
         {
             // single address
-            yield return new object[] { new BigInteger(1), CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Any) };
+            yield return new object[] { new BigInteger(1), CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Any) };
             yield return new object[]
             {
                 new BigInteger(1),
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.IPv6Any),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.IPv6Any),
             };
 
             // maximum length ipv4
             yield return new object[]
             {
                 BigInteger.Pow(2, 32),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("0.0.0.0"), IPAddress.Parse("255.255.255.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("0.0.0.0"), IPAddress.Parse("255.255.255.255")),
             };
 
             // maximum length ipv6
             yield return new object[]
             {
                 BigInteger.Pow(2, 128),
-                CreateMockAbstractIPAddressRange(
+                CreateSubstituteIPAddressRange(
                     IPAddress.Parse("::"),
                     IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
                 ),
@@ -177,28 +177,28 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 new BigInteger(int.MaxValue),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(int.MaxValue - 1)),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(int.MaxValue - 1)),
             };
 
             // ipv6 length at long.MaxValue
             yield return new object[]
             {
                 new BigInteger(long.MaxValue),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(long.MaxValue - 1)),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(long.MaxValue - 1)),
             };
 
             // ipv6 length at int.MaxValue + 1
             yield return new object[]
             {
                 new BigInteger(int.MaxValue) + 1,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(int.MaxValue)),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(int.MaxValue)),
             };
 
             // ipv6 length at long.MaxValue + 1
             yield return new object[]
             {
                 new BigInteger(long.MaxValue) + 1,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(long.MaxValue)),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::").Increment(long.MaxValue)),
             };
         }
 
@@ -267,7 +267,7 @@ namespace Arcus.Tests
             var tail = IPAddress.Parse(tailString);
             _ = IPAddress.TryParse(addressString, out var containsAddress);
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             var result = iPAddressRange.Contains(containsAddress);
@@ -309,15 +309,15 @@ namespace Arcus.Tests
             var head = IPAddress.Parse(headString);
             var tail = IPAddress.Parse(tailString);
 
-            var mockIPAddressSubRange =
+            var substituteIPAddressSubRange =
                 IPAddress.TryParse(containsHeadString, out var subhead)
                 && IPAddress.TryParse(containsTailString, out var subtail)
-                    ? new Mock<AbstractIPAddressRange>(subhead, subtail)
+                    ? Substitute.For<AbstractIPAddressRange>(subhead, subtail)
                     : null;
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
-            var containedIPAddressRange = mockIPAddressSubRange?.Object;
+            var containedIPAddressRange = substituteIPAddressSubRange;
 
             // Act
             var result = iPAddressRange.Contains(containedIPAddressRange);
@@ -369,7 +369,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse(headString);
             var tail = IPAddress.Parse(tailString);
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             var result = iPAddressRange.ToList();
@@ -386,7 +386,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff0");
             var tail = IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             var result = iPAddressRange.Take(100).ToList();
@@ -403,7 +403,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse("255.255.255.240");
             var tail = IPAddress.Parse("255.255.255.255");
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             var result = iPAddressRange.Take(100).ToList();
@@ -422,7 +422,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse(headString);
             var tail = IPAddress.Parse(tailString);
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             var result = iPAddressRange.ToList();
@@ -438,7 +438,7 @@ namespace Arcus.Tests
             // Arrange
             var ipAddress = IPAddress.Parse("192.168.1.1");
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(ipAddress, ipAddress);
+            var iPAddressRange = CreateSubstituteIPAddressRange(ipAddress, ipAddress);
 
             // Act
             var addresses = iPAddressRange.ToArray();
@@ -453,7 +453,7 @@ namespace Arcus.Tests
         {
             // Arrange
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(
+            var iPAddressRange = CreateSubstituteIPAddressRange(
                 IPAddress.Parse("::"),
                 IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
             );
@@ -479,7 +479,7 @@ namespace Arcus.Tests
             var tail = IPAddress.Parse(tailString);
 
             // Act
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Assert
             Assert.Equal(head, iPAddressRange.Head);
@@ -499,7 +499,7 @@ namespace Arcus.Tests
 
             // Act
             // Assert
-            var exception = Assert.ThrowsAny<Exception>(() => CreateMockAbstractIPAddressRange(head, tail));
+            var exception = Assert.ThrowsAny<Exception>(() => CreateSubstituteIPAddressRange(head, tail));
             Assert.IsAssignableFrom<ArgumentNullException>(exception.InnerException);
         }
 
@@ -514,7 +514,7 @@ namespace Arcus.Tests
 
             // Act
             // Assert
-            var exception = Assert.ThrowsAny<Exception>(() => CreateMockAbstractIPAddressRange(head, tail));
+            var exception = Assert.ThrowsAny<Exception>(() => CreateSubstituteIPAddressRange(head, tail));
             Assert.IsAssignableFrom<InvalidOperationException>(exception.InnerException);
         }
 
@@ -529,7 +529,7 @@ namespace Arcus.Tests
 
             // Act
             // Assert
-            var exception = Assert.ThrowsAny<Exception>(() => CreateMockAbstractIPAddressRange(head, tail));
+            var exception = Assert.ThrowsAny<Exception>(() => CreateSubstituteIPAddressRange(head, tail));
             Assert.IsAssignableFrom<InvalidOperationException>(exception.InnerException);
         }
 
@@ -547,7 +547,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse(headString);
             var tail = IPAddress.Parse(tailString);
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             // Assert
@@ -566,7 +566,7 @@ namespace Arcus.Tests
             var head = IPAddress.Parse(headString);
             var tail = IPAddress.Parse(tailString);
 
-            var iPAddressRange = CreateMockAbstractIPAddressRange(head, tail);
+            var iPAddressRange = CreateSubstituteIPAddressRange(head, tail);
 
             // Act
             // Assert
@@ -585,8 +585,8 @@ namespace Arcus.Tests
 
         public static IEnumerable<object[]> Contains_IIPAddressRange_Test_Values()
         {
-            var ipv4Range = CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
-            var ipv6Range = CreateMockAbstractIPAddressRange(
+            var ipv4Range = CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
+            var ipv6Range = CreateSubstituteIPAddressRange(
                 IPAddress.IPv6Any,
                 IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
             );
@@ -603,14 +603,14 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
             };
 
             // differing address families
@@ -621,70 +621,70 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
             };
 
             // full head and tail overlapped
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
             };
 
             // tail only overlapped
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
             };
 
             // not touching
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
             };
 
             // disparate ranges
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
             };
         }
 
@@ -706,8 +706,8 @@ namespace Arcus.Tests
 
         public static IEnumerable<object[]> Contains_Test_Values()
         {
-            var ipv4Range = CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
-            var ipv6Range = CreateMockAbstractIPAddressRange(
+            var ipv4Range = CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
+            var ipv6Range = CreateSubstituteIPAddressRange(
                 IPAddress.IPv6Any,
                 IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
             );
@@ -729,7 +729,7 @@ namespace Arcus.Tests
             yield return new object[] { true, ipv6Range, ipv6Range.Tail };
 
             // contains all inside
-            var ipv4InsideRange = CreateMockAbstractIPAddressRange(
+            var ipv4InsideRange = CreateSubstituteIPAddressRange(
                 IPAddress.Parse("192.168.1.0"),
                 IPAddress.Parse("192.168.1.5")
             );
@@ -738,7 +738,7 @@ namespace Arcus.Tests
                 yield return new object[] { true, ipv4InsideRange, ip };
             }
 
-            var ipv6InsideRange = CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("::ff0f"));
+            var ipv6InsideRange = CreateSubstituteIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("::ff0f"));
             foreach (var ip in ipv6InsideRange)
             {
                 yield return new object[] { true, ipv6InsideRange, ip };
@@ -748,13 +748,13 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.200")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.200")),
                 IPAddress.Parse("192.168.1.0"),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff01"), IPAddress.Parse("::ff08")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ff01"), IPAddress.Parse("::ff08")),
                 IPAddress.Parse("::ff00"),
             };
 
@@ -762,13 +762,13 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.200")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.200")),
                 IPAddress.Parse("192.168.1.201"),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff01"), IPAddress.Parse("::ff08")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ff01"), IPAddress.Parse("::ff08")),
                 IPAddress.Parse("::ff09"),
             };
         }
@@ -795,8 +795,8 @@ namespace Arcus.Tests
 
         public static IEnumerable<object[]> HeadOverlappedBy_Test_Values()
         {
-            var ipv4Range = CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
-            var ipv6Range = CreateMockAbstractIPAddressRange(
+            var ipv4Range = CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
+            var ipv6Range = CreateSubstituteIPAddressRange(
                 IPAddress.IPv6Any,
                 IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
             );
@@ -813,14 +813,14 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
             };
 
             // differing address families
@@ -831,70 +831,70 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
             };
 
             // full head and tail overlapped
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
             };
 
             // tail only overlapped
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
             };
 
             // not touching
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
             };
 
             // disparate ranges
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
             };
         }
 
@@ -916,8 +916,8 @@ namespace Arcus.Tests
 
         public static IEnumerable<object[]> TailOverlappedBy_Test_Values()
         {
-            var ipv4Range = CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
-            var ipv6Range = CreateMockAbstractIPAddressRange(
+            var ipv4Range = CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
+            var ipv6Range = CreateSubstituteIPAddressRange(
                 IPAddress.IPv6Any,
                 IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
             );
@@ -934,14 +934,14 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
             };
 
             // differing address families
@@ -952,70 +952,70 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
             };
 
             // full head and tail overlapped
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
             };
 
             // tail only overlapped
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
             };
 
             // not touching
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
             };
 
             // disparate ranges
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
             };
         }
 
@@ -1037,8 +1037,8 @@ namespace Arcus.Tests
 
         public static IEnumerable<object[]> Overlaps_Test_Values()
         {
-            var ipv4Range = CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
-            var ipv6Range = CreateMockAbstractIPAddressRange(
+            var ipv4Range = CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
+            var ipv6Range = CreateSubstituteIPAddressRange(
                 IPAddress.IPv6Any,
                 IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
             );
@@ -1055,14 +1055,14 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
-                CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
+                CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
             };
 
             // differing address families
@@ -1073,70 +1073,70 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
             };
 
             // full head and tail overlapped
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
             };
 
             // tail only overlapped
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
             };
 
             // not touching
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.0"), IPAddress.Parse("10.1.1.100")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ab::"), IPAddress.Parse("ab::f")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("ef::"), IPAddress.Parse("ef::f")),
             };
 
             // disparate ranges
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
             };
         }
 
@@ -1158,18 +1158,18 @@ namespace Arcus.Tests
 
         public static IEnumerable<object[]> Touches_Test_Values()
         {
-            var ipv4Range = CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
-            var ipv6Range = CreateMockAbstractIPAddressRange(
+            var ipv4Range = CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast);
+            var ipv6Range = CreateSubstituteIPAddressRange(
                 IPAddress.IPv6Any,
                 IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
             );
 
             // null overlap checking
-            yield return new object[] { false, CreateMockAbstractIPAddressRange(IPAddress.Any, IPAddress.Broadcast), null };
+            yield return new object[] { false, CreateSubstituteIPAddressRange(IPAddress.Any, IPAddress.Broadcast), null };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.IPv6Any, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")),
                 null,
             };
 
@@ -1181,115 +1181,115 @@ namespace Arcus.Tests
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.100")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.101"), IPAddress.Parse("192.168.1.200")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.100")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.101"), IPAddress.Parse("192.168.1.200")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::abcd")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::abce"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::abcd")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::abce"), IPAddress.Parse("::ffff")),
             };
 
             // left head touches right tail
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.101"), IPAddress.Parse("192.168.1.200")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.100")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.101"), IPAddress.Parse("192.168.1.200")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.100")),
             };
             yield return new object[]
             {
                 true,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::abce"), IPAddress.Parse("::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::abcd")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::abce"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::abcd")),
             };
 
             // head only overlapped
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.128")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
             };
 
             // full head and tail overlapped
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.128"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ff00"), IPAddress.Parse("ff::ff00")),
             };
 
             // tail only overlapped
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.192"), IPAddress.Parse("192.168.1.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.192")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::ffff"), IPAddress.Parse("1::ffff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ffff")),
             };
 
             // disparate ranges
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.2.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::ff")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
             };
 
             // this tail at max
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("255.255.255.255")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("255.255.255.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(
+                CreateSubstituteIPAddressRange(
                     IPAddress.Parse("::"),
                     IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
                 ),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
             };
 
             // that tail at max
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("255.255.255.255")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("10.1.1.1"), IPAddress.Parse("10.1.5.0")),
+                CreateSubstituteIPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("255.255.255.255")),
             };
             yield return new object[]
             {
                 false,
-                CreateMockAbstractIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
-                CreateMockAbstractIPAddressRange(
+                CreateSubstituteIPAddressRange(IPAddress.Parse("f::"), IPAddress.Parse("f:1::")),
+                CreateSubstituteIPAddressRange(
                     IPAddress.Parse("::"),
                     IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
                 ),
@@ -1322,24 +1322,24 @@ namespace Arcus.Tests
             foreach (var subnet in SubnetUtilities.PrivateIPAddressRangesList)
             {
                 // has private
-                yield return new object[] { false, true, CreateMockAbstractIPAddressRange(subnet.Head, subnet.Tail) }; // on the border of private
+                yield return new object[] { false, true, CreateSubstituteIPAddressRange(subnet.Head, subnet.Tail) }; // on the border of private
                 yield return new object[]
                 {
                     false,
                     true,
-                    CreateMockAbstractIPAddressRange(subnet.Head.Increment(2), subnet.Tail.Increment(-2)),
+                    CreateSubstituteIPAddressRange(subnet.Head.Increment(2), subnet.Tail.Increment(-2)),
                 }; // wholly inside of private
                 yield return new object[]
                 {
                     false,
                     true,
-                    CreateMockAbstractIPAddressRange(subnet.Head.Increment(2), subnet.Tail),
+                    CreateSubstituteIPAddressRange(subnet.Head.Increment(2), subnet.Tail),
                 }; // partially within of private
                 yield return new object[]
                 {
                     false,
                     true,
-                    CreateMockAbstractIPAddressRange(subnet.Head, subnet.Tail.Increment(-2)),
+                    CreateSubstituteIPAddressRange(subnet.Head, subnet.Tail.Increment(-2)),
                 }; // partially within of private
 
                 // has private and public
@@ -1347,14 +1347,9 @@ namespace Arcus.Tests
                 {
                     true,
                     true,
-                    CreateMockAbstractIPAddressRange(subnet.Head.Increment(-2), subnet.Tail),
+                    CreateSubstituteIPAddressRange(subnet.Head.Increment(-2), subnet.Tail),
                 }; // partially outside of private
-                yield return new object[]
-                {
-                    true,
-                    true,
-                    CreateMockAbstractIPAddressRange(subnet.Head, subnet.Tail.Increment(2)),
-                }; // partially outside of private
+                yield return new object[] { true, true, CreateSubstituteIPAddressRange(subnet.Head, subnet.Tail.Increment(2)) }; // partially outside of private
             }
 
             // public only
@@ -1366,12 +1361,12 @@ namespace Arcus.Tests
 
             foreach (var (head, tail) in publicSpace)
             {
-                yield return new object[] { true, false, CreateMockAbstractIPAddressRange(head, tail) }; // on the border of public
+                yield return new object[] { true, false, CreateSubstituteIPAddressRange(head, tail) }; // on the border of public
                 yield return new object[]
                 {
                     true,
                     false,
-                    CreateMockAbstractIPAddressRange(head.Increment(2), tail.Increment(-2)),
+                    CreateSubstituteIPAddressRange(head.Increment(2), tail.Increment(-2)),
                 }; // wholly inside public
             }
         }

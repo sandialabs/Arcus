@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Numerics;
 using Arcus.Comparers;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 namespace Arcus.Tests.Comparers
@@ -74,18 +74,16 @@ namespace Arcus.Tests.Comparers
 
             IIPAddressRange CreateIIPAddressRange(string head, BigInteger? length = null)
             {
-                var xMock = new Mock<IIPAddressRange>(MockBehavior.Strict);
+                var substitute = Substitute.For<IIPAddressRange>();
 
-                xMock.Setup(m => m.ToString()).Returns($"{head}[{length}]");
-
-                xMock.Setup(m => m.Head).Returns(IPAddress.Parse(head));
+                substitute.Head.Returns(IPAddress.Parse(head));
 
                 if (length != null)
                 {
-                    xMock.Setup(m => m.Length).Returns(length.Value);
+                    substitute.Length.Returns(length.Value);
                 }
 
-                return xMock.Object;
+                return substitute;
             }
         }
 
@@ -116,26 +114,25 @@ namespace Arcus.Tests.Comparers
             var x = CreateIIPAddressRange(xHead);
             var y = CreateIIPAddressRange(yHead);
 
-            var mockIPAddressComparer = new Mock<IComparer<IPAddress>>();
-            mockIPAddressComparer.Setup(c => c.Compare(xHead, yHead)).Returns(expectedResult);
+            var substituteIPAddressComparer = Substitute.For<IComparer<IPAddress>>();
+            substituteIPAddressComparer.Compare(xHead, yHead).Returns(expectedResult);
 
-            var comparer = new DefaultIPAddressRangeComparer(mockIPAddressComparer.Object);
+            var comparer = new DefaultIPAddressRangeComparer(substituteIPAddressComparer);
 
             // Act
             var result = comparer.Compare(x, y);
 
             // Assert
             Assert.Equal(expectedResult, result);
-            mockIPAddressComparer.Verify(c => c.Compare(xHead, yHead), Times.Once);
+            substituteIPAddressComparer.Received(1).Compare(xHead, yHead); // Verify that Compare was called once
 
             IIPAddressRange CreateIIPAddressRange(IPAddress head)
             {
-                var xMock = new Mock<IIPAddressRange>(MockBehavior.Strict);
+                var substitute = Substitute.For<IIPAddressRange>();
 
-                xMock.Setup(m => m.ToString());
-                xMock.Setup(m => m.Head).Returns(head);
+                substitute.Head.Returns(head);
 
-                return xMock.Object;
+                return substitute;
             }
         }
 

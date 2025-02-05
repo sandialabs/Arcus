@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Arcus.Comparers;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 namespace Arcus.Tests.Comparers
@@ -93,18 +93,17 @@ namespace Arcus.Tests.Comparers
             var x = IPAddress.Any;
             var y = IPAddress.IPv6Any;
 
-            var mockAddressFamilyComparer = new Mock<IComparer<AddressFamily>>();
+            var substituteAddressFamilyComparer = Substitute.For<IComparer<AddressFamily>>();
+            substituteAddressFamilyComparer.Compare(x.AddressFamily, y.AddressFamily).Returns(expectedResult);
 
-            mockAddressFamilyComparer.Setup(c => c.Compare(x.AddressFamily, y.AddressFamily)).Returns(expectedResult);
-
-            var comparer = new DefaultIPAddressComparer(mockAddressFamilyComparer.Object);
+            var comparer = new DefaultIPAddressComparer(substituteAddressFamilyComparer);
 
             // Act
             var result = comparer.Compare(x, y);
 
             // Assert
             Assert.Equal(expectedResult, result);
-            mockAddressFamilyComparer.Verify(c => c.Compare(x.AddressFamily, y.AddressFamily), Times.Once);
+            substituteAddressFamilyComparer.Received(1).Compare(x.AddressFamily, y.AddressFamily);
         }
 
         #endregion // end: Compare
