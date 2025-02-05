@@ -1,12 +1,11 @@
 # ![Arcus](src/Arcus/icon.png) Arcus
 
-[![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Arcus?logo=nuget)](https://www.nuget.org/packages/Arcus/)
-[![Documentation on ReadTheDocs](https://img.shields.io/badge/Read%20the%20Docs-Arcus-lightgrey?logo=read%20the%20docs)](https://arcus.readthedocs.io)
-[![Apache 2.0 license](https://img.shields.io/github/license/sandialabs/arcus)](https://github.com/sandialabs/Arcus/blob/master/LICENSE)
-[![.NetStandard 1.3](https://img.shields.io/badge/targets-.NETStandard%201.3-blueviolet)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)
-[![Join the chat at https://gitter.im/sandialabs/Arcus](https://badges.gitter.im/sandialabs/Arcus.svg)](https://gitter.im/sandialabs/Arcus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[![Build Status](https://dev.azure.com/sandianationallabs/Arcus/_apis/build/status/sandialabs.Arcus?branchName=master)](https://dev.azure.com/sandianationallabs/Arcus/_build/latest?definitionId=2&branchName=master)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/sandialabs/Arcus/build.yml?branch=main)
+[![nuget Version](https://img.shields.io/nuget/v/Arcus)](https://www.nuget.org/packages/Arcus)
+[![GitHub Release](https://img.shields.io/github/v/release/sandialabs/Arcus)](https://github.com/sandialabs/Arcus/releases)
+[![GitHub Tag](https://img.shields.io/github/v/tag/sandialabs/Arcus)](https://github.com/sandialabs/Arcus/tags)
+![Targets](https://img.shields.io/badge/.NET%20Standard%202.0%20|%20.NET%208.0%20|%20.NET%209.0-blue?logo=.net)
+[![Apache 2.0 License](https://img.shields.io/github/license/sandialabs/Arcus?logo=apache)](https://github.com/sandialabs/Arcus/blob/main/LICENSE)
 
 Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and IPv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.
 
@@ -51,9 +50,9 @@ var success = Subnet.TryParse("192.168.1.0/16", out subnet)
 
 The _Comparers_ package contains useful Comparer objects for comparing properties of IP Addresses and IP Address composite objects.
 
--  `DefaultAddressFamilyComparer` - A comparer that compares address families. Most frequently `Internetwork` (IPv4) and `InternetworkV6` (IPv6)
--  `DefaultIPAddressComparer` - A comparer for `IPAddress` objects
--  `DefaultIPAddressRangeComparer` - A comparer for `IIPAddressRange`. Compares such that lower order ranges are less that higher order ranges accounting for size at matching range starts
+- `DefaultAddressFamilyComparer` - A comparer that compares address families. Most frequently `Internetwork` (IPv4) and `InternetworkV6` (IPv6)
+- `DefaultIPAddressComparer` - A comparer for `IPAddress` objects
+- `DefaultIPAddressRangeComparer` - A comparer for `IIPAddressRange`. Compares such that lower order ranges are less that higher order ranges accounting for size at matching range starts
 
 ### Converters
 
@@ -95,11 +94,11 @@ _Overflow_ and _Underflow_ conditions will result in an `InvalidOperationExcepti
 
 Equality may also be tested via a host of equality extension methods:
 
--  `bool IsEqualTo(this IPAddress alpha, IPAddress beta)`
--  `bool IsGreaterThan(this IPAddress alpha, IPAddress beta)`
--  `bool IsGreaterThanOrEqualTo(this IPAddress alpha, IPAddress beta)`
--  `bool IsLessThan(this IPAddress alpha, IPAddress beta)`
--  `bool IsLessThanOrEqualTo(this IPAddress alpha, IPAddress beta)`
+- `bool IsEqualTo(this IPAddress alpha, IPAddress beta)`
+- `bool IsGreaterThan(this IPAddress alpha, IPAddress beta)`
+- `bool IsGreaterThanOrEqualTo(this IPAddress alpha, IPAddress beta)`
+- `bool IsLessThan(this IPAddress alpha, IPAddress beta)`
+- `bool IsLessThanOrEqualTo(this IPAddress alpha, IPAddress beta)`
 
 ### Utilities
 
@@ -133,12 +132,16 @@ would return an `Enumerable` containing the subnets `128.64.20.3/32`, `128.64.20
 
 ## Built With
 
--  [Gulliver](https://github.com/sandialabs/gulliver) - A self created library that helped us keep our bits and bytes in order
--  [NuGet](https://www.nuget.org/) - Dependency Management
--  [JetBrains.Annotations](https://www.jetbrains.com/help/resharper/10.0/Code_Analysis__Code_Annotations.html) - Used to keep developers honest
--  [moq](https://github.com/moq/moq4/wiki) - Fake it until you make it!
--  [Stackoverflow](https://stackoverflow.com/) - Because who really remembers how to code
--  [xUnit.net](https://xunit.net/) - Testing, testing, 1, 2, 3...
+This project was built with the aid of:
+
+- [CSharpier](https://csharpier.com/)
+- [dotnet-outdated](https://github.com/dotnet-outdated/dotnet-outdated)
+- [Gulliver](https://github.com/sandialabs/gulliver) - A self created library that helped us keep our bits and bytes in order
+- [Husky.Net](https://alirezanet.github.io/Husky.Net/)
+- [Roslynator](https://josefpihrt.github.io/docs/roslynator/)
+- [SonarAnalyzer](https://www.sonarsource.com/products/sonarlint/features/visual-studio/)
+- [StyleCop.Analyzers](https://github.com/DotNetAnalyzers/StyleCopAnalyzers)
+- [xUnit.net](https://xunit.net/)
 
 ## Versioning
 
@@ -146,24 +149,18 @@ We use [SemVer](http://semver.org/) for versioning.
 
 ## Primary Authors and Contributors
 
--  **Robert H. Engelhardt** - _Primary Developer, Source of Ideas Good and Bad_ - [@rheone](https://twitter.com/rheone)
--  **Andrew Steele** - _Review and Suggestions_ - [@ahsteele](https://twitter.com/ahsteele)
--  **Nick Bachicha** - _Git Wrangler and DevOps Extraordinaire_ - [@nicksterx](https://twitter.com/nicksterx)
+- **Robert H. Engelhardt** - _Primary Developer, Source of Ideas Good and Bad_ - [rheone](https://github.com/rheone)
+- **Andrew Steele** - _Review and Suggestions_ - [ahsteele](https://github.com/ahsteele)
+- **Nick Bachicha** - _Git Wrangler and DevOps Extraordinaire_ - [nicksterx](https://github.com/nicksterx)
 
 ## Copyright
 
-> Copyright 2018 National Technology & Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software.
+> Copyright 2025 National Technology & Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software.
 
 ## License
 
-> Licensed under the Apache License, Version 2.0 (the "License");
-> you may not use this file except in compliance with the License.
-> You may obtain a copy of the License at
+> Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 >
->       http://www.apache.org/licenses/LICENSE-2.0
+> http://www.apache.org/licenses/LICENSE-2.0
 >
-> Unless required by applicable law or agreed to in writing, software
-> distributed under the License is distributed on an "AS IS" BASIS,
-> WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-> See the License for the specific language governing permissions and
-> limitations under the License.
+> Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
