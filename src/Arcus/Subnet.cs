@@ -609,7 +609,7 @@ namespace Arcus
         /// <exception cref="ArgumentNullException"><paramref name="addressString" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="routingPrefix" /> is less than <c>0</c></exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        ///     <paramref name="routingPrefix" /> is is out of range of the provided
+        ///     <paramref name="routingPrefix" /> is out of range of the provided
         ///     <see cref="AddressFamily" />
         /// </exception>
         /// <returns></returns>

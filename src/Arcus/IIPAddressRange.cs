@@ -153,25 +153,25 @@ namespace Arcus
         /// <summary>
         ///     Determines if the range contains any private addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains any private addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains any private addresses</returns>
         bool ContainsAnyPrivateAddresses();
 
         /// <summary>
         ///     Determines if the range contains all private addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains all private addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains all private addresses</returns>
         bool ContainsAllPrivateAddresses();
 
         /// <summary>
         ///     Determines if the range contains any public addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains any public addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains any public addresses</returns>
         bool ContainsAnyPublicAddresses();
 
         /// <summary>
         ///     Determines if the range contains all public addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains all public addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains all public addresses</returns>
         bool ContainsAllPublicAddresses();
 
         #endregion end: Contains Any/All Public/Private Addresses

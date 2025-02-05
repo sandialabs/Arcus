@@ -447,7 +447,7 @@ namespace Arcus.Utilities
         ///     Determines if an <see cref="IPAddress"/> is a private address.
         /// </summary>
         /// <param name="address">the input address</param>
-        /// <returns><see langword="true"/> iff the <paramref name="address"/> is private.</returns>
+        /// <returns><see langword="true"/> if, and only if, the <paramref name="address"/> is private.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="address"/> is <see langword="null"/></exception>
         public static bool IsPrivate(this IPAddress address)
         {

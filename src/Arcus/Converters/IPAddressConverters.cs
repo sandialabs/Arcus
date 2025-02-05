@@ -67,7 +67,7 @@ namespace Arcus.Converters
         #region string conversion
 
         /// <summary>
-        ///     IPv6 to to Base85 (will return empty string for non ipv6 addresses) AKA Ascii85
+        ///     IPv6 to Base85 (will return empty string for non ipv6 addresses) AKA Ascii85
         ///     from RFC 1924 ( http://tools.ietf.org/html/rfc1924 )
         ///     <remarks>
         ///         <para>The RFC is an April Fools Day Joke, but we implemented it anyhow</para>

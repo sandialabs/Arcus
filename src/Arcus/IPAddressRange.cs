@@ -361,7 +361,7 @@ namespace Arcus
                 // exclusion is within last, carve exclusion to two pieces
                 if (!last.Overlaps(exclusion))
                 {
-                    throw new InvalidOperationException("An unexpected overlap check operation occured"); // should not have made it here
+                    throw new InvalidOperationException("An unexpected overlap check operation occurred"); // should not have made it here
                 }
 
                 resultList[lastIndex] = new IPAddressRange(resultList[lastIndex].Head, exclusion.Head.Increment(-1));

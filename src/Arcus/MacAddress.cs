@@ -17,7 +17,7 @@ namespace Arcus
     ///     </para>
     /// </remarks>
     [Obsolete(
-        "Candidate for removal in future major version. This, or something like it, may be more appropriate in a seperate package"
+        "Candidate for removal in future major version. This, or something like it, may be more appropriate in a separate package"
     )]
     [Serializable]
     public class MacAddress : IEquatable<MacAddress>, IComparable<MacAddress>, IComparable, IFormattable, ISerializable
@@ -363,7 +363,7 @@ namespace Arcus
         protected MacAddress(SerializationInfo info,
 #pragma warning disable CA1801
             /* CA1801 Parameter context of method .ctor is never used. Remove the parameter or use it in the method body.
-             * parameter "StreamingContext context" is required for proper desearilization
+             * parameter "StreamingContext context" is required for proper deserialization
              */
             StreamingContext context)
 #pragma warning restore CA1801
@@ -498,7 +498,7 @@ namespace Arcus
         /// </summary>
         /// <param name="input">the input to parse</param>
         /// <param name="macAddress">a <see cref="MacAddress" /> created on successful parse</param>
-        /// <returns><see langword="true" /> iff the the parse was successful</returns>
+        /// <returns><see langword="true" /> if, and only if, the parse was successful</returns>
         public static bool TryParse(string input, out MacAddress macAddress)
         {
             try
@@ -540,7 +540,7 @@ namespace Arcus
         /// <summary>Try to parse a string disregarding all non hexadecimal digits in order to create a MAC Address</summary>
         /// <param name="input">the input to parse</param>
         /// <param name="macAddress">a <see cref="MacAddress" /> created on successful parse</param>
-        /// <returns><see langword="true" /> if the the parse was successful</returns>
+        /// <returns><see langword="true" /> if the parse was successful</returns>
         public static bool TryParseAny(string input, out MacAddress macAddress)
         {
             try
@@ -568,7 +568,7 @@ namespace Arcus
         /// <summary>Check equality of <paramref name="left" /> and <paramref name="right" /></summary>
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
-        /// <returns><see langword="true" /> iff both <paramref name="left" /> and <paramref name="right" /> are equal</returns>
+        /// <returns><see langword="true" /> if, and only if, both <paramref name="left" /> and <paramref name="right" /> are equal</returns>
         public static bool operator ==(MacAddress left, MacAddress right)
         {
             return Equals(left, right);
@@ -577,7 +577,7 @@ namespace Arcus
         /// <summary>Check inequality of <paramref name="left" /> and <paramref name="right" /></summary>
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
-        /// <returns><see langword="true" /> iff both <paramref name="left" /> and <paramref name="right" /> are not equal</returns>
+        /// <returns><see langword="true" /> if, and only if, both <paramref name="left" /> and <paramref name="right" /> are not equal</returns>
         public static bool operator !=(MacAddress left, MacAddress right)
         {
             return !Equals(left, right);
@@ -586,7 +586,7 @@ namespace Arcus
         /// <summary>Check if <paramref name="left" /> is less than <paramref name="right" /></summary>
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
-        /// <returns><see langword="true" /> iff <paramref name="left" /> is less than <paramref name="right" /></returns>
+        /// <returns><see langword="true" /> if, and only if, <paramref name="left" /> is less than <paramref name="right" /></returns>
         public static bool operator <(MacAddress left, MacAddress right)
         {
             return Comparer<MacAddress>.Default.Compare(left, right) < 0;
@@ -595,7 +595,7 @@ namespace Arcus
         /// <summary>Check if <paramref name="left" /> is greater than <paramref name="right" /></summary>
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
-        /// <returns><see langword="true" /> iff <paramref name="left" /> is greater than <paramref name="right" /></returns>
+        /// <returns><see langword="true" /> if, and only if, <paramref name="left" /> is greater than <paramref name="right" /></returns>
         public static bool operator >(MacAddress left, MacAddress right)
         {
             return Comparer<MacAddress>.Default.Compare(left, right) > 0;
@@ -605,7 +605,7 @@ namespace Arcus
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
         /// <returns>
-        ///     <see langword="true" /> iff <paramref name="left" /> is less than or equal to <paramref name="right" />
+        ///     <see langword="true" /> if, and only if, <paramref name="left" /> is less than or equal to <paramref name="right" />
         /// </returns>
         public static bool operator <=(MacAddress left, MacAddress right)
         {
@@ -616,7 +616,7 @@ namespace Arcus
         /// <param name="left">the left operand</param>
         /// <param name="right">the right operand</param>
         /// <returns>
-        ///     <see langword="true" /> iff <paramref name="left" /> is greater than or equal to <paramref name="right" />
+        ///     <see langword="true" /> if, and only if, <paramref name="left" /> is greater than or equal to <paramref name="right" />
         /// </returns>
         public static bool operator >=(MacAddress left, MacAddress right)
         {
