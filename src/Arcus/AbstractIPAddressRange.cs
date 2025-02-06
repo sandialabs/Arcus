@@ -105,13 +105,7 @@ namespace Arcus
             }
 
             /// <inheritdoc />
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (this.Head.GetHashCode() * 397) ^ this.Tail.GetHashCode();
-                }
-            }
+            public override int GetHashCode() => HashCode.Combine(Head, Tail);
 
             /// <summary>
             ///     Equals operation

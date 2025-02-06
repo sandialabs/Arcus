@@ -20,7 +20,11 @@ namespace Arcus
         "Candidate for removal in future major version. This, or something like it, may be more appropriate in a separate package"
     )]
     [Serializable]
-    public class MacAddress : IEquatable<MacAddress>, IComparable<MacAddress>, IComparable, IFormattable, ISerializable
+    public class MacAddress :
+#if NETSTANDARD2_0
+        ISerializable,
+#endif
+            IEquatable<MacAddress>, IComparable<MacAddress>, IComparable, IFormattable
     {
         /// <summary>
         ///     <para>MAC Address Regular Expression pattern for matching:</para>
@@ -308,6 +312,7 @@ namespace Arcus
 
         #endregion
 
+#if NETSTANDARD2_0
         #region From Interface ISerializable
 
         /// <inheritdoc />
@@ -323,6 +328,7 @@ namespace Arcus
         }
 
         #endregion
+#endif
 
         /// <summary>Gets a copy of the underlying big-endian bytes of the MAC Address</summary>
         /// <returns>The bytes of the MAC Address</returns>
@@ -359,10 +365,8 @@ namespace Arcus
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return this._address.Aggregate(0, (i, b) => unchecked((i * 17) + b));
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(_address[0], _address[1], _address[2], _address[3], _address[4], _address[5]);
 
         #region Ctors
 

@@ -99,7 +99,10 @@
 
   <ItemGroup>
     <PackageReference Include="Gulliver" Version="1.0.2" />
-    <!-- <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" /> -->
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
   </ItemGroup>
 
   <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0">

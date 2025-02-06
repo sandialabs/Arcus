@@ -88,6 +88,11 @@
         "resolved": "2019.1.3",
         "contentHash": "E0x48BwZJKoNMNCekWGKsV4saQS89lf58ydT2szseV44CMYIbaHXjc7+305WLw6up3ibZN9yH6QdGSZo5tQhLg=="
       },
+      "Microsoft.Bcl.HashCode": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "GI4jcoi6eC9ZhNOQylIBaWOQjyGaR8T6N3tC1u8p3EXfndLCVNNWa+Zp+ocjvvS3kNBN09Zma2HXL0ezO0dRfw=="
+      },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.12.0",
@@ -162,7 +167,8 @@
       "arcus": {
         "type": "Project",
         "dependencies": {
-          "Gulliver": "[1.0.2, )"
+          "Gulliver": "[1.0.2, )",
+          "Microsoft.Bcl.HashCode": "[6.0.0, )"
         }
       }
     },

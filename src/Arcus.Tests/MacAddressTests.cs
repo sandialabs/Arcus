@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using Gulliver;
 using Xunit;
-#if NET48   // maintained for .NET 4.8 compatability
+#if NET48   // maintained for .NET 4.8 compatibility
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 
@@ -324,18 +324,16 @@ namespace Arcus.Tests
         }
 
         [Fact]
-        public void Ctor_NullBytes_Throws_ArgumentNullException_Test()
-        {
+        public void Ctor_NullBytes_Throws_ArgumentNullException_Test() =>
             // Arrange
             // Act
             // Assert
             Assert.Throws<ArgumentNullException>(() => new MacAddress(null));
-        }
 
         #endregion end: ctor bytes[]
 
         #region ISerializable
-
+#if NET48   // maintained for .NET 4.8 compatibility
         public static IEnumerable<object[]> CanSerializable_Test_Values()
         {
             yield return new object[] { new MacAddress(Enumerable.Repeat((byte)0x00, 6)) };
@@ -343,23 +341,21 @@ namespace Arcus.Tests
             yield return new object[] { new MacAddress(new byte[] { 0x00, 0xCD, 0xEF, 0x01, 0x23, 0x45 }) };
         }
 
-#if NET48   // maintained for .NET 4.8 compatability
         [Theory]
         [MemberData(nameof(CanSerializable_Test_Values))]
         public void CanSerializable_Test(MacAddress macAddress)
         {
             // Arrange
-#warning determine alternative formatter for compatability sake
             var formatter = new BinaryFormatter();
 
             // Act
             using (var writeStream = new MemoryStream())
             {
                 formatter.Serialize(writeStream, macAddress);
+                writeStream.Seek(0, SeekOrigin.Begin);
 
-                var bytes = writeStream.ToArray();
-                var readStream = new MemoryStream(bytes);
-                var result = formatter.Deserialize(readStream);
+                // Deserialize the object from the stream
+                var result = formatter.Deserialize(writeStream);
 
                 // Assert
                 Assert.IsType<MacAddress>(result);
@@ -376,7 +372,9 @@ namespace Arcus.Tests
         [InlineData(typeof(IComparable<MacAddress>))]
         [InlineData(typeof(IComparable))]
         [InlineData(typeof(IFormattable))]
+#if NET48
         [InlineData(typeof(ISerializable))]
+#endif
         public void Assignability_Test(Type assignableFromType)
         {
             // Arrange
@@ -421,13 +419,11 @@ namespace Arcus.Tests
         [Theory]
         [MemberData(nameof(Comparison_MacAddress_Object_Values))]
 #pragma warning disable xUnit1026 // theory methods should use all their parameters; Agreed. We're jsut not there yet
-        public void CompareTo_Object_NotMacAddress_Test(int expected, MacAddress left, object right)
-        {
+        public void CompareTo_Object_NotMacAddress_Test(int expected, MacAddress left, object right) =>
             // Arrange
             // Act
             // Assert
             Assert.Throws<ArgumentException>(() => left.CompareTo(right));
-        }
 #pragma warning restore xUnit1026
 
         #endregion end: IComparable
@@ -452,13 +448,11 @@ namespace Arcus.Tests
         [Theory]
         [MemberData(nameof(Parse_Test_FailValues))]
 #pragma warning disable xUnit1026 // theory methods should use all their parameters; Agreed. We're jsut not there yet
-        public void Parse_Failure_Test(MacAddress expected, string input)
-        {
+        public void Parse_Failure_Test(MacAddress expected, string input) =>
             // Arrange
             // Act
             // Assert
             Assert.ThrowsAny<Exception>(() => MacAddress.Parse(input));
-        }
 #pragma warning restore xUnit1026
 
         [Theory]
@@ -524,13 +518,11 @@ namespace Arcus.Tests
         [Theory]
         [MemberData(nameof(ParseAny_Test_FailValues))]
 #pragma warning disable xUnit1026 // theory methods should use all their parameters; Agreed. We're jsut not there yet
-        public void ParseAny_Failure_Test(MacAddress expected, string input)
-        {
+        public void ParseAny_Failure_Test(MacAddress expected, string input) =>
             // Arrange
             // Act
             // Assert
             Assert.ThrowsAny<Exception>(() => MacAddress.ParseAny(input));
-        }
 #pragma warning restore xUnit1026
 
         [Theory]
@@ -778,9 +770,8 @@ namespace Arcus.Tests
 
         #region AllFormatMacAddressRegularExpression
 
-        public static IEnumerable<object[]> AllFormantMacAddressRefularExpressionMatches()
-        {
-            var values = new[]
+        public static IEnumerable<object[]> AllFormantMacAddressRegularExpressionMatches() =>
+            new[]
             {
                 "00D.7FB.576.F14",
                 "01 D5 7A D5 18 9B",
@@ -832,18 +823,14 @@ namespace Arcus.Tests
                 "72 71 DC 01 99 79",
                 "75BB2A7F454A",
                 "765.E80.3FE.05D",
-            };
-
-            foreach (var value in values)
-            {
-                yield return new object[] { value };
-                yield return new object[] { value.ToLowerInvariant() };
             }
-        }
+                .SelectMany(s => new[] { s, s.ToLowerInvariant() }) // Select original and lower case
+                .Distinct()
+                .Select(s => new object[] { s });
 
         [Theory]
-        [MemberData(nameof(AllFormantMacAddressRefularExpressionMatches))]
-        public void AllFormantMacAddressRefularExpression_Matches_Test(string input)
+        [MemberData(nameof(AllFormantMacAddressRegularExpressionMatches))]
+        public void AllFormantMacAddressRegularExpression_Matches_Test(string input)
         {
             // Arrange
             // Act
@@ -859,9 +846,8 @@ namespace Arcus.Tests
 
         #region CommonFormatMacAddressRegularExpression
 
-        public static IEnumerable<object[]> CommonFormatMacAddressRegularExpressionMatches()
-        {
-            var values = new[]
+        public static IEnumerable<object[]> CommonFormatMacAddressRegularExpressionMatches() =>
+            new[]
             {
                 "DC:F1:EE:7C:9A:E1",
                 "67:2F:7C:7A:FF:C8",
@@ -913,14 +899,10 @@ namespace Arcus.Tests
                 "A0:09:97:78:65:95",
                 "E6:01:AC:DF:D3:DC",
                 "49:24:6D:2E:30:58",
-            };
-
-            foreach (var value in values)
-            {
-                yield return new object[] { value };
-                yield return new object[] { value.ToLowerInvariant() };
             }
-        }
+                .SelectMany(s => new[] { s, s.ToLowerInvariant() }) // Select original and lower case
+                .Distinct()
+                .Select(s => new object[] { s });
 
         [Theory]
         [MemberData(nameof(CommonFormatMacAddressRegularExpressionMatches))]

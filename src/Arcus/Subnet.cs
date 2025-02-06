@@ -19,7 +19,11 @@ namespace Arcus
     ///     An IPv4 or IPv6 subnetwork representation - the work horse and original intention of the Arcus library
     /// </summary>
     [Serializable]
-    public class Subnet : AbstractIPAddressRange, IEquatable<Subnet>, IComparable<Subnet>, IComparable, ISerializable
+    public class Subnet : AbstractIPAddressRange,
+#if NETSTANDARD2_0
+            ISerializable,
+#endif
+            IEquatable<Subnet>, IComparable<Subnet>, IComparable
     {
         /// <summary>
         ///     Pattern that passes on valid IPv4 octet partials
@@ -963,14 +967,9 @@ namespace Arcus
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return Head.GetHashCode() * 29 * AddressFamily.GetHashCode() * 187 * this.RoutingPrefix.GetHashCode();
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(AddressFamily, Head, RoutingPrefix);
 
+#if NETSTANDARD2_0
         #region From Interface ISerializable
 
         /// <inheritdoc />
@@ -987,6 +986,8 @@ namespace Arcus
         }
 
         #endregion
+#endif
+
         #region operators
 
         /// <summary>

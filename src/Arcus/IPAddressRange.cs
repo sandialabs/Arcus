@@ -15,11 +15,14 @@ namespace Arcus
     [Serializable]
     public class IPAddressRange
         : AbstractIPAddressRange,
+#if NETSTANDARD2_0
+            ISerializable,
+#endif
             IEquatable<IPAddressRange>,
             IComparable<IPAddressRange>,
-            IComparable,
-            ISerializable
+            IComparable
     {
+#if NETSTANDARD2_0
         #region From Interface ISerializable
 
         /// <inheritdoc />
@@ -36,6 +39,7 @@ namespace Arcus
         }
 
         #endregion
+#endif
 
         #region From Interface IComparable
 
@@ -88,13 +92,7 @@ namespace Arcus
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Head.GetHashCode() * 397) ^ Tail.GetHashCode();
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Head, Tail);
 
         #region operators
 

@@ -69,8 +69,11 @@ namespace Arcus.Tests
         [InlineData(false, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff:", null)] // IPv6 trailing colon
         [InlineData(false, "ffff::::abcd", null)] // IPv6 double double colons
         [InlineData(false, "ffff::0::abcd", null)] // IPv6 double multiple collapse around hextets
-#warning input of "abcd::%" does not fail test as expected; was this a previous test issue. It appears that in .NET 4.7.2 this will fail to parse. In .NET Core 3.1 the parse succeeded and the '%' is dropped. Impact will need to be determined
-        [InlineData(false, "abcd::%", null)] // invalid input IPv6 trailing %
+        // Beyond .NET Standard 1.3 stricter parsing rules are enforced according to the IPv6 specification.
+        // The presence of a terminal '%' character without a valid zone index is considered invalid.
+        // Thus, the input "abcd::%" fails to parse, resulting in a null address. This is breaking change
+        // from Arcus's former .NET Standard 1.3 target.
+        [InlineData(false, "abcd::%", null)]
         [InlineData(false, "%abcd::", null)] // invalid input IPv6 leading %
         [InlineData(false, "f", null)] // single hex char
         [InlineData(false, "fc", null)] // double hex char

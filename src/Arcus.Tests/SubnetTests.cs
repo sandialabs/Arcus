@@ -4,12 +4,12 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Numerics;
-using System.Runtime.Serialization;
 using System.Text;
 using Gulliver;
 using Xunit;
-#if NET48   // maintained for .NET 4.8 compatability
+#if NET48   // maintained for .NET 4.8 compatibility
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 
@@ -46,7 +46,9 @@ namespace Arcus.Tests
         [InlineData(typeof(IEquatable<Subnet>))]
         [InlineData(typeof(IComparable<Subnet>))]
         [InlineData(typeof(IComparable))]
+#if NET48
         [InlineData(typeof(ISerializable))]
+#endif
         public void Assignability_Test(Type assignableFromType)
         {
             // Arrange
@@ -683,7 +685,7 @@ namespace Arcus.Tests
         #endregion // end: Ctor
 
         #region ISerializable
-
+#if NET48   // maintained for .NET 4.8 compatibility
         public static IEnumerable<object[]> CanSerializable_Test_Values()
         {
             yield return new object[] { new Subnet(IPAddress.Parse("192.168.1.0")) };
@@ -691,23 +693,21 @@ namespace Arcus.Tests
             yield return new object[] { new Subnet(IPAddress.Parse("::"), IPAddress.Parse("::FFFF")) };
         }
 
-#if NET48   // maintained for .NET 4.8 compatability
         [Theory]
         [MemberData(nameof(CanSerializable_Test_Values))]
         public void CanSerializable_Test(Subnet subnet)
         {
             // Arrange
-#warning determine alternative formatter for compatability sake
             var formatter = new BinaryFormatter();
 
             // Act
             using (var writeStream = new MemoryStream())
             {
                 formatter.Serialize(writeStream, subnet);
+                writeStream.Seek(0, SeekOrigin.Begin);
 
-                var bytes = writeStream.ToArray();
-                var readStream = new MemoryStream(bytes);
-                var result = formatter.Deserialize(readStream);
+                // Deserialize the object from the stream
+                var result = formatter.Deserialize(writeStream);
 
                 // Assert
                 Assert.IsType<Subnet>(result);
@@ -715,7 +715,6 @@ namespace Arcus.Tests
             }
         }
 #endif
-
         #endregion end: ISerializable
 
         #region Static Factory Methods

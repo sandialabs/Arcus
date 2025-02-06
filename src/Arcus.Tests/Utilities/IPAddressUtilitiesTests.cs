@@ -182,8 +182,10 @@ namespace Arcus.Tests.Utilities
         {
             return Enum.GetValues(typeof(AddressFamily))
                 .Cast<AddressFamily>()
-                .Where(addressFamily => addressFamily != AddressFamily.InterNetworkV6)
-                .Where(addressFamily => addressFamily != AddressFamily.InterNetwork)
+                .Where(addressFamily =>
+                    addressFamily != AddressFamily.InterNetworkV6 && addressFamily != AddressFamily.InterNetwork
+                )
+                .Distinct()
                 .Select(e => new object[] { e });
         }
 
