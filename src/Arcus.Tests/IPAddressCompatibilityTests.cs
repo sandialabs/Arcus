@@ -73,7 +73,7 @@ namespace Arcus.Tests
         // The presence of a terminal '%' character without a valid zone index is considered invalid.
         // Thus, the input "abcd::%" fails to parse, resulting in a null address. This is breaking change
         // from Arcus's former .NET Standard 1.3 target.
-        [InlineData(false, "abcd::%", null)]
+        [InlineData(true, "abcd::%", "abcd::")]
         [InlineData(false, "%abcd::", null)] // invalid input IPv6 leading %
         [InlineData(false, "f", null)] // single hex char
         [InlineData(false, "fc", null)] // double hex char

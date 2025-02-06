@@ -12,14 +12,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Arcus.Tests
 {
-#if NET48
-    // The tests in the IPAddressRangeTests class exhibit race conditions when run in parallel.
-    // To avoid these issues, we enforce sequential execution for this collection on .NET Framework 4.8.
-    // This problem does not appear to occur when targeting other frameworks, allowing those tests to run
-    // concurrently without issues.
-    [Collection("NET48_IPAddressRangeTests_Sequential")]
-#endif
-
     public class IPAddressRangeTests
     {
         #region GetHashCode
@@ -416,8 +408,8 @@ namespace Arcus.Tests
                 var result = formatter.Deserialize(writeStream);
 
                 // Assert
-                Assert.IsType<IPAddressRange>(result);
-                Assert.Equal(ipAddressRange, result);
+                var actual = Assert.IsType<IPAddressRange>(result);
+                Assert.Equal(ipAddressRange, actual, IPAddressRangeEqualityComparer.Instance);
             }
         }
 #endif
@@ -934,5 +926,35 @@ namespace Arcus.Tests
         #endregion // end: ToString(string, IFormatProvider)
 
         #endregion // end: Formatting
+
+        internal class IPAddressRangeEqualityComparer : IEqualityComparer<IPAddressRange>
+        {
+            public static readonly IPAddressRangeEqualityComparer Instance = new IPAddressRangeEqualityComparer();
+
+            public bool Equals(IPAddressRange x, IPAddressRange y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(IPAddressRange obj)
+            {
+                return obj is null ? -1 : obj.GetHashCode();
+            }
+        }
     }
 }

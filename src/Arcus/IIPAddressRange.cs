@@ -13,6 +13,8 @@ namespace Arcus
     /// </summary>
     public interface IIPAddressRange : IFormattable, IEnumerable<IPAddress>
     {
+        // TODO future versions of IIPAddressRange should not directly implement IEnumerable<IPAddress> and instead a spawn an IEnumerable on demand
+
         /// <summary>
         ///     Gets the address family of the Address Range
         ///     Typically Internetwork or InternetworkV6
