@@ -99,38 +99,32 @@ namespace Arcus
         /// <inheritdoc />
         public int CompareTo(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return 1;
             }
 
-            if (ReferenceEquals(this, obj))
+            if (obj is Subnet other)
             {
-                return 0;
+                return CompareTo(other);
             }
 
-            return obj is Subnet other
-                ? this.CompareTo(other)
-                : throw new ArgumentException($"Object must be of type {nameof(Subnet)}");
+            throw new ArgumentException("Object is not an Subnet");
         }
 
         #endregion
 
         #region From Interface IComparable<Subnet>
 
-        /// <summary>
-        ///     Compares the current object with another object of the same type.
-        /// </summary>
-        /// <returns>
-        ///     A value that indicates the relative order of the objects being compared. The return value has the following
-        ///     meanings: Value Meaning Less than zero This object is less than the <paramref name="other" /> parameter.Zero This
-        ///     object is equal to <paramref name="other" />. Greater than zero This object is greater than
-        ///     <paramref name="other" />.
-        /// </returns>
-        /// <param name="other">An object to compare with this object.</param>
+        /// <inheritdoc />
         public int CompareTo(Subnet other)
         {
-            return new DefaultIPAddressRangeComparer().Compare(this, other);
+            if (other is null)
+            {
+                return 1;
+            }
+
+            return DefaultIIPAddressRangeComparer.Instance.Compare(this, other);
         }
 
         #endregion
@@ -140,7 +134,7 @@ namespace Arcus
         /// <inheritdoc />
         public override string ToString(string format, IFormatProvider formatProvider)
         {
-            if (formatProvider == null)
+            if (formatProvider is null)
             {
                 formatProvider = CultureInfo.InvariantCulture;
             }
@@ -221,12 +215,12 @@ namespace Arcus
         {
             #region Defense
 
-            if (lowAddress == null)
+            if (lowAddress is null)
             {
                 throw new ArgumentNullException(nameof(lowAddress));
             }
 
-            if (highAddress == null)
+            if (highAddress is null)
             {
                 throw new ArgumentNullException(nameof(highAddress));
             }
@@ -284,7 +278,7 @@ namespace Arcus
         {
             #region Defense
 
-            if (address == null)
+            if (address is null)
             {
                 throw new ArgumentNullException(nameof(address));
             }
@@ -372,12 +366,12 @@ namespace Arcus
         /// <exception cref="InvalidOperationException">the given netmask is invalid</exception>
         public static Subnet FromNetMask(IPAddress address, IPAddress netmask)
         {
-            if (address == null)
+            if (address is null)
             {
                 throw new ArgumentNullException(nameof(address));
             }
 
-            if (netmask == null)
+            if (netmask is null)
             {
                 throw new ArgumentNullException(nameof(netmask));
             }
@@ -435,12 +429,12 @@ namespace Arcus
         /// <returns>The created <see cref="Subnet"/></returns>
         public static Subnet FromBytes(byte[] lowAddressBytes, byte[] highAddressBytes)
         {
-            if (lowAddressBytes == null)
+            if (lowAddressBytes is null)
             {
                 throw new ArgumentNullException(nameof(lowAddressBytes));
             }
 
-            if (highAddressBytes == null)
+            if (highAddressBytes is null)
             {
                 throw new ArgumentNullException(nameof(highAddressBytes));
             }
@@ -518,7 +512,7 @@ namespace Arcus
         /// <exception cref="ArgumentException">could not parse input</exception>
         public static Subnet Parse(string subnetString)
         {
-            if (subnetString == null)
+            if (subnetString is null)
             {
                 throw new ArgumentNullException(nameof(subnetString));
             }
@@ -619,7 +613,7 @@ namespace Arcus
         /// <returns>The parsed <see cref="Subnet"/></returns>
         public static Subnet Parse(string addressString, int routingPrefix)
         {
-            if (addressString == null)
+            if (addressString is null)
             {
                 throw new ArgumentNullException(nameof(addressString));
             }
@@ -696,12 +690,12 @@ namespace Arcus
         /// <returns>The parsed <see cref="Subnet"/></returns>
         public static Subnet Parse(string lowAddressString, string highAddressString)
         {
-            if (lowAddressString == null)
+            if (lowAddressString is null)
             {
                 throw new ArgumentNullException(nameof(lowAddressString));
             }
 
-            if (highAddressString == null)
+            if (highAddressString is null)
             {
                 throw new ArgumentNullException(nameof(highAddressString));
             }
@@ -874,14 +868,14 @@ namespace Arcus
                     .FirstOrDefault(pair => string.IsNullOrWhiteSpace(pair.value));
 
                 int collapseIndex;
-                if (collapse == null && hextets.Count == 8) // no collapse - fully fledged address, all 8 hextets present
+                if (collapse is null && hextets.Count == 8) // no collapse - fully fledged address, all 8 hextets present
                 {
                     subnets = new[] { Parse(input, IPAddressUtilities.IPv6BitCount) };
                     return true;
                 }
 
                 // introduce a collapse at the end if one does not exist
-                if (collapse == null) // not fully fledged, add a collapse to the end
+                if (collapse is null) // not fully fledged, add a collapse to the end
                 {
                     hextets.Add(string.Empty);
                     collapseIndex = hextets.Count - 1;
@@ -947,23 +941,30 @@ namespace Arcus
         #endregion // end: Static Factory Methods
 
         /// <inheritdoc />
-        public bool Equals(Subnet other)
+        public virtual bool Equals(Subnet other)
         {
-            return !ReferenceEquals(null, other)
-                && (
-                    ReferenceEquals(this, other)
-                    || (
-                        Equals(this.NetworkPrefixAddress, other.NetworkPrefixAddress)
-                        && this.RoutingPrefix == other.RoutingPrefix
-                    )
-                );
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return DefaultIIPAddressRangeComparer.Instance.Compare(this, other) == 0;
         }
 
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            return !ReferenceEquals(null, obj)
-                && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && this.Equals((Subnet)obj)));
+            if (obj is IPAddressRange other)
+            {
+                return Equals(other);
+            }
+
+            return false;
         }
 
         /// <inheritdoc />
@@ -976,7 +977,7 @@ namespace Arcus
         /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" /></exception>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
             {
                 throw new ArgumentNullException(nameof(info));
             }
@@ -991,80 +992,83 @@ namespace Arcus
         #region operators
 
         /// <summary>
-        ///     Compares two <see cref="Subnet" /> objects for equality
+        /// Determines whether two <see cref="Subnet"/> instances are equal.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when both sides are equal</returns>
+        /// <param name="left">The first <see cref="Subnet"/> instance.</param>
+        /// <param name="right">The second <see cref="Subnet"/> instance.</param>
+        /// <returns>true if both instances are equal; otherwise, false.</returns>
         public static bool operator ==(Subnet left, Subnet right)
         {
-            return Equals(left, right);
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (left is null || right is null)
+            {
+                return false;
+            }
+
+            return left.Equals(right);
         }
 
         /// <summary>
-        ///     Compares two <see cref="Subnet" /> objects for non-equality
+        /// Determines whether two <see cref="Subnet"/> instances are not equal.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when both sides are not equal</returns>
-        public static bool operator !=(Subnet left, Subnet right)
-        {
-            return !Equals(left, right);
-        }
+        /// <param name="left">The first <see cref="Subnet"/> instance.</param>
+        /// <param name="right">The second <see cref="Subnet"/> instance.</param>
+        /// <returns>true if the instances are not equal; otherwise, false.</returns>
+        public static bool operator !=(Subnet left, Subnet right) => !(left == right);
 
         /// <summary>
-        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being less than
-        ///     <paramref name="right" />
+        /// Compares two <see cref="Subnet"/> instances to determine if the first is less than the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when <paramref name="left" /> is less than <paramref name="right" /></returns>
+        /// <param name="left">The first <see cref="Subnet"/> instance.</param>
+        /// <param name="right">The second <see cref="Subnet"/> instance.</param>
+        /// <returns>true if the first instance is less than the second; otherwise, false.</returns>
         public static bool operator <(Subnet left, Subnet right)
         {
-            return Comparer<Subnet>.Default.Compare(left, right) < 0;
+            if (left is null)
+            {
+                return !(right is null); // null is less than any non-null instance
+            }
+
+            return left.CompareTo(right) < 0;
         }
 
         /// <summary>
-        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being greater than
-        ///     <paramref name="right" />
+        /// Compares two <see cref="Subnet"/> instances to determine if the first is greater than the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when <paramref name="left" /> is greater than <paramref name="right" /></returns>
+        /// <param name="left">The first <see cref="Subnet"/> instance.</param>
+        /// <param name="right">The second <see cref="Subnet"/> instance.</param>
+        /// <returns>true if the first instance is greater than the second; otherwise, false.</returns>
         public static bool operator >(Subnet left, Subnet right)
         {
-            return Comparer<Subnet>.Default.Compare(left, right) > 0;
+            if (left is null)
+            {
+                return false;
+            }
+
+            return left.CompareTo(right) > 0;
         }
 
         /// <summary>
-        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being less than or equal
-        ///     <paramref name="right" />
+        /// Compares two <see cref="Subnet"/> instances to determine if the first is less than or equal to the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns>
-        ///     <see langword="true" /> when <paramref name="left" /> is less than or equal to <paramref name="right" />
-        /// </returns>
-        public static bool operator <=(Subnet left, Subnet right)
-        {
-            return Comparer<Subnet>.Default.Compare(left, right) <= 0;
-        }
+        /// <param name="left">The first <see cref="Subnet"/> instance.</param>
+        /// <param name="right">The second <see cref="Subnet"/> instance.</param>
+        /// <returns>true if the first instance is less than or equal to the second; otherwise, false.</returns>
+        public static bool operator <=(Subnet left, Subnet right) => left < right || left == right;
 
         /// <summary>
-        ///     Compares two <see cref="Subnet" /> objects for <paramref name="left" /> being greater than or equal to
-        ///     <paramref name="right" />
+        /// Compares two <see cref="Subnet"/> instances to determine if the first is greater than or equal to the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns>
-        ///     <see langword="true" /> when <paramref name="left" /> is greater than or equal to <paramref name="right" />
-        /// </returns>
-        public static bool operator >=(Subnet left, Subnet right)
-        {
-            return Comparer<Subnet>.Default.Compare(left, right) >= 0;
-        }
+        /// <param name="left">The first <see cref="Subnet"/> instance.</param>
+        /// <param name="right">The second <see cref="Subnet"/> instance.</param>
+        /// <returns>true if the first instance is greater than or equal to the second; otherwise, false.</returns>
+        public static bool operator >=(Subnet left, Subnet right) => left > right || left == right;
 
-        #endregion end operators
+        #endregion operators
 
         #region Static metods, may be appropriate for extracting
 

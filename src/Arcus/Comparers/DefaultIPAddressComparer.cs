@@ -13,6 +13,11 @@ namespace Arcus.Comparers
     /// </summary>
     public class DefaultIPAddressComparer : Comparer<IPAddress>
     {
+        /// <summary>
+        ///     Default instance of <see cref="DefaultIPAddressComparer"/> using <see cref="DefaultAddressFamilyComparer.Instance"/>
+        /// </summary>
+        public static readonly DefaultIPAddressComparer Instance = new DefaultIPAddressComparer();
+
         private readonly IComparer<AddressFamily> _addressFamilyComparer;
 
         /// <summary>
@@ -35,7 +40,7 @@ namespace Arcus.Comparers
         ///     Initializes a new instance of the <see cref="DefaultIPAddressComparer" /> class.
         /// </summary>
         public DefaultIPAddressComparer()
-            : this(new DefaultAddressFamilyComparer()) { }
+            : this(DefaultAddressFamilyComparer.Instance) { }
 
         /// <inheritdoc />
         public override int Compare(IPAddress x, IPAddress y)

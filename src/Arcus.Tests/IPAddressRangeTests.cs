@@ -409,6 +409,8 @@ namespace Arcus.Tests
 
                 // Assert
                 var actual = Assert.IsType<IPAddressRange>(result);
+
+                // using explicit EqualityComparer to avoid comparing elements of enumerable
                 Assert.Equal(ipAddressRange, actual, IPAddressRangeEqualityComparer.Instance);
             }
         }

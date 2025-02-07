@@ -710,8 +710,10 @@ namespace Arcus.Tests
                 var result = formatter.Deserialize(writeStream);
 
                 // Assert
-                Assert.IsType<Subnet>(result);
-                Assert.Equal(subnet, result);
+                var actual = Assert.IsType<Subnet>(result);
+
+                // using explicit EqualityComparer to avoid comparing elements of enumerable
+                Assert.Equal(subnet, actual, SubnetEqualityComparer.Instance);
             }
         }
 #endif
@@ -1766,5 +1768,35 @@ namespace Arcus.Tests
         #endregion // end: Deconstruct(IPAddress, int)
 
         #endregion // end: Deconstruct
+
+        internal class SubnetEqualityComparer : IEqualityComparer<Subnet>
+        {
+            public static readonly SubnetEqualityComparer Instance = new SubnetEqualityComparer();
+
+            public bool Equals(Subnet x, Subnet y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(Subnet obj)
+            {
+                return obj is null ? -1 : obj.GetHashCode();
+            }
+        }
     }
 }

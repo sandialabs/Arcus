@@ -143,7 +143,7 @@ namespace Arcus
         ///     eg in sequence with no gaps in between
         /// </summary>
         /// <param name="addressRange">the secondary operand</param>
-        /// <returns><see langword="true" /> if <paramref name="addressRange"/> is mathamaticaly consecutive</returns>
+        /// <returns><see langword="true" /> if <paramref name="addressRange"/> is mathematically consecutive</returns>
         bool Touches(IIPAddressRange addressRange);
 
         #endregion // end: Ovelap and Touches

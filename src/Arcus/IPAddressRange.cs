@@ -29,7 +29,7 @@ namespace Arcus
         /// <exception cref="ArgumentNullException"><paramref name="info" /> is <see langword="null" /></exception>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
             {
                 throw new ArgumentNullException(nameof(info));
             }
@@ -46,19 +46,17 @@ namespace Arcus
         /// <inheritdoc />
         public int CompareTo(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return 1;
             }
 
-            if (ReferenceEquals(this, obj))
+            if (obj is IPAddressRange other)
             {
-                return 0;
+                return CompareTo(other);
             }
 
-            return obj is IPAddressRange other
-                ? this.CompareTo(other)
-                : throw new ArgumentException($"Object must be of type {nameof(IPAddressRange)}");
+            throw new ArgumentException("Object is not an IPAddressRange");
         }
 
         #endregion
@@ -68,7 +66,12 @@ namespace Arcus
         /// <inheritdoc />
         public int CompareTo(IPAddressRange other)
         {
-            return new DefaultIPAddressRangeComparer().Compare(this, other);
+            if (other is null)
+            {
+                return 1;
+            }
+
+            return DefaultIIPAddressRangeComparer.Instance.Compare(this, other);
         }
 
         #endregion
@@ -76,10 +79,19 @@ namespace Arcus
         #region From Interface IEquatable<IPAddressRange>
 
         /// <inheritdoc />
-        public bool Equals(IPAddressRange other)
+        public virtual bool Equals(IPAddressRange other)
         {
-            return !ReferenceEquals(null, other)
-                && (ReferenceEquals(this, other) || (Equals(Head, other.Head) && Equals(Tail, other.Tail)));
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return DefaultIIPAddressRangeComparer.Instance.Compare(this, other) == 0;
         }
 
         #endregion
@@ -87,8 +99,12 @@ namespace Arcus
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            return !ReferenceEquals(null, obj)
-                && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && this.Equals((IPAddressRange)obj)));
+            if (obj is IPAddressRange other)
+            {
+                return Equals(other);
+            }
+
+            return false;
         }
 
         /// <inheritdoc />
@@ -97,80 +113,83 @@ namespace Arcus
         #region operators
 
         /// <summary>
-        ///     Compares two <see cref="IPAddressRange" /> objects for equality
+        /// Determines whether two <see cref="IPAddressRange"/> instances are equal.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when both sides are equal</returns>
+        /// <param name="left">The first <see cref="IPAddressRange"/> instance.</param>
+        /// <param name="right">The second <see cref="IPAddressRange"/> instance.</param>
+        /// <returns>true if both instances are equal; otherwise, false.</returns>
         public static bool operator ==(IPAddressRange left, IPAddressRange right)
         {
-            return Equals(left, right);
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (left is null || right is null)
+            {
+                return false;
+            }
+
+            return left.Equals(right);
         }
 
         /// <summary>
-        ///     Compares two <see cref="IPAddressRange" /> objects for non-equality
+        /// Determines whether two <see cref="IPAddressRange"/> instances are not equal.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when both sides are not equal</returns>
-        public static bool operator !=(IPAddressRange left, IPAddressRange right)
-        {
-            return !Equals(left, right);
-        }
+        /// <param name="left">The first <see cref="IPAddressRange"/> instance.</param>
+        /// <param name="right">The second <see cref="IPAddressRange"/> instance.</param>
+        /// <returns>true if the instances are not equal; otherwise, false.</returns>
+        public static bool operator !=(IPAddressRange left, IPAddressRange right) => !(left == right);
 
         /// <summary>
-        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being less than
-        ///     <paramref name="right" />
+        /// Compares two <see cref="IPAddressRange"/> instances to determine if the first is less than the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when <paramref name="left" /> is less than <paramref name="right" /></returns>
+        /// <param name="left">The first <see cref="IPAddressRange"/> instance.</param>
+        /// <param name="right">The second <see cref="IPAddressRange"/> instance.</param>
+        /// <returns>true if the first instance is less than the second; otherwise, false.</returns>
         public static bool operator <(IPAddressRange left, IPAddressRange right)
         {
-            return Comparer<IPAddressRange>.Default.Compare(left, right) < 0;
+            if (left is null)
+            {
+                return !(right is null); // null is less than any non-null instance
+            }
+
+            return left.CompareTo(right) < 0;
         }
 
         /// <summary>
-        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being greater than
-        ///     <paramref name="right" />
+        /// Compares two <see cref="IPAddressRange"/> instances to determine if the first is greater than the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns><see langword="true" /> when <paramref name="left" /> is greater than <paramref name="right" /></returns>
+        /// <param name="left">The first <see cref="IPAddressRange"/> instance.</param>
+        /// <param name="right">The second <see cref="IPAddressRange"/> instance.</param>
+        /// <returns>true if the first instance is greater than the second; otherwise, false.</returns>
         public static bool operator >(IPAddressRange left, IPAddressRange right)
         {
-            return Comparer<IPAddressRange>.Default.Compare(left, right) > 0;
+            if (left is null)
+            {
+                return false;
+            }
+
+            return left.CompareTo(right) > 0;
         }
 
         /// <summary>
-        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being less than or equal
-        ///     <paramref name="right" />
+        /// Compares two <see cref="IPAddressRange"/> instances to determine if the first is less than or equal to the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns>
-        ///     <see langword="true" /> when <paramref name="left" /> is less than or equal to <paramref name="right" />
-        /// </returns>
-        public static bool operator <=(IPAddressRange left, IPAddressRange right)
-        {
-            return Comparer<IPAddressRange>.Default.Compare(left, right) <= 0;
-        }
+        /// <param name="left">The first <see cref="IPAddressRange"/> instance.</param>
+        /// <param name="right">The second <see cref="IPAddressRange"/> instance.</param>
+        /// <returns>true if the first instance is less than or equal to the second; otherwise, false.</returns>
+        public static bool operator <=(IPAddressRange left, IPAddressRange right) => left < right || left == right;
 
         /// <summary>
-        ///     Compares two <see cref="IPAddressRange" /> objects for <paramref name="left" /> being greater than or equal to
-        ///     <paramref name="right" />
+        /// Compares two <see cref="IPAddressRange"/> instances to determine if the first is greater than or equal to the second.
         /// </summary>
-        /// <param name="left">left hand operand</param>
-        /// <param name="right">right hand operand</param>
-        /// <returns>
-        ///     <see langword="true" /> when <paramref name="left" /> is greater than or equal to <paramref name="right" />
-        /// </returns>
-        public static bool operator >=(IPAddressRange left, IPAddressRange right)
-        {
-            return Comparer<IPAddressRange>.Default.Compare(left, right) >= 0;
-        }
+        /// <param name="left">The first <see cref="IPAddressRange"/> instance.</param>
+        /// <param name="right">The second <see cref="IPAddressRange"/> instance.</param>
+        /// <returns>true if the first instance is greater than or equal to the second; otherwise, false.</returns>
+        public static bool operator >=(IPAddressRange left, IPAddressRange right) => left > right || left == right;
 
-        #endregion end operators
+        #endregion operators
 
         #region Ctor
 
@@ -294,7 +313,7 @@ namespace Arcus
         {
             // TODO the logical flow here is confusing, see if it can be cleaned up a bit
 
-            if (initialRange == null || excludedRanges == null)
+            if (initialRange is null || excludedRanges is null)
             {
                 result = Enumerable.Empty<IPAddressRange>();
                 return false;
@@ -303,7 +322,7 @@ namespace Arcus
             var excludedRangesList = excludedRanges as IList<IPAddressRange> ?? excludedRanges.ToList();
 
             // item null check
-            if (excludedRangesList.Any(r => r == null))
+            if (excludedRangesList.Any(r => r is null))
             {
                 result = Enumerable.Empty<IPAddressRange>();
                 return false;
@@ -382,7 +401,7 @@ namespace Arcus
         /// <returns>true on success</returns>
         public static bool TryMerge(IPAddressRange left, IPAddressRange right, out IPAddressRange mergedRange)
         {
-            if (left == null || right == null || left.AddressFamily != right.AddressFamily)
+            if (left is null || right is null || left.AddressFamily != right.AddressFamily)
             {
                 mergedRange = null;
                 return false;
