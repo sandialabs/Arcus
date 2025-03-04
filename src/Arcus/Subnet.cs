@@ -959,7 +959,7 @@ namespace Arcus
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            if (obj is IPAddressRange other)
+            if (obj is Subnet other)
             {
                 return Equals(other);
             }
