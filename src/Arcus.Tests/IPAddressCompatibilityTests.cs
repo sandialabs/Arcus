@@ -69,11 +69,6 @@ namespace Arcus.Tests
         [InlineData(false, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff:", null)] // IPv6 trailing colon
         [InlineData(false, "ffff::::abcd", null)] // IPv6 double double colons
         [InlineData(false, "ffff::0::abcd", null)] // IPv6 double multiple collapse around hextets
-        // Beyond .NET Standard 1.3 stricter parsing rules are enforced according to the IPv6 specification.
-        // The presence of a terminal '%' character without a valid zone index is considered invalid.
-        // Thus, the input "abcd::%" fails to parse, resulting in a null address. This is breaking change
-        // from Arcus's former .NET Standard 1.3 target.
-        [InlineData(true, "abcd::%", "abcd::")]
         [InlineData(false, "%abcd::", null)] // invalid input IPv6 leading %
         [InlineData(false, "f", null)] // single hex char
         [InlineData(false, "fc", null)] // double hex char
@@ -85,8 +80,30 @@ namespace Arcus.Tests
         [InlineData(false, "\t", null)] // invalid input tab character
         [InlineData(false, "-1", null)] // integer -1
         [InlineData(false, "4294967296", null)] // integer unsigned max input
-        [InlineData(false, "8589934591", null)]
-        // integer bigger than max uint
+        [InlineData(false, "8589934591", null)] // integer bigger than max uint
+#if NET48
+        /*
+         * In .NET versions up to and including .NET 4.8 (which corresponds to .NET Standard 2.0), stricter
+         * parsing rules were enforced for IPAddress according to the IPv6 specification.Specifically,
+         * the presence of a terminal '%' character without a valid zone index is considered invalid in
+         * these versions. As a result, the input "abcd::%" fails to parse, leading to a null or failed
+         * address parsing depending on Parse/TryParse.This behavior represents a breaking change from
+         * Arcus's previous target of .NET Standard 1.3. and may provide confusion for .NET 4.8 / .NET
+         * Standard 2.0 versions.
+         *
+         * In contrast, in newer versions of. NET, including .NET 8 and .NET 9, the parsing rules have been
+         * relaxed. The trailing '%' character is now ignored during parsing, allowing for inputs that
+         * would have previously failed.
+         *
+         * It is important to note that this scenario appears to be an extreme edge case, and developers
+         * should ensure that their applications handle IPAddress parsing appropriately across different
+         * target frameworks as expected.If in doubt it is suggested that IP Address based user input
+         * should be sanitized to meet your needs.
+         */
+        [InlineData(false, "abcd::%", null)]
+#else
+        [InlineData(true, "abcd::%", "abcd::")]
+#endif
         public void IPAddressTryParseSuccessTest(bool expected, string input, string expectedParseResult)
         {
             // Arrange
