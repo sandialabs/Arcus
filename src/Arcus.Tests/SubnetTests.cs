@@ -5,13 +5,18 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Text;
+using Arcus;
+using Arcus.Tests.XunitSerializers;
 using Gulliver;
 using Xunit;
+using Xunit.Sdk;
 #if NET48   // maintained for .NET 4.8 compatibility
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
+
+[assembly: RegisterXunitSerializer(typeof(SubnetXunitSerializer), typeof(Subnet))]
 
 namespace Arcus.Tests
 {

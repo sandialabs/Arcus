@@ -9,7 +9,6 @@ using Arcus.Math;
 using Arcus.Utilities;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Tests
 {
