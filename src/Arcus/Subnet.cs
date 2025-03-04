@@ -792,12 +792,18 @@ namespace Arcus
 
             input = input.TrimEnd('.');
             var octetCount = input.Count(c => c == '.') + 1;
+            var addressString = input + string.Concat(Enumerable.Repeat(".0", IPAddressUtilities.IPv4OctetCount - octetCount));
 
-            subnet = Parse(
-                input + string.Concat(Enumerable.Repeat(".0", IPAddressUtilities.IPv4OctetCount - octetCount)),
-                octetCount * 8
-            );
-            return true;
+            try
+            {
+                subnet = Parse(addressString, octetCount * 8);
+                return true;
+            }
+            catch
+            {
+                subnet = null;
+                return false;
+            }
         }
 
         /// <summary>

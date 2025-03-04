@@ -374,6 +374,7 @@ namespace Arcus.Tests
             yield return new object[] { Subnet.Parse("192.168.1.1/32"), "192.168.1.1" };
             yield return new object[] { null, "192.168.1.1." };
             yield return new object[] { null, "192.168.0.1.5" };
+            yield return new object[] { null, "10.209.005.029" }; // Addresses #59 - [BUG] Subnet.TryIPv4FromPartial(string , out Subnet) throws FormatException if the string input contains a malformed 0-prefixed octet that is not a valid octal number.
         }
 
         [Theory]
