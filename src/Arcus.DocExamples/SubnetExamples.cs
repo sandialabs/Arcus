@@ -34,9 +34,9 @@ namespace Arcus.DocExamples
         public void Contains_Example()
         {
             // Arrange
-            var subnetA = Subnet.Parse("192.168.1.0", 8);  // 192.0.0.0 - 192.255.255.255
+            var subnetA = Subnet.Parse("192.168.1.0", 8); // 192.0.0.0 - 192.255.255.255
             var subnetB = Subnet.Parse("192.168.0.0", 16); // 192.168.0.0 - 192.168.255.255
-            var subnetC = Subnet.Parse("255.0.0.0", 8);    // 255.0.0.0 - 255.255.255.255
+            var subnetC = Subnet.Parse("255.0.0.0", 8); // 255.0.0.0 - 255.255.255.255
 
             // Act
             // Assert

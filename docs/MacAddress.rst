@@ -61,7 +61,7 @@ A ``MacAddress`` may also be created via either the ``Parse`` or safe ``TryParse
 ParseAny ``string``
 +++++++++++++++++++
 
-``ParseAny`` and the safe ``TryParseAny`` allow the parsing of an arbitrary string that may be a Mac address into a ``MacAddress``. It looks for six hexadecimal digits within the string, joins them and interprets the result as consecutive big-endian hextets. If six, and only six, hexadecimal digits are not found the parse will fail. 
+``ParseAny`` and the safe ``TryParseAny`` allow the parsing of an arbitrary string that may be a Mac address into a ``MacAddress``. It looks for six hexadecimal digits within the string, joins them and interprets the result as consecutive big-endian hextets. If six, and only six, hexadecimal digits are not found the parse will fail.
 
 .. code-block:: c#
 
@@ -72,7 +72,7 @@ ParseAny ``string``
     public static bool TryParseAny(string input, out MacAddress macAddress)
 
 Functionality
--------------    
+-------------
 
 Properties
 ^^^^^^^^^^
@@ -81,7 +81,7 @@ Properties
 :``bool`` IsLocallyAdministered: returns ``true`` if, and only if, is locally administered.
 :``bool`` IsMulticast: returns ``true`` if, and only if, the MAC Address is multicast.
 :``bool`` IsUnicast: returns ``true`` if, and only if, the MAC Address is unicast.
-:``bool`` IsUnusable: returns ``true`` if, and only if, the MAC Address is "unusable", meaning all OUI bits of the MAC Address are unset.
+:``bool`` IsUnusable: returns ``true`` if, and only if, the MAC Address is "unusable" [#EUI-Usable]_, meaning all OUI bits of the MAC Address are unset.
 
 :``MacAddress`` DefaultMacAddress: Provides a ``MacAddress`` that represents the default or ``null`` case MAC address.
 
@@ -106,7 +106,7 @@ GetAddressBytes
 GetOuiBytes
 +++++++++++
 
-``GetOuiBytes`` returns the *Organizationally Unique Identifier (OUI)* [#Eui-Oui]_ of the ``MAcAddress``.
+``GetOuiBytes`` returns the *Organizationally Unique Identifier (OUI)* [#Eui-Oui]_ of the ``MacAddress``.
 
 .. code-block:: c#
 
@@ -115,7 +115,7 @@ GetOuiBytes
 GetCidBytes
 +++++++++++
 
-``GetCidBytes`` returns the *Company ID (CID)* [#Eui-Cid]_ of the ``MAcAddress``.
+``GetCidBytes`` returns the *Company ID (CID)* [#Eui-Cid]_ of the ``MacAddress``.
 
 .. code-block:: c#
 
@@ -141,7 +141,7 @@ Operators
 
 .. [#EUI-48Default] The recommended null or default value for **EUI-48** is ``FF-FF-FF-FF-FF-FF``
 
-.. [#IEEE-Eui] `Guidelines for Use of Extended Unique Identifier (EUI), Organizationally Unique Identifier (OUI), and Company ID (CID) <https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf>`_ 
+.. [#IEEE-Eui] `Guidelines for Use of Extended Unique Identifier (EUI), Organizationally Unique Identifier (OUI), and Company ID (CID) <https://standards.ieee.org/content/dam/ieee-standards/standards/web/documents/tutorials/eui.pdf>`_
 
 .. [#Eui-Oui] *Organizationally Unique Identifier (OUI)* is the first 3-bytes (24-bits) of a MAC-48 MAC Address.
 

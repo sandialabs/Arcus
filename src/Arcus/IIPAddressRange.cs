@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
-using JetBrains.Annotations;
 
 namespace Arcus
 {
@@ -12,46 +11,66 @@ namespace Arcus
     ///     A range must contain a head (the first address) and a tail (the last address) inclusive
     ///     The tail should NEVER appear numerically previous to a head
     /// </summary>
-    [PublicAPI]
-    public interface IIPAddressRange : IFormattable,
-                                       IEnumerable<IPAddress>
+    public interface IIPAddressRange : IFormattable, IEnumerable<IPAddress>
     {
+        // TODO future versions of IIPAddressRange should not directly implement IEnumerable<IPAddress> and instead a spawn an IEnumerable on demand
+
         /// <summary>
-        ///     The address family of the Address Range
+        ///     Gets the address family of the Address Range
         ///     Typically Internetwork or InternetworkV6
         /// </summary>
+        /// <value>
+        /// The address family of the Address Range
+        ///     Typically Internetwork or InternetworkV6
+        /// </value>
         AddressFamily AddressFamily { get; }
 
         /// <summary>
-        ///     The length of a <see cref="IIPAddressRange" />
+        ///     Gets the length of a <see cref="IIPAddressRange" />
         /// </summary>
+        /// <value>
+        /// The length of a <see cref="IIPAddressRange" />
+        /// </value>
         BigInteger Length { get; }
 
         /// <summary>
-        ///     The head of a <see cref="IIPAddressRange" />
+        ///     Gets the head of a <see cref="IIPAddressRange" />
         /// </summary>
-        [NotNull]
+        /// <value>
+        /// The head of a <see cref="IIPAddressRange" />
+        /// </value>
         IPAddress Head { get; }
 
         /// <summary>
-        ///     The tail of a <see cref="IIPAddressRange" />
+        ///     Gets the tail of a <see cref="IIPAddressRange" />
         /// </summary>
-        [NotNull]
+        /// <value>
+        /// The tail of a <see cref="IIPAddressRange" />
+        /// </value>
         IPAddress Tail { get; }
 
         /// <summary>
-        ///     <see langword="true" /> if the subnet describes a single ip address
+        ///     <see langword="true" /> Gets a value indicating whether if the subnet describes a single ip address
         /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the subnet describes a single ip address
+        /// </value>
         bool IsSingleIP { get; }
 
         /// <summary>
-        ///     Determine if IIPAddress Range is IPv4
+        ///     Gets a value indicating whether determine if IIPAddress Range is IPv4
         /// </summary>
+        /// <value>
+        /// Determine if IIPAddress Range is IPv4
+        /// </value>
         bool IsIPv4 { get; }
 
         /// <summary>
-        ///     Determine if IIPAddress Range is IPv6
+        ///     Gets a value indicating whether determine if IIPAddress Range is IPv6
         /// </summary>
+        /// <value>
+        /// Determine if IIPAddress Range is IPv6
+        /// </value>
         bool IsIPv6 { get; }
 
         /// <summary>
@@ -75,8 +94,7 @@ namespace Arcus
         /// </summary>
         /// <param name="head">the head <see cref="IPAddress"/></param>
         /// <param name="tail">the tail <see cref="IPAddress"/></param>
-        void Deconstruct([NotNull] out IPAddress head,
-                         [NotNull] out IPAddress tail);
+        void Deconstruct(out IPAddress head, out IPAddress tail);
 
         #endregion // end: Deconstructors
 
@@ -85,42 +103,48 @@ namespace Arcus
         /// <summary>
         ///     determine if a <see cref="IIPAddressRange" /> contains another <see cref="IIPAddressRange" />
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        bool Contains(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns>true if the <paramref name="addressRange"/> is contained within</returns>
+        bool Contains(IIPAddressRange addressRange);
 
         /// <summary>
         ///     determine if a <see cref="IIPAddressRange" /> contains an <paramref name="address" />
         /// </summary>
         /// <param name="address">the secondary operand</param>
+        /// <returns>true if the <paramref name="address"/> is contained within</returns>
         bool Contains(IPAddress address);
 
         #region Ovelap and Touches
 
         /// <summary>
-        ///     Return <see langword="true" /> if the head of this is within the range of <paramref name="that" />
+        ///     Return <see langword="true" /> if the head of this is within the range of <paramref name="addressRange" />
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        bool HeadOverlappedBy(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if the head of this is within the range of <paramref name="addressRange" /></returns>
+        bool HeadOverlappedBy(IIPAddressRange addressRange);
 
         /// <summary>
-        ///     Return <see langword="true" /> if the tail of this is within the range of <paramref name="that" />
+        ///     Return <see langword="true" /> if the tail of this is within the range of <paramref name="addressRange" />
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        bool TailOverlappedBy(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if the tail of this is within the range of <paramref name="addressRange" /></returns>
+        bool TailOverlappedBy(IIPAddressRange addressRange);
 
         /// <summary>
         ///     return <see langword="true" /> if this overlaps that (totally contained within, or contains either the head or the
         ///     tail)
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        bool Overlaps(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if <paramref name="addressRange"/> overlaps</returns>
+        bool Overlaps(IIPAddressRange addressRange);
 
         /// <summary>
         ///     <see langword="true" /> if tail of one item is consecutively in order of head of other item
         ///     eg in sequence with no gaps in between
         /// </summary>
-        /// <param name="that">the secondary operand</param>
-        bool Touches(IIPAddressRange that);
+        /// <param name="addressRange">the secondary operand</param>
+        /// <returns><see langword="true" /> if <paramref name="addressRange"/> is mathematically consecutive</returns>
+        bool Touches(IIPAddressRange addressRange);
 
         #endregion // end: Ovelap and Touches
 
@@ -131,28 +155,27 @@ namespace Arcus
         /// <summary>
         ///     Determines if the range contains any private addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains any private addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains any private addresses</returns>
         bool ContainsAnyPrivateAddresses();
 
         /// <summary>
         ///     Determines if the range contains all private addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains all private addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains all private addresses</returns>
         bool ContainsAllPrivateAddresses();
 
         /// <summary>
         ///     Determines if the range contains any public addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains any public addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains any public addresses</returns>
         bool ContainsAnyPublicAddresses();
 
         /// <summary>
         ///     Determines if the range contains all public addresses
         /// </summary>
-        /// <returns><see lang="true"/> iff the range contains all public addresses</returns>
+        /// <returns><see lang="true"/> if, and only if, the range contains all public addresses</returns>
         bool ContainsAllPublicAddresses();
 
         #endregion end: Contains Any/All Public/Private Addresses
-
     }
 }

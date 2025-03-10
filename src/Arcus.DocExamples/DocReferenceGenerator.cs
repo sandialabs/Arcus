@@ -12,10 +12,10 @@ namespace Arcus.DocExamples
 
         public DocReferenceGenerator(ITestOutputHelper output)
         {
-            this.output = output;
+            this._output = output;
         }
 
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
 
         #endregion
 
@@ -25,42 +25,41 @@ namespace Arcus.DocExamples
             var sb = new StringBuilder();
 
             sb.Append("CIDR")
-              .Append(',')
-              .Append("Network Prefix Address")
-              .Append(',')
-              .Append("Route Prefix")
-              .Append(',')
-              .Append("Netmask")
-              .Append(',')
-              .Append("Netmask (bits)")
-              .Append(',')
-              .Append("Address Count")
-              .Append(',')
-              .Append("Address Count 2^n")
-              .AppendLine();
+                .Append(',')
+                .Append("Network Prefix Address")
+                .Append(',')
+                .Append("Route Prefix")
+                .Append(',')
+                .Append("Netmask")
+                .Append(',')
+                .Append("Netmask (bits)")
+                .Append(',')
+                .Append("Address Count")
+                .Append(',')
+                .Append("Address Count 2^n")
+                .AppendLine();
 
             for (var i = 32; i >= 0; i--)
             {
                 var subnet = new Subnet(IPAddressUtilities.IPv4MaxAddress, i);
 
                 sb.Append(subnet)
-                  .Append(',')
-                  .Append(subnet.NetworkPrefixAddress)
-                  .Append(',')
-                  .Append(subnet.RoutingPrefix)
-                  .Append(',')
-                  .Append(subnet.Netmask)
-                  .Append(',')
-                  .Append(subnet.Netmask.GetAddressBytes()
-                                .ToString("b"))
-                  .Append(',')
-                  .Append(subnet.Length)
-                  .Append(',')
-                  .Append(32 - i)
-                  .AppendLine();
+                    .Append(',')
+                    .Append(subnet.NetworkPrefixAddress)
+                    .Append(',')
+                    .Append(subnet.RoutingPrefix)
+                    .Append(',')
+                    .Append(subnet.Netmask)
+                    .Append(',')
+                    .Append(subnet.Netmask.GetAddressBytes().ToString("b"))
+                    .Append(',')
+                    .Append(subnet.Length)
+                    .Append(',')
+                    .Append(32 - i)
+                    .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
 
         [Fact]
@@ -69,33 +68,33 @@ namespace Arcus.DocExamples
             var sb = new StringBuilder();
 
             sb.Append("CIDR")
-              .Append(',')
-              .Append("Network Prefix Address")
-              .Append(',')
-              .Append("Route Prefix")
-              .Append(',')
-              .Append("Address Count")
-              .Append(',')
-              .Append("Address Count 2^n")
-              .AppendLine();
+                .Append(',')
+                .Append("Network Prefix Address")
+                .Append(',')
+                .Append("Route Prefix")
+                .Append(',')
+                .Append("Address Count")
+                .Append(',')
+                .Append("Address Count 2^n")
+                .AppendLine();
 
             for (var i = 128; i >= 0; i--)
             {
                 var subnet = new Subnet(IPAddressUtilities.IPv6MaxAddress, i);
 
                 sb.Append(subnet)
-                  .Append(',')
-                  .Append(subnet.NetworkPrefixAddress)
-                  .Append(',')
-                  .Append(subnet.RoutingPrefix)
-                  .Append(',')
-                  .Append(subnet.Length)
-                  .Append(',')
-                  .Append(128 - i)
-                  .AppendLine();
+                    .Append(',')
+                    .Append(subnet.NetworkPrefixAddress)
+                    .Append(',')
+                    .Append(subnet.RoutingPrefix)
+                    .Append(',')
+                    .Append(subnet.Length)
+                    .Append(',')
+                    .Append(128 - i)
+                    .AppendLine();
             }
 
-            this.output.WriteLine(sb.ToString());
+            this._output.WriteLine(sb.ToString());
         }
     }
 }

@@ -1,90 +1,114 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <Authors>Sandia National Laboratories</Authors>
-    <Copyright>Copyright 2018 National Technology &amp; Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software.</Copyright>
-    <Description>Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and Pv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.</Description>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <IncludeBuildOutput>true</IncludeBuildOutput>
-    <IncludeSymbols>true</IncludeSymbols>
-    <IsPackable>true</IsPackable>
-    <LangVersion>latest</LangVersion>
-    <NeutralLanguage>en</NeutralLanguage>
-    <packageicon>icon.png</packageicon>
-    <packageiconurl>https://raw.githubusercontent.com/sandialabs/Arcus/master/src/Arcus/icon.png</packageiconurl>
-    <PackageLanguage>en-US</PackageLanguage>
-    <packagelicenseexpression>Apache-2.0</packagelicenseexpression>
-    <PackageProjectUrl>https://github.com/sandialabs/arcus</PackageProjectUrl>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageSummary>Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and Pv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.</PackageSummary>
-    <PackageTags>IP; IP Address; IP Calculator; IPv4; IPv6; ipaddress; ipaddresses; ipv4; ipv4 address; ipv4 calculator; ipv4 network; ipv4 subnetting; ipv4 support; ipv6; ipv6 address; ipv6 calulator; ipv6 network; ipv6 subnetting; ipv6 support; netmask; networking; route prefix; subnet</PackageTags>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/sandialabs/arcus/</RepositoryUrl>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <TargetFramework>netstandard1.3</TargetFramework>
-    <Title>Arcus</Title>
-    <Version>2.2.1</Version>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Gulliver" Version="1.0.2" />
-    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <!--Ruleset configuration; only valid for Debug configuration-->
-    <CodeAnalysisRuleSet>..\analyzers.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <OutputPath>bin\</OutputPath>
-    <DocumentationFile>bin\Arcus.xml</DocumentationFile>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CodeAnalysisRuleSet />
+  <PropertyGroup Condition="'$(VersionFromCI)'!=''">
+    <Version>$(VersionFromCI)</Version>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(VersionFromCI)'==''">
+    <Version>0.0.0-build</Version>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <!-- Analyzers; only valid for Debug configuration-->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>Arcus</Title>
+    <PackageId>Arcus</PackageId>
+    <Description>Arcus is a C# manipulation library for calculating, parsing, formatting, converting, and comparing both IPv4 and Pv6 addresses and subnets. It accounts for 128-bit numbers on 32-bit platforms.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageLanguage>en-US</PackageLanguage>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Company>Sandia National Laboratories</Company>
+    <Authors>The Production Tools Team</Authors>
+    <Copyright>Copyright 2025 National Technology &amp; Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>IP; IP Address; IP Calculator; IPv4; IPv6; ipaddress; ipaddresses; ipv4; ipv4 address; ipv4 calculator; ipv4 network; ipv4 subnetting; ipv4 support; ipv6; ipv6 address; ipv6 calulator; ipv6 network; ipv6 subnetting; ipv6 support; netmask; networking; route prefix; subnet</PackageTags>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryUrl>https://github.com/sandialabs/Arcus.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/sandialabs/Arcus</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl>https://raw.githubusercontent.com/sandialabs/Arcus/main/src/Arcus/icon.png</PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json">
       <Link>stylecop.json</Link>
     </AdditionalFiles>
-    <PackageReference Include="DotNetAnalyzers.DocumentationAnalyzers.Unstable" Version="1.0.0.59">
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="icon.png" Pack="true" visible="false" PackagePath="" />
+    <None Include="icon.txt" Pack="true" visible="false" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.9.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NetFramework.Analyzers" Version="2.9.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-      <None Include="icon.png" Pack="true" visible="false" PackagePath="" />
-      <None Include="icon.txt" Pack="true" visible="false" PackagePath="" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="AsyncFixer" Version="1.6.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Analyzers" Version="4.13.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" Version="4.13.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.13.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.7.0.110445">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Gulliver" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+  </ItemGroup>
+
+  <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0">
+    <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High" />
+    <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="..\.." />
+  </Target>
+
 
 </Project>

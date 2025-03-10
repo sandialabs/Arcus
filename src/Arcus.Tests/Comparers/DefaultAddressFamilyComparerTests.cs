@@ -24,22 +24,20 @@ namespace Arcus.Tests.Comparers
 
         public static IEnumerable<object[]> Compare_Test_Values()
         {
-            var concernedAddressFamilies = new[] {AddressFamily.InterNetwork, AddressFamily.InterNetworkV6};
+            var concernedAddressFamilies = new[] { AddressFamily.InterNetwork, AddressFamily.InterNetworkV6 };
 
             foreach (var i in concernedAddressFamilies)
             {
                 foreach (var j in concernedAddressFamilies)
                 {
-                    yield return new object[] {i.CompareTo(j), i, j};
+                    yield return new object[] { i.CompareTo(j), i, j };
                 }
             }
         }
 
         [Theory]
         [MemberData(nameof(Compare_Test_Values))]
-        public void Compare_Test(int expected,
-                                 AddressFamily x,
-                                 AddressFamily y)
+        public void Compare_Test(int expected, AddressFamily x, AddressFamily y)
         {
             // Arrange
             var comparer = new DefaultAddressFamilyComparer();

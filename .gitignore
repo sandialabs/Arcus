@@ -196,5 +196,9 @@ ehthumbs_vista.db
 # Windows shortcuts
 *.lnk
 
+# Coderush
+**/.cr/*
+
 ### Read the Docs  ###
 docs/_build
+

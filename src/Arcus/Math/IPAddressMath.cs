@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using Arcus.Utilities;
 using Gulliver;
-using JetBrains.Annotations;
 using static System.Net.Sockets.AddressFamily;
 
 namespace Arcus.Math
@@ -25,9 +24,7 @@ namespace Arcus.Math
         /// <exception cref="InvalidOperationException">Increment caused address underflow</exception>
         /// <exception cref="InvalidOperationException">Increment caused address overflow</exception>
         /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null" />.</exception>
-        [NotNull]
-        public static IPAddress Increment([NotNull] this IPAddress input,
-                                          long delta = 1)
+        public static IPAddress Increment(this IPAddress input, long delta = 1)
         {
             #region defense
 
@@ -38,7 +35,10 @@ namespace Arcus.Math
 
             if (!IPAddressUtilities.ValidAddressFamilies.Contains(input.AddressFamily))
             {
-                throw new ArgumentException($"must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}", nameof(input));
+                throw new ArgumentException(
+                    $"must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}",
+                    nameof(input)
+                );
             }
 
             #endregion // end: defense
@@ -53,9 +53,7 @@ namespace Arcus.Math
                 throw new InvalidOperationException("could not increment address");
             }
 
-            var addressByteWidth = input.IsIPv4()
-                                       ? IPAddressUtilities.IPv4ByteCount
-                                       : IPAddressUtilities.IPv6ByteCount;
+            var addressByteWidth = input.IsIPv4() ? IPAddressUtilities.IPv4ByteCount : IPAddressUtilities.IPv6ByteCount;
 
             if (byteResult.Length > addressByteWidth)
             {
@@ -72,9 +70,8 @@ namespace Arcus.Math
         /// <param name="input">the <see cref="IPAddress"/> to increment</param>
         /// <param name="address">the resulting <see cref="IPAddress"/> post increment</param>
         /// <param name="delta">the amount to increment by</param>
-        public static bool TryIncrement([CanBeNull] IPAddress input,
-                                        [CanBeNull] out IPAddress address,
-                                        long delta = 1)
+        /// <returns>true on success</returns>
+        public static bool TryIncrement(IPAddress input, out IPAddress address, long delta = 1)
         {
             if (input == null)
             {
@@ -87,9 +84,7 @@ namespace Arcus.Math
                 address = input.Increment(delta);
                 return true;
             }
-#pragma warning disable CA1031 // catch is purposely general
             catch
-#pragma warning restore CA1031
             {
                 address = null;
                 return false;
@@ -105,12 +100,10 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        public static bool IsEqualTo([CanBeNull] this IPAddress left,
-                                     [CanBeNull] IPAddress right)
+        /// <returns>true if <paramref name="left"/> is logically equal to <paramref name="left"/></returns>
+        public static bool IsEqualTo(this IPAddress left, IPAddress right)
         {
-            return ReferenceEquals(left, right)
-                   || (!ReferenceEquals(left, null)
-                   && left.Equals(right));
+            return ReferenceEquals(left, right) || (!ReferenceEquals(left, null) && left.Equals(right));
         }
 
         /// <summary>
@@ -118,15 +111,16 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        public static bool IsGreaterThan([CanBeNull] this IPAddress left,
-                                         [CanBeNull] IPAddress right)
+        /// <returns>true if <paramref name="left"/> is logically greater than <paramref name="left"/></returns>
+        public static bool IsGreaterThan(this IPAddress left, IPAddress right)
         {
-            if (ReferenceEquals(left, right)
-                || (!ReferenceEquals(left, null)
-                && left.Equals(right))
+            if (
+                ReferenceEquals(left, right)
+                || (!ReferenceEquals(left, null) && left.Equals(right))
                 || left == null
                 || right == null
-                || left.AddressFamily != right.AddressFamily)
+                || left.AddressFamily != right.AddressFamily
+            )
             {
                 return false;
             }
@@ -139,12 +133,15 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        public static bool IsGreaterThanOrEqualTo([CanBeNull] this IPAddress left,
-                                                  [CanBeNull] IPAddress right)
+        /// <returns>true if <paramref name="left"/> is logically greater than or equal to <paramref name="left"/></returns>
+        public static bool IsGreaterThanOrEqualTo(this IPAddress left, IPAddress right)
         {
             return ReferenceEquals(left, right)
-                   || (!ReferenceEquals(left, null) && left.Equals(right))
-                   || (left?.AddressFamily == right?.AddressFamily && ByteArrayUtils.CompareUnsignedBigEndian(left?.GetAddressBytes(), right?.GetAddressBytes()) >= 0);
+                || (!ReferenceEquals(left, null) && left.Equals(right))
+                || (
+                    left?.AddressFamily == right?.AddressFamily
+                    && ByteArrayUtils.CompareUnsignedBigEndian(left?.GetAddressBytes(), right?.GetAddressBytes()) >= 0
+                );
         }
 
         /// <summary>
@@ -152,15 +149,11 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        /// <returns>true if alpha is less than beta</returns>
+        /// <returns>true if <paramref name="left"/> is logically less than <paramref name="left"/></returns>
         /// <exception cref="InvalidOperationException">Address families must be InterNetwork or InternetworkV6</exception>
-        public static bool IsLessThan([CanBeNull] this IPAddress left,
-                                      [CanBeNull] IPAddress right)
+        public static bool IsLessThan(this IPAddress left, IPAddress right)
         {
-            if (ReferenceEquals(left, right)
-                || left == null
-                || right == null
-                || left.AddressFamily != right.AddressFamily)
+            if (ReferenceEquals(left, right) || left == null || right == null || left.AddressFamily != right.AddressFamily)
             {
                 return false;
             }
@@ -173,16 +166,19 @@ namespace Arcus.Math
         /// </summary>
         /// <param name="left">first operand</param>
         /// <param name="right">second operand</param>
-        public static bool IsLessThanOrEqualTo([CanBeNull] this IPAddress left,
-                                               [CanBeNull] IPAddress right)
+        /// <returns>true if <paramref name="left"/> is logically less than or equal to <paramref name="left"/></returns>
+        public static bool IsLessThanOrEqualTo(this IPAddress left, IPAddress right)
         {
             return ReferenceEquals(left, right)
-                   || (!ReferenceEquals(left, null) && left.Equals(right))
-                   || (left?.AddressFamily == right?.AddressFamily && ByteArrayUtils.CompareUnsignedBigEndian(left?.GetAddressBytes(), right?.GetAddressBytes()) <= 0);
+                || (!ReferenceEquals(left, null) && left.Equals(right))
+                || (
+                    left?.AddressFamily == right?.AddressFamily
+                    && ByteArrayUtils.CompareUnsignedBigEndian(left?.GetAddressBytes(), right?.GetAddressBytes()) <= 0
+                );
         }
 
         /// <summary>
-        ///     Determine if the tested IP Address occurs numerically between the given high and low IP addresses
+        ///     Determine if the <paramref name="input"/> occurs numerically between the given high and low IP addresses
         ///     Inclusivity contingent on inclusive bit
         /// </summary>
         /// <param name="input">IP address to test</param>
@@ -192,10 +188,8 @@ namespace Arcus.Math
         /// <exception cref="ArgumentNullException"><paramref name="input" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="low" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="high" /> is <see langword="null" />.</exception>
-        public static bool IsBetween([NotNull] this IPAddress input,
-                                     [NotNull] IPAddress low,
-                                     [NotNull] IPAddress high,
-                                     bool inclusive = true)
+        /// <returns>true if <paramref name="input"/> is between <paramref name="low"/> and <paramref name="high"/></returns>
+        public static bool IsBetween(this IPAddress input, IPAddress low, IPAddress high, bool inclusive = true)
         {
             #region defense
 
@@ -214,8 +208,7 @@ namespace Arcus.Math
                 throw new ArgumentNullException(nameof(high));
             }
 
-            if (low.AddressFamily != high.AddressFamily
-                || input.AddressFamily != low.AddressFamily)
+            if (low.AddressFamily != high.AddressFamily || input.AddressFamily != low.AddressFamily)
             {
                 throw new InvalidOperationException("address families do not match");
             }
@@ -229,17 +222,14 @@ namespace Arcus.Math
 
             #endregion // end: defense
 
-            if (ReferenceEquals(input, low)
-                || input.Equals(low)
-                || ReferenceEquals(input, high)
-                || input.Equals(high))
+            if (ReferenceEquals(input, low) || input.Equals(low) || ReferenceEquals(input, high) || input.Equals(high))
             {
                 return inclusive;
             }
 
             var inputBytes = input.GetAddressBytes();
             return ByteArrayUtils.CompareUnsignedBigEndian(inputBytes, lowAddressBytes) > 0
-                   && ByteArrayUtils.CompareUnsignedBigEndian(inputBytes, highAddressBytes) < 0;
+                && ByteArrayUtils.CompareUnsignedBigEndian(inputBytes, highAddressBytes) < 0;
         }
 
         /// <summary>
@@ -251,9 +241,7 @@ namespace Arcus.Math
         /// <exception cref="ArgumentNullException"><paramref name="left" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="right" /> is <see langword="null" />.</exception>
         /// <exception cref="InvalidOperationException">Address families must match</exception>
-        [NotNull]
-        public static IPAddress Max([NotNull] IPAddress left,
-                                    [NotNull] IPAddress right)
+        public static IPAddress Max(IPAddress left, IPAddress right)
         {
             #region defense
 
@@ -274,9 +262,7 @@ namespace Arcus.Math
 
             #endregion // end: defense
 
-            return left.IsGreaterThan(right)
-                       ? left
-                       : right;
+            return left.IsGreaterThan(right) ? left : right;
         }
 
         /// <summary>
@@ -288,9 +274,7 @@ namespace Arcus.Math
         /// <exception cref="ArgumentNullException"><paramref name="left" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="right" /> is <see langword="null" />.</exception>
         /// <exception cref="InvalidOperationException">Address families must match</exception>
-        [NotNull]
-        public static IPAddress Min([NotNull] IPAddress left,
-                                    [NotNull] IPAddress right)
+        public static IPAddress Min(IPAddress left, IPAddress right)
         {
             #region defense
 
@@ -311,9 +295,7 @@ namespace Arcus.Math
 
             #endregion // end: defense
 
-            return left.IsLessThan(right)
-                       ? left
-                       : right;
+            return left.IsLessThan(right) ? left : right;
         }
 
         #endregion
@@ -327,7 +309,7 @@ namespace Arcus.Math
         /// <returns>true if the address is the maximum value</returns>
         /// <exception cref="InvalidOperationException">Address families must be InterNetwork or InternetworkV6</exception>
         /// <exception cref="ArgumentNullException"><paramref name="address" /> is <see langword="null" />.</exception>
-        public static bool IsAtMax([NotNull] this IPAddress address)
+        public static bool IsAtMax(this IPAddress address)
         {
             #region defense
 
@@ -356,7 +338,7 @@ namespace Arcus.Math
         /// <returns>true if the address is the minimum value</returns>
         /// <exception cref="InvalidOperationException">Address families must be InterNetwork or InternetworkV6</exception>
         /// <exception cref="ArgumentNullException"><paramref name="address" /> is <see langword="null" />.</exception>
-        public static bool IsAtMin([NotNull] this IPAddress address)
+        public static bool IsAtMin(this IPAddress address)
         {
             #region defense
 

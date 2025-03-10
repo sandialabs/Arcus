@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Arcus.Math;
-using JetBrains.Annotations;
 
 namespace Arcus.Utilities
 {
@@ -15,34 +14,26 @@ namespace Arcus.Utilities
         /// <summary>
         ///     A collection of all known private IP Address ranges
         /// </summary>
-        [NotNull]
-        [ItemNotNull]
         public static IReadOnlyList<Subnet> PrivateIPAddressRangesList = new[]
-                                                                         {
-                                                                             // IPv4 RFC 1918
-                                                                             Subnet.Parse("10.0.0.0", 8),
-                                                                             Subnet.Parse("172.16.0.0", 12),
-                                                                             Subnet.Parse("192.168.0.0", 16),
-
-                                                                             // IPv6 RFC 4193
-                                                                             Subnet.Parse("fd00::", 8)
-                                                                         }.ToList()
-                                                                          .AsReadOnly();
+        {
+            // IPv4 RFC 1918
+            Subnet.Parse("10.0.0.0", 8),
+            Subnet.Parse("172.16.0.0", 12),
+            Subnet.Parse("192.168.0.0", 16),
+            // IPv6 RFC 4193
+            Subnet.Parse("fd00::", 8),
+        }.ToList().AsReadOnly();
 
         /// <summary>
         ///     A collection of all known Link Local IP Address ranges
         /// </summary>
-        [NotNull]
-        [ItemNotNull]
         public static IReadOnlyList<Subnet> LinkLocalIPAddressRangesList = new[]
-                                                                           {
-                                                                               // RFC 3927
-                                                                               Subnet.Parse("169.254.0.0", 16),
-
-                                                                               // RFC 4291
-                                                                               Subnet.Parse("fe80::", 10)
-                                                                           }.ToList()
-                                                                            .AsReadOnly();
+        {
+            // RFC 3927
+            Subnet.Parse("169.254.0.0", 16),
+            // RFC 4291
+            Subnet.Parse("fe80::", 10),
+        }.ToList().AsReadOnly();
 
         /// <summary>
         ///     Get The fewest consecutive subnets that would fill the range between the given addresses (inclusive)
@@ -54,10 +45,7 @@ namespace Arcus.Utilities
         /// <exception cref="ArgumentNullException"><paramref name="right"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">Address families must match</exception>
         /// <exception cref="InvalidOperationException">Address families must be InterNetwork or InternetworkV6</exception>
-        [NotNull]
-        [ItemNotNull]
-        public static IEnumerable<Subnet> FewestConsecutiveSubnetsFor([NotNull] IPAddress left,
-                                                                      [NotNull] IPAddress right)
+        public static IEnumerable<Subnet> FewestConsecutiveSubnetsFor(IPAddress left, IPAddress right)
         {
             #region defense
 
@@ -73,12 +61,18 @@ namespace Arcus.Utilities
 
             if (!IPAddressUtilities.ValidAddressFamilies.Contains(left.AddressFamily))
             {
-                throw new ArgumentException($"{nameof(left)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}", nameof(left));
+                throw new ArgumentException(
+                    $"{nameof(left)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}",
+                    nameof(left)
+                );
             }
 
             if (!IPAddressUtilities.ValidAddressFamilies.Contains(right.AddressFamily))
             {
-                throw new ArgumentException($"{nameof(right)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}", nameof(right));
+                throw new ArgumentException(
+                    $"{nameof(right)} must have an address family equal to {string.Join(", ", IPAddressUtilities.ValidAddressFamilies)}",
+                    nameof(right)
+                );
             }
 
             if (left.AddressFamily != right.AddressFamily)
@@ -96,26 +90,28 @@ namespace Arcus.Utilities
             // recursive function call
             // Works by verifying that passed subnet isn't bounded by head, tail IP Addresses
             // if not breaks subnet in half and recursively tests, building in essence a binary tree of testable subnet paths
-            IEnumerable<Subnet> FilledSubnets(IPAddress head,
-                                              IPAddress tail,
-                                              Subnet subnet)
+#if NET6_0_OR_GREATER
+            static
+#endif
+            IEnumerable<Subnet> FilledSubnets(IPAddress head, IPAddress tail, Subnet subnet)
             {
                 var networkPrefixAddress = subnet.NetworkPrefixAddress;
                 var broadcastAddress = subnet.BroadcastAddress;
 
                 // the given subnet is the perfect size for the head/tail (not papa bear, not mama bear, but just right with baby bear)
-                if (networkPrefixAddress.IsGreaterThanOrEqualTo(head)
-                    && broadcastAddress.IsLessThanOrEqualTo(tail))
+                if (networkPrefixAddress.IsGreaterThanOrEqualTo(head) && broadcastAddress.IsLessThanOrEqualTo(tail))
                 {
-                    return new[] {subnet};
+                    return new[] { subnet };
                 }
 
                 // increasing the route prefix by 1 creates a subnet of half the initial size (due 2^(max-n) route prefix sizing)
                 var nextSmallestRoutePrefix = subnet.RoutingPrefix + 1;
 
                 // over-iterated route prefix, no valid subnet beyond this point; end search on this branch
-                if ((subnet.IsIPv6 && nextSmallestRoutePrefix > IPAddressUtilities.IPv6BitCount)
-                    || (subnet.IsIPv4 && nextSmallestRoutePrefix > IPAddressUtilities.IPv4BitCount))
+                if (
+                    (subnet.IsIPv6 && nextSmallestRoutePrefix > IPAddressUtilities.IPv6BitCount)
+                    || (subnet.IsIPv4 && nextSmallestRoutePrefix > IPAddressUtilities.IPv4BitCount)
+                )
                 {
                     return Enumerable.Empty<Subnet>(); // no subnets to be found here, stop investigating branch of tree
                 }
@@ -129,12 +125,10 @@ namespace Arcus.Utilities
                     throw new InvalidOperationException($"unable to increment {headSubnet.BroadcastAddress}");
                 }
 
-                // ReSharper disable once AssignNullToNotNullAttribute
                 var tailSubnet = new Subnet(tailStartingAddress, nextSmallestRoutePrefix);
 
                 // break into binary search tree, searching both head subnet and tail subnet for ownership of head and tail ip
-                return FilledSubnets(head, tail, headSubnet)
-                    .Concat(FilledSubnets(head, tail, tailSubnet));
+                return FilledSubnets(head, tail, headSubnet).Concat(FilledSubnets(head, tail, tailSubnet));
             }
         }
 
@@ -148,19 +142,13 @@ namespace Arcus.Utilities
         ///     The first largest subnet by routing prefix, or <see langword="null" /> if no <paramref name="subnets" /> to
         ///     choose from
         /// </returns>
-        [CanBeNull]
-        public static Subnet LargestSubnet([CanBeNull] IEnumerable<Subnet> subnets)
+        public static Subnet LargestSubnet(IEnumerable<Subnet> subnets)
         {
             var enumerable = (subnets ?? Enumerable.Empty<Subnet>()).ToList();
 
             return !enumerable.Any()
-                       ? null
-                       : enumerable
-                         .Where(s => s != null)
-                         .Aggregate((s1,
-                                     s2) => s1.RoutingPrefix < s2.RoutingPrefix
-                                                ? s1
-                                                : s2);
+                ? null
+                : enumerable.Where(s => s != null).Aggregate((s1, s2) => s1.RoutingPrefix < s2.RoutingPrefix ? s1 : s2);
         }
 
         /// <summary>
@@ -170,18 +158,13 @@ namespace Arcus.Utilities
         /// </summary>
         /// <param name="subnets">the list of subnets</param>
         /// <returns>The first smallest subnet by routing prefix, or null if no subnets to choose from</returns>
-        [CanBeNull]
-        public static Subnet SmallestSubnet([CanBeNull] IEnumerable<Subnet> subnets)
+        public static Subnet SmallestSubnet(IEnumerable<Subnet> subnets)
         {
             var enumerable = (subnets ?? Enumerable.Empty<Subnet>()).ToList();
 
             return !enumerable.Any()
-                       ? null
-                       : enumerable.Where(s => s != null)
-                                   .Aggregate((s1,
-                                               s2) => s1.RoutingPrefix > s2.RoutingPrefix
-                                                          ? s1
-                                                          : s2);
+                ? null
+                : enumerable.Where(s => s != null).Aggregate((s1, s2) => s1.RoutingPrefix > s2.RoutingPrefix ? s1 : s2);
         }
     }
 }
