@@ -15,7 +15,7 @@ Arcus is a C# manipulation library for calculating, parsing, formatting, convert
 
 ### IP Address Parsing based on .NET Targets
 
-In .NET versions up to and including .NET 4.8 (which corresponds to .NET Standard 2.0), stricter parsing rules were enforced for `IPAddress` according to the IPv6 specification.Specifically, the presence of a terminal '%' character without a valid zone index is considered invalid in these versions. As a result, the input `abcd::%` fails to parse, leading to a null or failed address parsing depending on `Parse`/`TryParse`. This behavior represents a breaking change from Arcus's previous target of .NET Standard 1.3. and may provide confusion for .NET 4.8 / .NET Standard 2.0 versions.
+In .NET versions up to and including .NET 4.8 (which corresponds to .NET Standard 2.0), stricter parsing rules were enforced for `IPAddress` according to the IPv6 specification. Specifically, the presence of a terminal '%' character without a valid zone index is considered invalid in these versions. As a result, the input `abcd::%` fails to parse, leading to a null or failed address parsing depending on `Parse`/`TryParse`. This behavior represents a breaking change from Arcus's previous target of .NET Standard 1.3. and may provide confusion for .NET 4.8 / .NET Standard 2.0 versions.
 
 In contrast, in newer versions of .NET, including .NET 8 and .NET 9, the parsing rules have been relaxed. The trailing '%' character is now ignored during parsing, allowing for inputs that would have previously failed.
 
