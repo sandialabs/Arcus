@@ -615,8 +615,8 @@ namespace Arcus.Tests.Utilities
             // Arrange
             // Assert
             // Assert
-            Assert.Throws<ArgumentOutOfRangeException>(
-                () => IPAddressUtilities.Parse(Enumerable.Repeat((byte)0x00, count).ToArray(), addressFamily)
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                IPAddressUtilities.Parse(Enumerable.Repeat((byte)0x00, count).ToArray(), addressFamily)
             );
         }
 

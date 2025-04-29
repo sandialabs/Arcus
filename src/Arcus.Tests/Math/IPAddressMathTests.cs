@@ -465,8 +465,8 @@ namespace Arcus.Tests.Math
             // Act
             // Assert
 
-            Assert.Throws<InvalidOperationException>(
-                () => IPAddress.Any.IsBetween(IPAddress.Parse("100.1.1.1"), IPAddress.Parse("10.1.1.1"))
+            Assert.Throws<InvalidOperationException>(() =>
+                IPAddress.Any.IsBetween(IPAddress.Parse("100.1.1.1"), IPAddress.Parse("10.1.1.1"))
             );
         }
 
