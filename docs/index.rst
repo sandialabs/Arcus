@@ -12,8 +12,8 @@ Arcus
 .. image:: https://img.shields.io/github/v/tag/sandialabs/Arcus
    :alt: GitHub Tag
    :target: https://github.com/sandialabs/Arcus/tags
-.. image:: https://img.shields.io/badge/.NET%20Standard%202.0%20|%20.NET%208.0%20|%20.NET%209.0-blue?logo=.net
-   :alt: Targets .NET Standard 2.0, .NET 8, and .NET 9
+.. image:: https://img.shields.io/badge/.NET%20Standard%202.0%20|%20.NET%208.0%20|%20.NET%209.0|%20.NET%2010.0-blue?logo=.net
+   :alt: Targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10
 .. image:: https://img.shields.io/github/license/sandialabs/Arcus?logo=apache
    :alt: Apache 2.0 License
    :target: https://github.com/sandialabs/Arcus/blob/main/LICENSE

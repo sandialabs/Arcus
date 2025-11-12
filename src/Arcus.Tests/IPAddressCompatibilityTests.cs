@@ -91,7 +91,7 @@ namespace Arcus.Tests
          * Arcus's previous target of .NET Standard 1.3. and may provide confusion for .NET 4.8 / .NET
          * Standard 2.0 versions.
          *
-         * In contrast, in newer versions of. NET, including .NET 8 and .NET 9, the parsing rules have been
+         * In contrast, in newer versions of. NET, including .NET 8, .NET 9, and .NET 10, the parsing rules have been
          * relaxed. The trailing '%' character is now ignored during parsing, allowing for inputs that
          * would have previously failed.
          *
