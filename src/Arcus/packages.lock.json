@@ -10,9 +10,9 @@
       },
       "Gulliver": {
         "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "83JnWd36tU9P9xvz4fkcq0hoVrccJZbfyo1luKM1jvqoRVU47kaSIiEsplzJKJPjgbseiNnzssicEgaheRnOKg=="
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "J232PI4ccScfLKt59UzyHBRZLcAJpyJ+N/at1fFF/XxBKwjl8idDVPkMU3FZkwaaU/e3Ert8/EnGLg5CxmQ8dQ=="
       },
       "Microsoft.Bcl.HashCode": {
         "type": "Direct",
@@ -100,9 +100,9 @@
       },
       "Gulliver": {
         "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "83JnWd36tU9P9xvz4fkcq0hoVrccJZbfyo1luKM1jvqoRVU47kaSIiEsplzJKJPjgbseiNnzssicEgaheRnOKg=="
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "J232PI4ccScfLKt59UzyHBRZLcAJpyJ+N/at1fFF/XxBKwjl8idDVPkMU3FZkwaaU/e3Ert8/EnGLg5CxmQ8dQ=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -170,9 +170,9 @@
       },
       "Gulliver": {
         "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "83JnWd36tU9P9xvz4fkcq0hoVrccJZbfyo1luKM1jvqoRVU47kaSIiEsplzJKJPjgbseiNnzssicEgaheRnOKg=="
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "J232PI4ccScfLKt59UzyHBRZLcAJpyJ+N/at1fFF/XxBKwjl8idDVPkMU3FZkwaaU/e3Ert8/EnGLg5CxmQ8dQ=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -240,9 +240,9 @@
       },
       "Gulliver": {
         "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "83JnWd36tU9P9xvz4fkcq0hoVrccJZbfyo1luKM1jvqoRVU47kaSIiEsplzJKJPjgbseiNnzssicEgaheRnOKg=="
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "J232PI4ccScfLKt59UzyHBRZLcAJpyJ+N/at1fFF/XxBKwjl8idDVPkMU3FZkwaaU/e3Ert8/EnGLg5CxmQ8dQ=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
