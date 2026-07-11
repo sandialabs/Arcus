@@ -1,60 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Net;
-using Arcus;
 using Arcus.Tests.XunitSerializers;
-using Xunit;
-using Xunit.Sdk;
-#if NET48   // maintained for .NET 4.8 compatibility
-using System.IO;
+#if NET48
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 #endif
 
 [assembly: RegisterXunitSerializer(typeof(IPAddressRangeXunitSerializer), typeof(IPAddressRange))]
 
 namespace Arcus.Tests
 {
-    public class IPAddressRangeTests
+    /// <summary>Unit tests for <see cref="IPAddressRange"/>.</summary>
+    public partial class IPAddressRangeTests
     {
-        #region GetHashCode
-
-        [Theory]
-        [InlineData(true, "192.168.1.5", "192.168.1.100", "192.168.1.5", "192.168.1.100")]
-        [InlineData(false, "192.168.1.5", "192.168.1.100", "10.168.1.0", "10.168.1.100")]
-        [InlineData(true, "::abcd", "ff:12::abcd", "::abcd", "ff:12::abcd")]
-        [InlineData(false, "::abcd", "ff:12::abcd", "::ef", "ff:12::1234")]
-        public void GetHashCode_Test(bool expected, string xHead, string xTail, string yHead, string yTail)
-        {
-            // Arrange
-            _ = IPAddress.TryParse(xHead, out var xHeadAddress);
-            _ = IPAddress.TryParse(xTail, out var xTailAddress);
-
-            var xAddressRange = new IPAddressRange(xHeadAddress, xTailAddress);
-
-            _ = IPAddress.TryParse(yHead, out var yHeadAddress);
-            _ = IPAddress.TryParse(yTail, out var yTailAddress);
-
-            var yAddressRange = new IPAddressRange(yHeadAddress, yTailAddress);
-
-            // Act
-            var xHash = xAddressRange.GetHashCode();
-            var yHash = yAddressRange.GetHashCode();
-            var result = xHash.Equals(yHash);
-
-            // Assert
-            Assert.Equal(expected, result);
-        }
-
-        #endregion // end: GetHashCode
-
         #region HeadOverlappedBy
 
+        /// <summary>Verifies HeadOverlappedBy returns the expected result for an IPAddressRange against various ranges.</summary>
+        /// <param name="expected">Expected result.</param>
+        /// <param name="thisHead">The head address of the range under test.</param>
+        /// <param name="thisTail">The tail address of the range under test.</param>
+        /// <param name="thatHead">The head address of the other range.</param>
+        /// <param name="thatTail">The tail address of the other range.</param>
         [Theory]
         [InlineData(false, "192.168.1.0", "255.255.255.255", null, null)]
-        [InlineData(false, "192.168.1.0", "255.255.255.255", "::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff:")]
+        [InlineData(false, "192.168.1.0", "255.255.255.255", "::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData(false, "192.168.1.0", "255.255.255.255", "192.168.1.1", "255.255.255.255")]
         [InlineData(false, "192.168.1.0", "255.255.255.255", "0.0.0.0", "192.168.0.255")]
         [InlineData(true, "192.168.1.0", "255.255.255.255", "0.0.0.0", "255.255.255.255")]
@@ -85,6 +53,8 @@ namespace Arcus.Tests
 
         #region Class
 
+        /// <summary>Verifies IPAddressRange is assignable from its expected base types and interfaces.</summary>
+        /// <param name="assignableFromType">The type that should be assignable from IPAddressRange.</param>
         [Theory]
         [InlineData(typeof(AbstractIPAddressRange))]
         [InlineData(typeof(IEquatable<IPAddressRange>))]
@@ -107,171 +77,14 @@ namespace Arcus.Tests
 
         #endregion //end: Class
 
-        #region CompareTo / Operators
-
-        public static IEnumerable<object[]> Comparison_Values()
-        {
-            var ipv4Slash16 = Subnet.Parse("192.168.0.0/16");
-            var ipv6Slash64 = Subnet.Parse("ab:cd::/64");
-            var ipv4Slash20 = Subnet.Parse("192.168.0.0/20");
-            var ipv6Slash96 = Subnet.Parse("ab:cd::/96");
-            var ipv4All = Subnet.Parse("0.0.0.0/0");
-            var ipv6All = Subnet.Parse("::/0");
-            var ipv4Single = Subnet.Parse("0.0.0.0/32");
-            var ipv6Single = Subnet.Parse("::/128");
-
-            yield return new object[]
-            {
-                0,
-                new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail),
-                new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail),
-            };
-            yield return new object[]
-            {
-                0,
-                new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail),
-                new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail),
-            };
-            yield return new object[] { 1, new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail), null };
-            yield return new object[] { 1, new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail), null };
-            yield return new object[]
-            {
-                1,
-                new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail),
-                new IPAddressRange(ipv4Slash20.Head, ipv4Slash20.Tail),
-            };
-            yield return new object[]
-            {
-                -1,
-                new IPAddressRange(ipv4Slash20.Head, ipv4Slash20.Tail),
-                new IPAddressRange(ipv4Slash16.Head, ipv4Slash16.Tail),
-            };
-            yield return new object[]
-            {
-                1,
-                new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail),
-                new IPAddressRange(ipv6Slash96.Head, ipv6Slash96.Tail),
-            };
-            yield return new object[]
-            {
-                -1,
-                new IPAddressRange(ipv6Slash96.Head, ipv6Slash96.Tail),
-                new IPAddressRange(ipv6Slash64.Head, ipv6Slash64.Tail),
-            };
-            yield return new object[]
-            {
-                -1,
-                new IPAddressRange(ipv4All.Head, ipv4All.Tail),
-                new IPAddressRange(ipv6All.Head, ipv6All.Tail),
-            };
-            yield return new object[]
-            {
-                1,
-                new IPAddressRange(ipv6All.Head, ipv6All.Tail),
-                new IPAddressRange(ipv4All.Head, ipv4All.Tail),
-            };
-            yield return new object[]
-            {
-                -1,
-                new IPAddressRange(ipv4Single.Head, ipv4Single.Tail),
-                new IPAddressRange(ipv6Single.Head, ipv6Single.Tail),
-            };
-            yield return new object[]
-            {
-                1,
-                new IPAddressRange(ipv6Single.Head, ipv6Single.Tail),
-                new IPAddressRange(ipv4Single.Head, ipv4Single.Tail),
-            };
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_Values))]
-        public void CompareTo_Test(int expected, IPAddressRange left, IPAddressRange right)
-        {
-            // Arrange
-            // Act
-            var result = left.CompareTo(right);
-
-            // Assert
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_Values))]
-        public void Operator_Equals_Test(int expected, IPAddressRange left, IPAddressRange right)
-        {
-            // Arrange
-            // Act
-            var result = left == right;
-
-            // Assert
-            Assert.Equal(expected == 0, result);
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_Values))]
-        public void Operator_NotEquals_Test(int expected, IPAddressRange left, IPAddressRange right)
-        {
-            // Arrange
-            // Act
-            var result = left != right;
-
-            // Assert
-            Assert.Equal(expected != 0, result);
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_Values))]
-        public void Operator_GreaterThan_Test(int expected, IPAddressRange left, IPAddressRange right)
-        {
-            // Arrange
-            // Act
-            var result = left > right;
-
-            // Assert
-            Assert.Equal(expected > 0, result);
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_Values))]
-        public void Operator_GreaterThanOrEqual_Test(int expected, IPAddressRange left, IPAddressRange right)
-        {
-            // Arrange
-            // Act
-            var result = left >= right;
-
-            // Assert
-            Assert.Equal(expected >= 0, result);
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_Values))]
-        public void Operator_LessThan_Test(int expected, IPAddressRange left, IPAddressRange right)
-        {
-            // Arrange
-            // Act
-            var result = left < right;
-
-            // Assert
-            Assert.Equal(expected < 0, result);
-        }
-
-        [Theory]
-        [MemberData(nameof(Comparison_Values))]
-        public void Operator_LessThanOrEqual_Test(int expected, IPAddressRange left, IPAddressRange right)
-        {
-            // Arrange
-            // Act
-            var result = left <= right;
-
-            // Assert
-            Assert.Equal(expected <= 0, result);
-        }
-
-        #endregion end CompareTo / Operators
-
         #region TailOverlappedBy
 
+        /// <summary>Verifies TailOverlappedBy returns the expected result for an IPAddressRange against various ranges.</summary>
+        /// <param name="expected">Expected result.</param>
+        /// <param name="thisHead">The head address of the range under test.</param>
+        /// <param name="thisTail">The tail address of the range under test.</param>
+        /// <param name="thatHead">The head address of the other range.</param>
+        /// <param name="thatTail">The tail address of the other range.</param>
         [Theory]
         [InlineData(false, "0.0.0.0", "192.168.1.0", null, null)]
         [InlineData(false, "0.0.0.0", "192.168.1.0", "::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff:")]
@@ -303,58 +116,9 @@ namespace Arcus.Tests
 
         #endregion // end: TailOverlappedBy
 
-        #region TryMerge
-
-        [Theory]
-        [InlineData(null, null, null, null, null)]
-        [InlineData(null, "192.168.1.1", "192.168.1.9", "::", "::")]
-        [InlineData(null, "192.168.1.1", "192.168.1.9", "192.168.1.11", "192.168.1.20")]
-        [InlineData(null, "192.168.1.1", "192.168.1.9", null, null)]
-        [InlineData(null, null, null, "192.168.1.1", "192.168.1.9")]
-        [InlineData("192.168.1.1-192.168.1.20", "192.168.1.1", "192.168.1.10", "192.168.1.11", "192.168.1.20")]
-        [InlineData("192.168.1.1-192.168.1.20", "192.168.1.1", "192.168.1.10", "192.168.1.10", "192.168.1.20")]
-        [InlineData("192.168.1.1-192.168.1.20", "192.168.1.11", "192.168.1.20", "192.168.1.1", "192.168.1.10")]
-        [InlineData("192.168.1.1-192.168.1.20", "192.168.1.10", "192.168.1.20", "192.168.1.1", "192.168.1.10")]
-        [InlineData("192.168.1.10-192.168.1.20", "192.168.1.10", "192.168.1.20", "192.168.1.10", "192.168.1.20")]
-        [InlineData("::-::", "::", "::", "::", "::")]
-        [InlineData("::1-::4", "::1", "::2", "::3", "::4")]
-        [InlineData(null, null, null, "::", "::")]
-        [InlineData(null, "::", "::", null, null)]
-        public void TryMergeResultTest(string expected, string alphaHead, string alphaTail, string betaHead, string betaTail)
-        {
-            // Arrange
-            var alphaAddressRange =
-                IPAddress.TryParse(alphaHead, out var alphaHeadAddress)
-                && IPAddress.TryParse(alphaTail, out var alphaTailAddress)
-                    ? new IPAddressRange(alphaHeadAddress, alphaTailAddress)
-                    : null;
-
-            var betaAddressRange =
-                IPAddress.TryParse(betaHead, out var betaHeadAddress) && IPAddress.TryParse(betaTail, out var betaTailAddress)
-                    ? new IPAddressRange(betaHeadAddress, betaTailAddress)
-                    : null;
-
-            // Act
-            var successResult = IPAddressRange.TryMerge(alphaAddressRange, betaAddressRange, out var mergeResult);
-
-            // Assert
-            Assert.Equal(expected != null, successResult);
-
-            if (expected == null)
-            {
-                Assert.Null(mergeResult);
-            }
-            else
-            {
-                Assert.NotNull(mergeResult);
-                Assert.Equal(expected, $"{mergeResult.Head}-{mergeResult.Tail}");
-            }
-        }
-
-        #endregion
-
         #region Ctor
 
+        /// <summary>Verifies the two-argument constructor correctly sets Head and Tail.</summary>
         [Fact]
         public void Ctor_HeadAndTail_Specified_Test()
         {
@@ -370,6 +134,7 @@ namespace Arcus.Tests
             Assert.Equal(tail, addressRange.Tail);
         }
 
+        /// <summary>Verifies the single-address constructor sets both Head and Tail to the same address.</summary>
         [Fact]
         public void Ctor_SingleAddressRange_Test()
         {
@@ -386,104 +151,21 @@ namespace Arcus.Tests
 
         #endregion
 
-        #region ISerializable
-#if NET48   // maintained for .NET 4.8 compatibility
-        public static IEnumerable<object[]> CanSerializable_Test_Values()
+        #region maxEnumerationExponent propagation
+
+        /// <summary>Verifies that <see cref="IPAddressRange(IPAddress, int)"/> propagates maxEnumerationExponent.</summary>
+        [Fact]
+        public void Ctor_SingleAddress_ExponentPropagates_Test()
         {
-            yield return new object[] { new IPAddressRange(IPAddress.Parse("192.168.1.0")) };
-            yield return new object[] { new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.255")) };
-            yield return new object[] { new IPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("::FFFF:4321")) };
+            var range = new IPAddressRange(IPAddress.Parse("10.0.0.1"), maxEnumerationExponent: 4);
+            Assert.Equal(4, range.MaxEnumerationExponent);
         }
 
-        [Theory]
-        [MemberData(nameof(CanSerializable_Test_Values))]
-        public void CanSerializable_Test(IPAddressRange ipAddressRange)
-        {
-            // Arrange
-            var formatter = new BinaryFormatter();
-
-            // Act
-            using (var writeStream = new MemoryStream())
-            {
-                // Serialize the object to the stream
-                formatter.Serialize(writeStream, ipAddressRange);
-                writeStream.Seek(0, SeekOrigin.Begin);
-
-                // Deserialize the object from the stream
-                var result = formatter.Deserialize(writeStream);
-
-                // Assert
-                var actual = Assert.IsType<IPAddressRange>(result);
-
-                // using explicit EqualityComparer to avoid comparing elements of enumerable
-                Assert.Equal(ipAddressRange, actual, IPAddressRangeEqualityComparer.Instance);
-            }
-        }
-#endif
-        #endregion end: ISerializable
-
-        #region Equals
-
-        #region Equals(IPAddressRange)
-
-        [Theory]
-        [InlineData(true, "192.168.1.1", "192.168.1.10", "192.168.1.1", "192.168.1.10")]
-        [InlineData(false, "192.168.1.1", "192.168.1.5", null, null)]
-        [InlineData(false, "192.168.1.1", "192.168.1.10", "192.168.1.1", "192.168.1.11")]
-        [InlineData(false, "12.168.1.1", "12.168.1.10", "192.18.1.1", "192.18.1.11")]
-        public void Equals_IPAddressRange_Test(bool expected, string xHead, string xTail, string yHead, string yTail)
-        {
-            // Arrange
-            _ = IPAddress.TryParse(xHead, out var xHeadAddress);
-            _ = IPAddress.TryParse(xTail, out var xTailAddress);
-            var xAddressRange = new IPAddressRange(xHeadAddress, xTailAddress);
-
-            var yAddressRange =
-                IPAddress.TryParse(yHead, out var yHeadAddress) && IPAddress.TryParse(yTail, out var yTailAddress)
-                    ? new IPAddressRange(yHeadAddress, yTailAddress)
-                    : null;
-
-            // Act
-            var result = xAddressRange.Equals(yAddressRange);
-
-            // Assert
-            Assert.Equal(expected, result);
-        }
-
-        #endregion // end: Equals(IPAddressRange)
-
-        #region Equals(object)
-
-        [Theory]
-        [InlineData(true, "192.168.1.1", "192.168.1.10", "192.168.1.1", "192.168.1.10")]
-        [InlineData(false, "192.168.1.1", "192.168.1.5", null, null)]
-        [InlineData(false, "192.168.1.1", "192.168.1.10", "192.168.1.1", "192.168.1.11")]
-        [InlineData(false, "12.168.1.1", "12.168.1.10", "192.18.1.1", "192.18.1.11")]
-        public void Equals_Object_Test(bool expected, string xHead, string xTail, string yHead, string yTail)
-        {
-            // Arrange
-            _ = IPAddress.TryParse(xHead, out var xHeadAddress);
-            _ = IPAddress.TryParse(xTail, out var xTailAddress);
-            var xAddressRange = new IPAddressRange(xHeadAddress, xTailAddress);
-
-            var yAddressRange =
-                IPAddress.TryParse(yHead, out var yHeadAddress) && IPAddress.TryParse(yTail, out var yTailAddress)
-                    ? new IPAddressRange(yHeadAddress, yTailAddress)
-                    : null;
-
-            // Act
-            var result = xAddressRange.Equals((object)yAddressRange);
-
-            // Assert
-            Assert.Equal(expected, result);
-        }
-
-        #endregion // end: Equals(object)
-
-        #endregion // end: Equals
+        #endregion
 
         #region Head set
 
+        /// <summary>Verifies constructing with head greater than tail throws InvalidOperationException.</summary>
         [Fact]
         public void Head_Set_GreaterThanTail_Test()
         {
@@ -493,6 +175,7 @@ namespace Arcus.Tests
             Assert.Throws<InvalidOperationException>(() => new IPAddressRange(IPAddress.Broadcast, IPAddress.Any));
         }
 
+        /// <summary>Verifies constructing with head from a different address family than tail throws InvalidOperationException.</summary>
         [Fact]
         public void Head_Set_DifferentAddressFamilyThanTail_Throw_InvalidOperationException_Test()
         {
@@ -506,6 +189,7 @@ namespace Arcus.Tests
 
         #region Tail set
 
+        /// <summary>Verifies constructing with tail from a different address family than head throws InvalidOperationException.</summary>
         [Fact]
         public void Tail_Set_DifferentAddressFamilyThanHead_Throw_InvalidOperationException_Test()
         {
@@ -515,6 +199,7 @@ namespace Arcus.Tests
             Assert.Throws<InvalidOperationException>(() => new IPAddressRange(IPAddress.Any, IPAddress.IPv6Loopback));
         }
 
+        /// <summary>Verifies constructing with tail less than head throws InvalidOperationException.</summary>
         [Fact]
         public void Tail_Set_LessThanHead_Test()
         {
@@ -526,330 +211,13 @@ namespace Arcus.Tests
 
         #endregion
 
-        #region TryCollapseAll
-
-        [Fact]
-        public void TryCollapseAll_Consecutive_Test()
-        {
-            // Arrange
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.5")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.6"), IPAddress.Parse("192.168.1.7")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.8"), IPAddress.Parse("192.168.1.20")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryCollapseAll(ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var collection = results.ToList();
-            Assert.Single(collection);
-
-            var result = collection.Single();
-            Assert.Equal(IPAddress.Parse("192.168.1.0"), result.Head);
-            Assert.Equal(IPAddress.Parse("192.168.1.20"), result.Tail);
-        }
-
-        [Fact]
-        public void TryCollapse_MismatchedAddressFamilies_Test()
-        {
-            // Arrange
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.5")),
-                new IPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("abcd::ef00")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryCollapseAll(ranges, out var results);
-
-            // Assert
-            Assert.False(success);
-            Assert.NotNull(results);
-            Assert.False(results.Any());
-        }
-
-        [Fact]
-        public void TryCollapseAll_EmptyInput_Test()
-        {
-            // Act
-            var success = IPAddressRange.TryCollapseAll(Enumerable.Empty<IPAddressRange>(), out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            Assert.False(results.Any());
-        }
-
-        [Fact]
-        public void TryCollapse_AllInvalidInput_Test()
-        {
-            // Arrange
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.5")),
-                null,
-                new IPAddressRange(IPAddress.Parse("192.168.1.30"), IPAddress.Parse("192.168.1.35")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryCollapseAll(ranges, out var results);
-
-            // Assert
-            Assert.False(success);
-            Assert.NotNull(results);
-            Assert.False(results.Any());
-        }
-
-        [Fact]
-        public void TryCollapse_AllOverlap_Test()
-        {
-            // Arrange
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.5")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.5"), IPAddress.Parse("192.168.1.10")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.8"), IPAddress.Parse("192.168.1.20")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryCollapseAll(ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var collection = results.ToList();
-            Assert.Single(collection);
-
-            var result = collection.Single();
-            Assert.Equal(IPAddress.Parse("192.168.1.0"), result.Head);
-            Assert.Equal(IPAddress.Parse("192.168.1.20"), result.Tail);
-        }
-
-        [Fact]
-        public void TryCollapseAll_SubsetContainsAll_Test()
-        {
-            // Arrange
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.5")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.20")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.8"), IPAddress.Parse("192.168.1.20")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryCollapseAll(ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var collection = results.ToList();
-            Assert.Single(collection);
-
-            var result = collection.Single();
-            Assert.Equal(IPAddress.Parse("192.168.1.0"), result.Head);
-            Assert.Equal(IPAddress.Parse("192.168.1.20"), result.Tail);
-        }
-
-        [Fact]
-        public void TryCollapseAll_WithGaps_Test()
-        {
-            // Arrange
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.5")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.7"), IPAddress.Parse("192.168.1.20")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.30"), IPAddress.Parse("192.168.1.35")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryCollapseAll(ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var enumerable = results.ToList();
-            Assert.Equal(3, enumerable.Count);
-            Assert.Equal(enumerable, ranges.ToList());
-        }
-
-        #endregion // end: TryCollapseAll
-
-        #region TryExcludeAll
-
-        [Fact]
-        public void TryExcludeAll_Carve_Test()
-        {
-            // Arrange
-            var initialRange = new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.200"));
-
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.10")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.50"), IPAddress.Parse("192.168.1.100")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.150"), IPAddress.Parse("192.168.1.200")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryExcludeAll(initialRange, ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var enumerable = results.ToList();
-            Assert.Equal(2, enumerable.Count);
-
-            Assert.Equal(
-                enumerable,
-                new[]
-                {
-                    new IPAddressRange(IPAddress.Parse("192.168.1.11"), IPAddress.Parse("192.168.1.49")),
-                    new IPAddressRange(IPAddress.Parse("192.168.1.101"), IPAddress.Parse("192.168.1.149")),
-                }.ToList()
-            );
-        }
-
-        [Fact]
-        public void TryExcludeAll_ConsecutiveCarve_Test()
-        {
-            // Arrange
-            var initialRange = new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.200"));
-
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.100")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.101"), IPAddress.Parse("192.168.1.199")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryExcludeAll(initialRange, ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var enumerable = results.ToList();
-            Assert.Equal(2, enumerable.Count);
-
-            Assert.Equal(
-                enumerable,
-                new[]
-                {
-                    new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.0")),
-                    new IPAddressRange(IPAddress.Parse("192.168.1.200"), IPAddress.Parse("192.168.1.200")),
-                }.ToList()
-            );
-        }
-
-        [Fact]
-        public void TryExcludeAll_Head_Test()
-        {
-            // Arrange
-            var initialRange = new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.100"));
-
-            var ranges = new[] { new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.50")) };
-
-            // Act
-            var success = IPAddressRange.TryExcludeAll(initialRange, ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var collection = results.ToList();
-            Assert.Single(collection);
-
-            var result = collection.Single();
-
-            Assert.Equal(IPAddress.Parse("192.168.1.51"), result.Head);
-            Assert.Equal(IPAddress.Parse("192.168.1.100"), result.Tail);
-        }
-
-        [Fact]
-        public void TryExcludeAll_Overlap_Test()
-        {
-            // Arrange
-            var initialRange = new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.100"));
-
-            var ranges = new[]
-            {
-                new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.49")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.50"), IPAddress.Parse("192.168.1.75")),
-                new IPAddressRange(IPAddress.Parse("192.168.1.75"), IPAddress.Parse("192.168.1.100")),
-            };
-
-            // Act
-            var success = IPAddressRange.TryExcludeAll(initialRange, ranges, out var results);
-
-            //Assert
-            Assert.True(success);
-            Assert.Empty(results);
-        }
-
-        [Fact]
-        public void TryExcludeAll_Tail_Test()
-        {
-            // Arrange
-            var initialRange = new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.100"));
-
-            var ranges = new[] { new IPAddressRange(IPAddress.Parse("192.168.1.50"), IPAddress.Parse("192.168.1.100")) };
-
-            // Act
-            var success = IPAddressRange.TryExcludeAll(initialRange, ranges, out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var collection = results.ToList();
-            Assert.Single(collection);
-
-            var result = collection.Single();
-
-            Assert.Equal(IPAddress.Parse("192.168.1.0"), result.Head);
-            Assert.Equal(IPAddress.Parse("192.168.1.49"), result.Tail);
-        }
-
-        [Fact]
-        public void TryExcludeAll_NoExclusions_Test()
-        {
-            // Arrange
-            var initialRange = new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.200"));
-
-            // Act
-            var success = IPAddressRange.TryExcludeAll(initialRange, Enumerable.Empty<IPAddressRange>(), out var results);
-
-            // Assert
-            Assert.True(success);
-            Assert.NotNull(results);
-            var collection = results.ToList();
-            Assert.Single(collection);
-
-            Assert.Equal(initialRange, collection.Single());
-        }
-
-        [Fact]
-        public void TryExcludeAll_InitialMissMatchedAddressFamily_Test()
-        {
-            // Arrange
-            var initialRange = new IPAddressRange(IPAddress.Parse("::"), IPAddress.Parse("ffff::ffff"));
-
-            var ranges = new[] { new IPAddressRange(IPAddress.Parse("192.168.1.0"), IPAddress.Parse("192.168.1.10")) };
-
-            // Act
-            var success = IPAddressRange.TryExcludeAll(initialRange, ranges, out var results);
-
-            // Assert
-            Assert.False(success);
-            Assert.Empty(results);
-        }
-
-        #endregion // end: TryExcludeAll
-
         #region Formatting
 
         #region ToString
 
+        /// <summary>Verifies ToString() produces the same output as the "G" format specifier.</summary>
+        /// <param name="headString">The head IP address string.</param>
+        /// <param name="tailString">The tail IP address string.</param>
         [Theory]
         [InlineData("192.168.1.1", "192.168.1.42")]
         [InlineData("::beef", "0123::dead")]
@@ -872,36 +240,47 @@ namespace Arcus.Tests
 
         #region ToString(string, IFormatProvider)
 
-        public static IEnumerable<object[]> ToString_Format_Test_Values()
+        /// <summary>
+        ///     Gets test data for <see cref="ToString_Format_Test" />.
+        ///     Covers all general format specifiers (<see langword="null" />, empty, "g", "G") for both IPv4 and IPv6 ranges.
+        ///     <para>Parameters: expected (string), format (string), formatProvider (IFormatProvider), ipAddressRange (IPAddressRange).</para>
+        /// </summary>
+        /// <value>
+        ///     Test data for <see cref="ToString_Format_Test" />.
+        ///     Covers all general format specifiers (<see langword="null" />, empty, "g", "G") for both IPv4 and IPv6 ranges.
+        ///     <para>Parameters: expected (string), format (string), formatProvider (IFormatProvider), ipAddressRange (IPAddressRange).</para>
+        /// </value>
+        public static TheoryData<string, string, IFormatProvider, IPAddressRange> ToString_Format_Test_Values
         {
-            // general formats
-            foreach (var format in new[] { null, string.Empty, "g", "G" })
+            get
             {
-                foreach (var ipAddressRange in Ipv4AddressRanges().Concat(Ipv6AddressRanges()))
+                var ipv4Range = new IPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.42"));
+                var ipv4Single = new IPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.1"));
+                var ipv6Range = new IPAddressRange(IPAddress.Parse("::beef"), IPAddress.Parse("0123::dead"));
+                var ipv6Single = new IPAddressRange(IPAddress.Parse("::beef"), IPAddress.Parse("::beef"));
+
+                var data = new TheoryData<string, string, IFormatProvider, IPAddressRange>();
+
+                foreach (var format in new[] { null, string.Empty, "g", "G" })
                 {
-                    yield return new object[]
+                    foreach (var range in new[] { ipv4Range, ipv4Single, ipv6Range, ipv6Single })
                     {
-                        $"{ipAddressRange.Head} - {ipAddressRange.Tail}",
-                        format,
-                        CultureInfo.CurrentCulture,
-                        ipAddressRange,
-                    };
+                        data.Add($"{range.Head} - {range.Tail}", format, CultureInfo.CurrentCulture, range);
+                    }
                 }
-            }
 
-            IEnumerable<IPAddressRange> Ipv4AddressRanges()
-            {
-                yield return new IPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.42"));
-                yield return new IPAddressRange(IPAddress.Parse("192.168.1.1"), IPAddress.Parse("192.168.1.1"));
-            }
-
-            IEnumerable<IPAddressRange> Ipv6AddressRanges()
-            {
-                yield return new IPAddressRange(IPAddress.Parse("::beef"), IPAddress.Parse("0123::dead"));
-                yield return new IPAddressRange(IPAddress.Parse("::beef"), IPAddress.Parse("::beef"));
+                return data;
             }
         }
 
+        /// <summary>
+        ///     Verifies that <see cref="AbstractIPAddressRange.ToString(string, IFormatProvider)" /> returns the expected string
+        ///     for various format specifiers and address ranges.
+        /// </summary>
+        /// <param name="expected">the expected formatted string.</param>
+        /// <param name="format">the format specifier to use.</param>
+        /// <param name="formatProvider">the format provider to use.</param>
+        /// <param name="ipAddressRange">the IP address range to format.</param>
         [Theory]
         [MemberData(nameof(ToString_Format_Test_Values))]
         public void ToString_Format_Test(
@@ -919,6 +298,7 @@ namespace Arcus.Tests
             Assert.Equal(expected, result);
         }
 
+        /// <summary>Verifies ToString throws FormatException for an unrecognized format specifier.</summary>
         [Fact]
         public void ToString_UnknownFormat_Throws_FormatException_Test()
         {
@@ -936,7 +316,7 @@ namespace Arcus.Tests
 
         internal class IPAddressRangeEqualityComparer : IEqualityComparer<IPAddressRange>
         {
-            public static readonly IPAddressRangeEqualityComparer Instance = new IPAddressRangeEqualityComparer();
+            public static readonly IPAddressRangeEqualityComparer Instance = new();
 
             public bool Equals(IPAddressRange x, IPAddressRange y)
             {

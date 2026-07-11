@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!--
+      Must mirror the library's consumer TFMs:
+        net48        → validates the netstandard2.0 asset on .NET Framework
+        net8.0       → validates the net8.0 asset
+        net9.0       → validates the net9.0 asset
+        net10.0      → validates the net10.0 asset
+    -->
+    <TargetFrameworks>net48;net8.0;net9.0;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <!--
+      ArcusVersion is injected by the run script (e.g. -p:ArcusVersion=99.0.0-smoke).
+      The default here exists only so the project can be opened in an IDE without errors;
+      the package won't resolve until you run the script and populate smoke-tests/feed/.
+    -->
+    <ArcusVersion Condition="'$(ArcusVersion)' == ''">0.0.0-placeholder</ArcusVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <!--
+      Package reference — NOT a project reference.  This exercises the real NuGet asset
+      selection logic (netstandard2.0 vs net8.0 vs …) rather than the build output.
+    -->
+    <PackageReference Include="Arcus" Version="$(ArcusVersion)" />
+  </ItemGroup>
+</Project>

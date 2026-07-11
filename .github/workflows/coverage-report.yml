@@ -1,0 +1,59 @@
+# Coverage Report for Pull Requests
+#
+# Triggered by pull_request_target so fork PRs get a write token.
+# Must exist on the default branch (main) to trigger.
+
+name: Coverage Report
+
+on:
+  pull_request_target:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  coverage-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find build run
+        uses: actions/github-script@v7
+        id: find-run
+        with:
+          script: |
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow: 'build.yml',
+              head_sha: context.payload.pull_request.head.sha,
+              per_page: 1
+            });
+            if (runs.workflow_runs.length === 0) {
+              core.setFailed('No build workflow run found for this SHA');
+              return;
+            }
+            core.setOutput('run-id', runs.workflow_runs[0].id);
+            core.setOutput('head-sha', runs.workflow_runs[0].head_sha);
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-${{ steps.find-run.outputs.head-sha }}
+          path: coverage/
+          merge-multiple: true
+          run-id: ${{ steps.find-run.outputs.run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate coverage report
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        with:
+          reports: coverage/*.xml
+          targetdir: coveragereport
+          reporttypes: MarkdownSummary
+
+      - name: Post coverage summary
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: Code Coverage
+          path: coveragereport/Summary.md

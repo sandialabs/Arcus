@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using Gulliver;
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Arcus.Comparers
 {
     /// <summary>
-    ///     Default <see cref="IPAddress" /> <see cref="Comparer{T}" />
-    ///     Compares the <see cref="AddressFamily" /> then the integer equivalent value of an <see cref="IPAddress" /> in
-    ///     ordinal order
+    ///     Default <see cref="Comparer{IPAddress}" /> for <see cref="IPAddress" />.
+    ///     Compares by <see cref="AddressFamily" /> first, then by the numeric value of the address.
     /// </summary>
-    public class DefaultIPAddressComparer : Comparer<IPAddress>
+    public sealed class DefaultIPAddressComparer : Comparer<IPAddress>
     {
         /// <summary>
-        ///     Default instance of <see cref="DefaultIPAddressComparer"/> using <see cref="DefaultAddressFamilyComparer.Instance"/>
+        ///     Default singleton instance using <see cref="DefaultAddressFamilyComparer.Instance"/>.
         /// </summary>
-        public static readonly DefaultIPAddressComparer Instance = new DefaultIPAddressComparer();
+        public static readonly DefaultIPAddressComparer Instance = new();
 
         private readonly IComparer<AddressFamily> _addressFamilyComparer;
 
@@ -27,13 +26,12 @@ namespace Arcus.Comparers
         /// <exception cref="ArgumentNullException"><paramref name="addressFamilyComparer" /> is <see langword="null" />.</exception>
         public DefaultIPAddressComparer(IComparer<AddressFamily> addressFamilyComparer)
         {
-            if (addressFamilyComparer == null)
+            if (addressFamilyComparer is null)
             {
                 throw new ArgumentNullException(nameof(addressFamilyComparer));
             }
 
-            this._addressFamilyComparer =
-                addressFamilyComparer ?? throw new ArgumentNullException(nameof(addressFamilyComparer));
+            this._addressFamilyComparer = addressFamilyComparer;
         }
 
         /// <summary>
@@ -43,7 +41,15 @@ namespace Arcus.Comparers
             : this(DefaultAddressFamilyComparer.Instance) { }
 
         /// <inheritdoc />
-        public override int Compare(IPAddress x, IPAddress y)
+        public override int Compare(
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+            [AllowNull]
+#endif
+            IPAddress x,
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+            [AllowNull]
+#endif
+            IPAddress y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -63,7 +69,9 @@ namespace Arcus.Comparers
             var addressFamilyComparison = this._addressFamilyComparer.Compare(x.AddressFamily, y.AddressFamily);
 
             return addressFamilyComparison == 0
-                ? ByteArrayUtils.CompareUnsignedBigEndian(x.GetAddressBytes(), y.GetAddressBytes())
+                ? BigEndianBitWrapper
+                    .FromBytes(x.GetAddressBytes())
+                    .CompareTo(BigEndianBitWrapper.FromBytes(y.GetAddressBytes()))
                 : addressFamilyComparison;
         }
     }

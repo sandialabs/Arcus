@@ -2,7 +2,13 @@
 IPAddress Comparers
 ===================
 
+|version| v5.0.0
+
 IP Addresses are just numbers. Numbers are comparable. Some are bigger, some are smaller, some are even equal.
+
+.. warning::
+
+   **Removed in v5.0.0:** The ``DefaultIPAddressRangeComparer`` type has been removed. Use :ref:`DefaultIIPAddressRangeComparer` instead. This type was previously marked ``[Obsolete]`` and has been fully removed in v5.0.0.
 
 .. _DefaultIPAddressComparer:
 

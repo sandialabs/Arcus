@@ -202,3 +202,35 @@ ehthumbs_vista.db
 ### Read the Docs  ###
 docs/_build
 
+
+# Smoke test local NuGet feed (created by run-smoke-tests scripts)
+smoketests/feed/
+
+# Benchmark results (commit manually with git add -f to record a progression snapshot)
+src/results/
+
+# Planning and working documents (root-level only)
+/PRD*.md
+/RELEASE-*.md
+/future.todo.md
+/skills-lock.json
+.claude/
+.opencode/
+.agents/
+devcontainer-lock.json
+TestResults/
+
+# Git worktrees
+.worktrees/
+
+# Agent instruction files (root-level only, prevent accidental staging)
+/AGENTS.md
+/CLAUDE.md
+
+# Generated XML doc (in-tree artifact)
+src/Arcus/Arcus.xml
+
+# Temporary files
+*.bak
+*.swp
+*.swo

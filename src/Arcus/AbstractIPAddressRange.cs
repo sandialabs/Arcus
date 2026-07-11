@@ -1,28 +1,51 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using Arcus.Math;
 using Arcus.Utilities;
-using Gulliver;
 
 namespace Arcus
 {
     /// <summary>
     ///     An <see langword="abstract" /> implementation of <see cref="IIPAddressRange" /> built to work with IPv4 and IPv6
     /// </summary>
-    public abstract class AbstractIPAddressRange : IIPAddressRange
+    /// <remarks>
+    ///     <para>
+    ///         IPv4 addresses are represented as 32-bit unsigned integers per
+    ///         <see href="https://www.rfc-editor.org/rfc/rfc791#section-2.3">RFC 791 §2.3</see>.
+    ///         IPv6 addresses are represented as 128-bit unsigned integers per
+    ///         <see href="https://www.rfc-editor.org/info/rfc4291/#section-2">RFC 4291 §2</see>;
+    ///         <see cref="BigInteger"/> is used throughout because IPv6 ranges can exceed <see cref="long.MaxValue"/>.
+    ///     </para>
+    ///     <para>
+    ///         This class is <see langword="abstract"/> to enforce a concrete subtype
+    ///         (<see cref="Subnet"/> or <see cref="IPAddressRange"/>) for instantiation.
+    ///         Although it has no <see langword="abstract"/> members, the abstract modifier
+    ///         prevents direct construction, ensures each instance carries a meaningful
+    ///         concrete type for equality, comparison, and serialization, and reserves
+    ///         the <see cref="IIPAddressRange"/> contract for the two supported implementations.
+    ///     </para>
+    /// </remarks>
+    public abstract partial class AbstractIPAddressRange : IIPAddressRange
     {
         /// <summary>
-        ///     <see langword="true" /> Gets a value indicating whether if the subnet describes a single ip address
+        ///     The default maximum enumeration exponent (12), limiting enumeration to 4096 addresses.
         /// </summary>
-        /// <value>
-        /// <see langword="true" /> if the subnet describes a single ip address
-        /// </value>
+        internal const int DefaultMaxEnumerationExponent = 12;
+
+        /// <summary>
+        ///     Gets the maximum enumeration exponent for this range. Enumeration via <see cref="ToIPAddresses"/> (and <c>foreach</c> /
+        ///     <see cref="System.Collections.Generic.IEnumerable{T}"/> for backwards compatibility) yields at most
+        ///     2<sup>MaxEnumerationExponent</sup> addresses. Defaults to <see cref="DefaultMaxEnumerationExponent"/>
+        ///     (2<sup>12</sup> = 4096) to prevent accidental enumeration of enormous address spaces.
+        /// </summary>
+        /// <value>The maximum enumeration exponent (0-128).</value>
+        public int MaxEnumerationExponent { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether this range contains exactly one address.
+        /// </summary>
+        /// <value><see langword="true" /> when <see cref="Length"/> equals 1.</value>
         public bool IsSingleIP => this.Length == 1;
 
         /// <inheritdoc />
@@ -41,93 +64,67 @@ namespace Arcus
         public IPAddress Tail { get; }
 
         /// <inheritdoc />
+        /// <remarks>
+        ///     <para>
+        ///         <see cref="Length"/> is computed once in the constructor and cached by the readonly
+        ///         backing field; subsequent reads are O(1) and allocation-free.
+        ///     </para>
+        /// </remarks>
         public BigInteger Length { get; }
-
-        #region From Interface IIPAddressRange
-
-        #region Deconstructors
-
-        /// <inheritdoc />
-        public void Deconstruct(out IPAddress head, out IPAddress tail)
-        {
-            head = this.Head;
-            tail = this.Tail;
-        }
-
-        #endregion // end: Deconstruct
-
-        #endregion
 
         #region AddressTuple
 
         /// <summary>
-        ///     AddressTuple for moving around a pair of <see cref="IPAddress" /> objects as a unit
+        ///     Holds a pair of <see cref="IPAddress" /> objects as an immutable unit.
         /// </summary>
-        protected readonly struct AddressTuple : IEquatable<AddressTuple>
+        /// <param name="head">The head address (must not be <see langword="null" />).</param>
+        /// <param name="tail">The tail address (must not be <see langword="null" />).</param>
+        private protected readonly struct AddressTuple(IPAddress head, IPAddress tail) : IEquatable<AddressTuple>
         {
             /// <summary>
-            ///     Initializes a new instance of the <see cref="AddressTuple" /> struct.
+            ///     Gets the head address of the pair.
             /// </summary>
-            /// <param name="head">the head address</param>
-            /// <param name="tail">the tail address</param>
-            public AddressTuple(IPAddress head, IPAddress tail)
-            {
-                this.Head = head ?? throw new ArgumentNullException(nameof(head));
-                this.Tail = tail ?? throw new ArgumentNullException(nameof(tail));
-            }
+            /// <value>The first (numerically lower) address.</value>
+            public IPAddress Head { get; } = head ?? throw new ArgumentNullException(nameof(head));
 
             /// <summary>
-            ///     Gets head
+            ///     Gets the tail address of the pair.
             /// </summary>
-            /// <value>
-            /// Head
-            /// </value>
-            public IPAddress Head { get; }
-
-            /// <summary>
-            ///     Gets tail
-            /// </summary>
-            /// <value>
-            /// Tail
-            /// </value>
-            public IPAddress Tail { get; }
+            /// <value>The second (numerically higher) address.</value>
+            public IPAddress Tail { get; } = tail ?? throw new ArgumentNullException(nameof(tail));
 
             /// <inheritdoc />
             public bool Equals(AddressTuple other)
             {
+                if (other.Head is null || other.Tail is null)
+                {
+                    return false;
+                }
+
                 return this.Head.Equals(other.Head) && this.Tail.Equals(other.Tail);
             }
 
             /// <inheritdoc />
-            public override bool Equals(object obj)
-            {
-                return obj is AddressTuple other && this.Equals(other);
-            }
+            public override bool Equals(object obj) => obj is AddressTuple other && this.Equals(other);
+
+            /// <summary>
+            ///     Determines whether two <see cref="AddressTuple"/> instances are equal.
+            /// </summary>
+            /// <param name="left">The first instance.</param>
+            /// <param name="right">The second instance.</param>
+            /// <returns><see langword="true" /> if the two pairs contain equal addresses.</returns>
+            public static bool operator ==(AddressTuple left, AddressTuple right) => left.Equals(right);
+
+            /// <summary>
+            ///     Determines whether two <see cref="AddressTuple"/> instances are not equal.
+            /// </summary>
+            /// <param name="left">The first instance.</param>
+            /// <param name="right">The second instance.</param>
+            /// <returns><see langword="true" /> if the two pairs differ in either address.</returns>
+            public static bool operator !=(AddressTuple left, AddressTuple right) => !(left == right);
 
             /// <inheritdoc />
-            public override int GetHashCode() => HashCode.Combine(Head, Tail);
-
-            /// <summary>
-            ///     Equals operation
-            /// </summary>
-            /// <param name="left">left operand</param>
-            /// <param name="right">right operand</param>
-            /// <returns><see langword="true" /> if <paramref name="left"></paramref> and <paramref name="right" />are equal</returns>
-            public static bool operator ==(AddressTuple left, AddressTuple right)
-            {
-                return left.Equals(right);
-            }
-
-            /// <summary>
-            ///     Not Equals operation
-            /// </summary>
-            /// <param name="left">left operand</param>
-            /// <param name="right">right operand</param>
-            /// <returns><see langword="true" /> if <paramref name="left"></paramref> and <paramref name="right" />are equal</returns>
-            public static bool operator !=(AddressTuple left, AddressTuple right)
-            {
-                return !(left == right);
-            }
+            public override int GetHashCode() => HashCode.Combine(this.Head ?? IPAddress.None, this.Tail ?? IPAddress.None);
         }
 
         #endregion // end: AddressTuple
@@ -139,19 +136,33 @@ namespace Arcus
         /// </summary>
         /// <param name="head">the range head (lowest valued <see cref="IPAddress" />)</param>
         /// <param name="tail">the range tail (highest valued <see cref="IPAddress" />)</param>
-        protected AbstractIPAddressRange(IPAddress head, IPAddress tail)
+        /// <param name="maxEnumerationExponent">the maximum enumeration exponent (0-128); enumeration yields at most 2<sup>maxEnumerationExponent</sup> addresses</param>
+        protected AbstractIPAddressRange(
+            IPAddress head,
+            IPAddress tail,
+            int maxEnumerationExponent = DefaultMaxEnumerationExponent
+        )
         {
-            #region defense
-
-            if (head == null)
+            if (head is null)
             {
                 throw new ArgumentNullException(nameof(head));
             }
 
-            if (tail == null)
+            if (tail is null)
             {
                 throw new ArgumentNullException(nameof(tail));
             }
+
+            if (maxEnumerationExponent is < 0 or > 128)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxEnumerationExponent));
+            }
+
+            var maxExponentForFamily = head.AddressFamily == AddressFamily.InterNetwork ? 32 : 128;
+            this.MaxEnumerationExponent =
+                maxEnumerationExponent < maxExponentForFamily ? maxEnumerationExponent : maxExponentForFamily;
+
+            #region defense
 
             if (!IPAddressUtilities.ValidAddressFamilies.Contains(head.AddressFamily))
             {
@@ -187,17 +198,9 @@ namespace Arcus
 
             BigInteger CalculateLength()
             {
-                // convert big endian (network byte order) difference result to a 0x00 prefixed byte array for converting to an unsigned BigInteger
-                var differenceBytes = ByteArrayUtils.SubtractUnsignedBigEndian(tail.GetAddressBytes(), head.GetAddressBytes());
-                var differenceBytesLength = differenceBytes.Length;
-                var unsignedLittleEndianBytes = new byte[differenceBytesLength + 1]; // one greater so trailing byte is always 0x00
-
-                for (var i = 0; i < differenceBytesLength; i++)
-                {
-                    unsignedLittleEndianBytes[differenceBytesLength - 1 - i] = differenceBytes[i];
-                }
-
-                return new BigInteger(unsignedLittleEndianBytes) + 1; // a rare but valid use of BigInteger
+                var tailWrap = BigEndianBitWrapper.FromBytes(tail.GetAddressBytes());
+                var headWrap = BigEndianBitWrapper.FromBytes(head.GetAddressBytes());
+                return tailWrap.Subtract(headWrap).ToBigInteger() + 1;
             }
         }
 
@@ -205,231 +208,53 @@ namespace Arcus
         ///     Initializes a new instance of the <see cref="AbstractIPAddressRange"/> class.
         /// </summary>
         /// <param name="addressTuple">an <see cref="AddressTuple"/> representing two addresses</param>
-        protected AbstractIPAddressRange(AddressTuple addressTuple)
-            : this(addressTuple.Head, addressTuple.Tail)
+        /// <param name="maxEnumerationExponent">the maximum enumeration exponent (0-128)</param>
+        private protected AbstractIPAddressRange(
+            AddressTuple addressTuple,
+            int maxEnumerationExponent = DefaultMaxEnumerationExponent
+        )
+            : this(addressTuple.Head, addressTuple.Tail, maxEnumerationExponent)
         {
             // nothing additional to do
         }
 
         #endregion // end: Ctor
 
-        #region TryGetLength
+        #region Equals / GetHashCode
 
-        /// <inheritdoc />
-        public bool TryGetLength(out int length)
+        /// <summary>
+        ///     Determines whether the specified object is equal to the current range by comparing
+        ///     <see cref="Head"/> and <see cref="Tail"/>. Two ranges of different concrete types
+        ///     (e.g. a <see cref="Subnet"/> and an <see cref="IPAddressRange"/>) with identical
+        ///     <see cref="Head"/> and <see cref="Tail"/> are considered equal by this base implementation.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Subclasses (<see cref="Subnet"/>, <see cref="IPAddressRange"/>) override this method
+        ///         to enforce type-specific equality; the shared algorithm lives here so that the
+        ///         <see cref="GetHashCode"/> contract is uniform across implementations.
+        ///     </para>
+        /// </remarks>
+        /// <param name="obj">The object to compare.</param>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> is an <see cref="IIPAddressRange"/> with matching Head and Tail.</returns>
+        public override bool Equals(object obj)
         {
-            var actualLength = this.Length;
-
-            if (actualLength <= int.MaxValue)
+            if (obj is IIPAddressRange other)
             {
-                length = (int)actualLength;
-                return true;
+                return this.Head.Equals(other.Head) && this.Tail.Equals(other.Tail);
             }
 
-            length = -1;
             return false;
         }
 
-        /// <inheritdoc />
-        public bool TryGetLength(out long length)
-        {
-            var actualLength = this.Length;
+        /// <summary>
+        ///     Returns a hash code based on <see cref="Head"/> and <see cref="Tail"/>. All
+        ///     <see cref="AbstractIPAddressRange"/> subclasses use this same function so that
+        ///     value-equal ranges hash identically regardless of concrete type.
+        /// </summary>
+        /// <returns>A hash code for the current range.</returns>
+        public override int GetHashCode() => HashCode.Combine(this.Head, this.Tail);
 
-            if (actualLength <= long.MaxValue)
-            {
-                length = (long)actualLength;
-                return true;
-            }
-
-            length = -1;
-            return false;
-        }
-
-        #endregion // end: TryGetLength
-
-        #region IEnumerable / IEnumerable<IPAddress>
-
-        /// <inheritdoc />
-        public IEnumerator<IPAddress> GetEnumerator()
-        {
-            // determine maximum possible address for iteration
-            var addressLimit = IPAddressMath
-                .Min(this.Tail, this.IsIPv4 ? IPAddressUtilities.IPv4MaxAddress : IPAddressUtilities.IPv6MaxAddress)
-                .GetAddressBytes();
-
-            // determine the width of the bye array for the address address
-            var addressByteWidth = this.IsIPv4 ? IPAddressUtilities.IPv4ByteCount : IPAddressUtilities.IPv6ByteCount;
-
-            var currentAddressBytes = this.Head.GetAddressBytes();
-
-            //  iterate appropriately as long as the current address isn't beyond the limit
-            while (ByteArrayUtils.CompareUnsignedBigEndian(currentAddressBytes, addressLimit) <= 0)
-            {
-                yield return new IPAddress(currentAddressBytes);
-
-                // determine next address
-                if (!ByteArrayUtils.TrySumBigEndian(currentAddressBytes, 1, out var nextAddressBytes))
-                {
-                    break;
-                }
-
-                var nextAddressByteWidth = nextAddressBytes.Length;
-                if (nextAddressByteWidth > addressByteWidth)
-                {
-                    break;
-                }
-
-                // copy appropriate portion of next address with prefixed 0x00 bytes
-                currentAddressBytes = new byte[addressByteWidth];
-                Array.Copy(
-                    nextAddressBytes,
-                    0,
-                    currentAddressBytes,
-                    addressByteWidth - nextAddressByteWidth,
-                    nextAddressByteWidth
-                );
-            }
-        }
-
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-
-        #endregion // end: IEnumerable
-
-        #region Formatting
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return this.ToString("G", CultureInfo.InvariantCulture);
-        }
-
-        /// <inheritdoc />
-        public virtual string ToString(string format, IFormatProvider formatProvider)
-        {
-            switch (format?.Trim())
-            {
-                case null:
-                case "":
-
-                // general formats
-                case "g":
-                case "G":
-                    return $"{this.Head} - {this.Tail}";
-                default:
-                    throw new FormatException($"The format \"{format}\" is not supported.");
-            }
-        }
-
-        #endregion // end: Formatting
-
-        #region Set Operations
-
-        #region Contains
-
-        /// <inheritdoc />
-        public bool Contains(IIPAddressRange addressRange)
-        {
-            return ReferenceEquals(this, addressRange)
-                || Equals(this, addressRange)
-                || (addressRange != null && this.Contains(addressRange.Head) && this.Contains(addressRange.Tail));
-        }
-
-        /// <inheritdoc />
-        public bool Contains(IPAddress address)
-        {
-            return address != null && address.AddressFamily == this.AddressFamily && address.IsBetween(this.Head, this.Tail);
-        }
-
-        #endregion // end: Contains
-
-        #region Ovelap and Touches
-
-        /// <inheritdoc />
-        public bool HeadOverlappedBy(IIPAddressRange addressRange)
-        {
-            return ReferenceEquals(this, addressRange)
-                || Equals(this, addressRange)
-                || (addressRange != null && addressRange.Contains(this.Head));
-        }
-
-        /// <inheritdoc />
-        public bool TailOverlappedBy(IIPAddressRange addressRange)
-        {
-            return ReferenceEquals(this, addressRange)
-                || Equals(this, addressRange)
-                || (addressRange != null && addressRange.Contains(this.Tail));
-        }
-
-        /// <inheritdoc />
-        public bool Overlaps(IIPAddressRange addressRange)
-        {
-            return ReferenceEquals(this, addressRange)
-                || Equals(this, addressRange)
-                || (
-                    addressRange != null
-                    && (this.Contains(addressRange) || this.Contains(addressRange.Head) || this.Contains(addressRange.Tail))
-                );
-        }
-
-        /// <inheritdoc />
-        public bool Touches(IIPAddressRange addressRange)
-        {
-            return addressRange != null
-                && this.AddressFamily == addressRange.AddressFamily
-                && (
-                    (
-                        this.Tail.IsLessThan(this.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
-                        && Equals(this.Tail.Increment(), addressRange.Head)
-                    ) // this tail appears directly before that head
-                    || (
-                        addressRange.Tail.IsLessThan(addressRange.Tail.AddressFamily.MaxIPAddress()) // prevent overflow
-                        && Equals(addressRange.Tail.Increment(), this.Head)
-                    )
-                ); // that tail appears directly before this head
-        }
-
-        #endregion // end: Ovelap and Touches
-
-        #endregion // end: Set Operations
-
-        #region Contains Any/All Public/Private Addresses
-
-        /// <inheritdoc/>
-        public bool ContainsAnyPrivateAddresses()
-        {
-            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet =>
-                subnet.Contains(this.Head) || subnet.Contains(this.Tail)
-            );
-        }
-
-        /// <inheritdoc/>
-        public bool ContainsAllPrivateAddresses()
-        {
-            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet =>
-                subnet.Contains(this.Head) && subnet.Contains(this.Tail)
-            );
-        }
-
-        /// <inheritdoc/>
-        public bool ContainsAnyPublicAddresses()
-        {
-            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet =>
-                !subnet.Contains(this.Head) || !subnet.Contains(this.Tail)
-            );
-        }
-
-        /// <inheritdoc/>
-        public bool ContainsAllPublicAddresses()
-        {
-            return SubnetUtilities.PrivateIPAddressRangesList.All(subnet =>
-                !subnet.Contains(this.Head) && !subnet.Contains(this.Tail)
-            );
-        }
-
-        #endregion end: Contains Any/All Public/Private Addresses
+        #endregion // end: Equals / GetHashCode
     }
 }

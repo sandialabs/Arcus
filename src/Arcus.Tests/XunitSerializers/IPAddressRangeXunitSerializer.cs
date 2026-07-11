@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using Xunit.Sdk;
+﻿using System.Net;
 
 namespace Arcus.Tests.XunitSerializers
 {

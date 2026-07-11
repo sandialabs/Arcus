@@ -1,7 +1,4 @@
-﻿using System;
-using Xunit.Sdk;
-
-namespace Arcus.Tests.XunitSerializers
+﻿namespace Arcus.Tests.XunitSerializers
 {
     /// <summary>
     ///     <see cref="IXunitSerializer"/> for <see cref="Subnet"/>

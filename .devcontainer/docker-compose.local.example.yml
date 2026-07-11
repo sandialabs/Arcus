@@ -1,0 +1,24 @@
+# Example local overrides for the devcontainer.
+# Copy this file to docker-compose.local.yml and fill in the values below,
+# or export the variables in your shell / .env file.
+#
+# docker-compose.local.yml is git-ignored — your personal paths never get committed.
+
+services:
+  devcontainer:
+    volumes:
+      # Persist Claude authentication tokens from the host so you don't need to
+      # re-authenticate after every container rebuild.
+      - ${CLAUDE_DIR}/auth:/home/vscode/.claude/auth
+
+      # Share personal Claude skills/prompts from the host into the container.
+      - ${CLAUDE_DIR}/skills:/home/vscode/.claude/skills:ro
+
+      # SSH keys for git access (read-only).
+      - ${SSH_DIR}:/home/vscode/.ssh:ro
+
+      # Host git configuration.
+      # Configure on the host with:
+      #   git config --global user.name  "Your Name"
+      #   git config --global user.email "you@example.com"
+      - ${GITCONFIG_PATH}:/home/vscode/.gitconfig:ro

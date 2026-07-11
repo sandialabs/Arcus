@@ -14,8 +14,4 @@ Logo cropped from image `"Iris Carrying the Water of the River Styx to Olympus f
 
    The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission.
 
-Structure of a 48-bit MAC address
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-`Diagram showing the structure of a MAC-48 network address, explicitly showing the positions of the multicast/unicast bit and the OUI/local address type bit. <https://commons.wikimedia.org/wiki/File:MAC-48_Address.svg>`_
-
-   This file is licensed under the `Creative Commons <https://en.wikipedia.org/wiki/en:Creative_Commons>`_ Attribution-Share Alike `2.5 Generic <https://creativecommons.org/licenses/by-sa/2.5/deed.en>`_, 2.0 Generic and `1.0 Generic <https://creativecommons.org/licenses/by-sa/1.0/deed.en>`_ license. 
+(The ``MacAddress`` type was removed in v5.0.0. This attribution is retained for historical reference.) 

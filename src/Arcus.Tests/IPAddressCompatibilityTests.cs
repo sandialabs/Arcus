@@ -1,11 +1,14 @@
 ﻿using System.Net;
-using Xunit;
 
 namespace Arcus.Tests
 {
-    // Trusting, but verifying the compatibility of IPAddress object with Microsoft System.Net.IPAddress object
+    /// <summary>Verifies compatibility of <see cref="IPAddress"/> parsing behavior with <c>System.Net.IPAddress</c> across address formats and edge cases.</summary>
     public class IPAddressCompatibilityTests
     {
+        /// <summary>Verifies IPAddress.TryParse returns the expected success/failure and parsed string for a wide range of IPv4, IPv6, and invalid inputs.</summary>
+        /// <param name="expected">Whether TryParse is expected to succeed.</param>
+        /// <param name="input">The input string to parse.</param>
+        /// <param name="expectedParseResult">The expected ToString() of the parsed address when parsing succeeds.</param>
         [Theory]
         // IPv4 Addresses
 

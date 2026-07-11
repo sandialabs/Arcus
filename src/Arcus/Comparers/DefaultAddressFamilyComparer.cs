@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 
 namespace Arcus.Comparers
 {
     /// <summary>
-    ///     Default <see cref="AddressFamily" /> <see cref="Comparer{T}" />
-    ///     Executes the <see cref="Enum.CompareTo" /> of <see cref="AddressFamily" /> method
+    ///     Default <see cref="Comparer{AddressFamily}" /> for <see cref="AddressFamily" />.
+    ///     Delegates to the <see cref="Enum.CompareTo" /> implementation of <see cref="AddressFamily" />.
     /// </summary>
-    public class DefaultAddressFamilyComparer : Comparer<AddressFamily>
+    public sealed class DefaultAddressFamilyComparer : Comparer<AddressFamily>
     {
         /// <summary>
-        ///     Default instance of <see cref="DefaultAddressFamilyComparer"/> using <see cref="DefaultIPAddressComparer.Instance"/>
+        ///     Default singleton instance.
         /// </summary>
-        public static readonly DefaultAddressFamilyComparer Instance = new DefaultAddressFamilyComparer();
+        public static readonly DefaultAddressFamilyComparer Instance = new();
 
         /// <inheritdoc />
         public override int Compare(AddressFamily x, AddressFamily y)

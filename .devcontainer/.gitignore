@@ -1,0 +1,10 @@
+# Ignore local-only devcontainer overrides.
+devcontainer.local.json
+docker-compose.local.yml
+
+# Ignore temporary shell artifacts.
+*.tmp
+
+# logs
+*.post-create.log
+*.post-start.log

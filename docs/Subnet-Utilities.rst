@@ -1,16 +1,30 @@
 Subnet Utilities
 ================
 
+|version| v5.0.0
+
 ``Arcus.Utilities.SubnetUtilities`` is a static utility class containing miscellaneous operations for :ref:`Subnet` and collections there of. It is a catchall for methods and functionally that didn't make sense on the ``Subnet`` class itself.
+
+.. warning::
+
+   **Breaking change in v5.0.0:** ``PrivateIPAddressRangesList`` and ``LinkLocalIPAddressRangesList`` are now declared ``readonly``. Code that previously reassigned either field (e.g., ``SubnetUtilities.PrivateIPAddressRangesList = myList``) will no longer compile. The ``IReadOnlyList<Subnet>`` type already prevented mutation of the list contents; ``readonly`` now extends that guarantee to the field reference itself.
+
+   **Why:** Making these fields ``readonly`` prevents external code from silently replacing the entire list, which would affect all callers depending on these lists (e.g., ``ContainsAnyPrivateAddresses``, ``IsPrivate``). This is a consistency and safety improvement.
 
 find Fewest Consecutive Subnets
 -------------------------------
+
+.. note::
+
+   **v5.0.0:** This method now accepts an optional ``maxEnumerationExponent`` parameter (default 12) that controls the enumeration cap for subnets created during computation.
 
 Given an inclusive range of IP Addresses defined by ``IPAddress left`` and ``IPAddress right`` get the fewest consecutive subnets that would contain all addresses within the range between and no other addresses.
 
 .. code-block:: c#
 
-   public static IEnumerable<Subnet> FewestConsecutiveSubnetsFor(IPAddress left, IPAddress right)
+   public static IEnumerable<Subnet> FewestConsecutiveSubnetsFor(IPAddress left, IPAddress right, int maxEnumerationExponent = 12)
+
+The optional ``maxEnumerationExponent`` parameter controls the enumeration cap for subnets created during computation.
 
 The following examples shows that the range defined by ``192.168.1.3`` - ``192.168.1.5`` fits in  two consecutive subnets defined by ``192.168.1.4/31`` and ``192.168.1.3/32``.
 

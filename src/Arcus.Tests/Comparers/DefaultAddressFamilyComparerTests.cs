@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using Arcus.Comparers;
-using Xunit;
 
 namespace Arcus.Tests.Comparers
 {
+    /// <summary>Unit tests for <see cref="DefaultAddressFamilyComparer"/>.</summary>
     public class DefaultAddressFamilyComparerTests
     {
+        /// <summary>
+        ///     Verifies that <see cref="DefaultAddressFamilyComparer" /> is assignable to <see cref="IComparer{AddressFamily}" />.
+        /// </summary>
         [Fact]
         public void Assignability_Test()
         {
@@ -22,22 +24,48 @@ namespace Arcus.Tests.Comparers
 
         #region Compare
 
-        public static IEnumerable<object[]> Compare_Test_Values()
+        /// <summary>
+        ///     Gets test data for <see cref="Compare_AddressFamilies_ReturnsExpectedOrdering_Test" />.
+        ///     Covers all combinations of <see cref="AddressFamily.InterNetwork" /> and
+        ///     <see cref="AddressFamily.InterNetworkV6" /> to verify ordinal ordering matches
+        ///     <see cref="System.Enum.CompareTo" />.
+        ///     <para>Parameters: expected comparison result (int), x (AddressFamily), y (AddressFamily).</para>
+        /// </summary>
+        /// <value>
+        ///     Covers all combinations of <see cref="AddressFamily.InterNetwork" /> and
+        ///     <see cref="AddressFamily.InterNetworkV6" /> to verify ordinal ordering matches
+        ///     <see cref="System.Enum.CompareTo" />.
+        ///     <para>Parameters: expected comparison result (int), x (AddressFamily), y (AddressFamily).</para>
+        /// </value>
+        public static TheoryData<int, AddressFamily, AddressFamily> Compare_AddressFamilies_ReturnsExpectedOrdering_Test_Data
         {
-            var concernedAddressFamilies = new[] { AddressFamily.InterNetwork, AddressFamily.InterNetworkV6 };
-
-            foreach (var i in concernedAddressFamilies)
+            get
             {
-                foreach (var j in concernedAddressFamilies)
+                var data = new TheoryData<int, AddressFamily, AddressFamily>();
+                var concernedAddressFamilies = new[] { AddressFamily.InterNetwork, AddressFamily.InterNetworkV6 };
+
+                foreach (var i in concernedAddressFamilies)
                 {
-                    yield return new object[] { i.CompareTo(j), i, j };
+                    foreach (var j in concernedAddressFamilies)
+                    {
+                        data.Add(i.CompareTo(j), i, j);
+                    }
                 }
+
+                return data;
             }
         }
 
+        /// <summary>
+        ///     Verifies that <see cref="DefaultAddressFamilyComparer.Compare" /> returns the expected ordinal comparison
+        ///     result for pairs of <see cref="AddressFamily" /> values.
+        /// </summary>
+        /// <param name="expected">the expected comparison result.</param>
+        /// <param name="x">the left operand.</param>
+        /// <param name="y">the right operand.</param>
         [Theory]
-        [MemberData(nameof(Compare_Test_Values))]
-        public void Compare_Test(int expected, AddressFamily x, AddressFamily y)
+        [MemberData(nameof(Compare_AddressFamilies_ReturnsExpectedOrdering_Test_Data))]
+        public void Compare_AddressFamilies_ReturnsExpectedOrdering_Test(int expected, AddressFamily x, AddressFamily y)
         {
             // Arrange
             var comparer = new DefaultAddressFamilyComparer();
@@ -50,5 +78,25 @@ namespace Arcus.Tests.Comparers
         }
 
         #endregion // end: Compare
+
+        #region Instance
+
+        /// <summary>
+        ///     Verifies that <see cref="DefaultAddressFamilyComparer.Instance" /> is not <see langword="null" />
+        ///     and is an instance of <see cref="DefaultAddressFamilyComparer" />.
+        /// </summary>
+        [Fact]
+        public void Instance_IsNotNull_Test()
+        {
+            // Arrange
+            // Act
+            var instance = DefaultAddressFamilyComparer.Instance;
+
+            // Assert
+            Assert.NotNull(instance);
+            Assert.IsType<DefaultAddressFamilyComparer>(instance);
+        }
+
+        #endregion // end: Instance
     }
 }

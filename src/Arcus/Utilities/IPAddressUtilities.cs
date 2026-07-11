@@ -1,97 +1,150 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using Gulliver;
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Arcus.Utilities
 {
     /// <summary>
     ///     Static utility class containing miscellaneous operations for <see cref="IPAddress" /> objects
     /// </summary>
-    public static class IPAddressUtilities
+    /// <remarks>
+    ///     <para>
+    ///         IPv4 constants are derived from the 32-bit address definition in
+    ///         <see href="https://www.rfc-editor.org/rfc/rfc791#section-2.3">RFC 791 §2.3</see>.
+    ///         IPv6 constants are derived from the 128-bit address definition in
+    ///         <see href="https://www.rfc-editor.org/rfc/rfc4291#section-2.1">RFC 4291 §2.1</see>.
+    ///     </para>
+    /// </remarks>
+    public static partial class IPAddressUtilities
     {
         private const int BitsPerByte = 8;
-        private const string DottedQuadLeadingZerosPattern = @"(?<=^|\.)0+(?!\.|$)";
-        private const string DottedQuadRegularExpressionPattern = @"^[0-9]{1,3}(\.[0-9]{1,3}){3}$"; // checks dotted quad format (does not verify validity of address)
-        private const string HexLikePattern = "^[0-9a-f]*$";
 
         /// <summary>
-        ///     number of bits in an IPv4 address
+        ///     Regex pattern matching leading zeros in each dotted-quad octet.
+        ///     Lookbehind <c>(?&lt;=^|\.)</c> anchors to start-of-string or a dot; lookahead <c>(?!\.|$)</c> preserves lone-zero octets.
+        ///     Applied with <see cref="RegexOptions.CultureInvariant"/>.
+        /// </summary>
+        public const string DottedQuadLeadingZerosPattern = @"(?<=^|\.)0+(?!\.|$)";
+
+        /// <summary>
+        ///     Regex pattern checking dotted-quad format: four groups of 1-3 digits separated by dots.
+        ///     Does not verify address validity (octet value range).
+        ///     Applied with <see cref="RegexOptions.CultureInvariant"/>.
+        /// </summary>
+        public const string DottedQuadRegularExpressionPattern = @"^[0-9]{1,3}(\.[0-9]{1,3}){3}$";
+
+        /// <summary>
+        ///     Regex pattern matching strings composed entirely of hexadecimal digits (0-9, a-f; allows empty string).
+        ///     Applied with <see cref="RegexOptions.IgnoreCase"/> and <see cref="RegexOptions.CultureInvariant"/>.
+        /// </summary>
+        public const string HexLikePattern = "^[0-9a-f]*$";
+
+        /// <summary>
+        ///     Bit width of an IPv4 address (32).
         /// </summary>
         public const int IPv4BitCount = 32;
 
         /// <summary>
-        ///     number of bytes in an IPv4 address (4)
+        ///     Byte width of an IPv4 address (4).
         /// </summary>
         public const int IPv4ByteCount = IPv4BitCount / BitsPerByte;
 
         /// <summary>
-        ///     number of octets in an IPv4 address
+        ///     Number of octets in an IPv4 dotted-quad address (4).
         /// </summary>
         public const int IPv4OctetCount = 4;
 
         /// <summary>
-        ///     number of bits in an IPv6 address
+        ///     Bit width of an IPv6 address (128).
         /// </summary>
         public const int IPv6BitCount = 128;
 
         /// <summary>
-        ///     number of bytes in an IPv6 address (16)
+        ///     Byte width of an IPv6 address (16).
         /// </summary>
         public const int IPv6ByteCount = IPv6BitCount / BitsPerByte;
 
         /// <summary>
-        ///     number of hextets in an IPv6 address
+        ///     Number of hextets in an IPv6 colon-hex address (8).
         /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         IPv6 colon-hex notation groups 128 bits into 8 16-bit hextets per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc4291#section-2.2">RFC 4291 §2.2</see>.
+        ///     </para>
+        /// </remarks>
         public const int IPv6HextetCount = 8;
 
-        private static readonly Regex HexLikeRegularExpression = new Regex(
+#if !NET7_0_OR_GREATER
+        private static readonly Regex HexLikeRegularExpression = new(
             HexLikePattern,
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant
         );
-        private static readonly Regex DottedQuadLeadingZerosRegularExpression = new Regex(
+#else
+        private static Regex HexLikeRegularExpression => GetHexLikeRegularExpression();
+
+        [GeneratedRegex(HexLikePattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex GetHexLikeRegularExpression();
+#endif
+
+#if !NET7_0_OR_GREATER
+        private static readonly Regex DottedQuadLeadingZerosRegularExpression = new(
             DottedQuadLeadingZerosPattern,
             RegexOptions.Compiled | RegexOptions.CultureInvariant
         );
-        private static readonly Regex DottedQuadStringRegularExpression = new Regex(
+#else
+        private static Regex DottedQuadLeadingZerosRegularExpression => GetDottedQuadLeadingZerosRegularExpression();
+
+        [GeneratedRegex(DottedQuadLeadingZerosPattern, RegexOptions.CultureInvariant)]
+        private static partial Regex GetDottedQuadLeadingZerosRegularExpression();
+#endif
+
+#if !NET7_0_OR_GREATER
+        private static readonly Regex DottedQuadStringRegularExpression = new(
             DottedQuadRegularExpressionPattern,
             RegexOptions.Compiled | RegexOptions.CultureInvariant
         );
+#else
+        private static Regex DottedQuadStringRegularExpression => GetDottedQuadStringRegularExpression();
+
+        [GeneratedRegex(DottedQuadRegularExpressionPattern, RegexOptions.CultureInvariant)]
+        private static partial Regex GetDottedQuadStringRegularExpression();
+#endif
 
         /// <summary>
-        ///     Maximum IPv4 Address value (255.255.255.255)
+        ///     Maximum IPv4 address: 255.255.255.255.
         /// </summary>
-        public static readonly IPAddress IPv4MaxAddress = new IPAddress(uint.MaxValue);
+        public static readonly IPAddress IPv4MaxAddress = new(uint.MaxValue);
 
         /// <summary>
-        ///     Minimum IPv4 Address value (0.0.0.0)
+        ///     Minimum IPv4 address: 0.0.0.0.
         /// </summary>
-        public static readonly IPAddress IPv4MinAddress = new IPAddress(0);
+        public static readonly IPAddress IPv4MinAddress = new(0);
 
         /// <summary>
-        ///     Maximum IPv6 value (ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff)
+        ///     Maximum IPv6 address: ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff.
         /// </summary>
-        public static readonly IPAddress IPv6MaxAddress = new IPAddress(
-            new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
+        public static readonly IPAddress IPv6MaxAddress = new(
+            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
             0L
         );
 
         /// <summary>
-        ///     Standard valid <see cref="AddressFamily" />
+        ///     The set of address families supported by Arcus.
         /// </summary>
-        public static readonly IReadOnlyCollection<AddressFamily> ValidAddressFamilies = new List<AddressFamily>
-        {
+        public static readonly AddressFamily[] ValidAddressFamilies =
+        [
             AddressFamily.InterNetwork,
             AddressFamily.InterNetworkV6,
-        }.AsReadOnly();
+        ];
 
         /// <summary>
-        ///     Minimum IPv6 value (::)
+        ///     Minimum IPv6 address: :: (all zeros).
         /// </summary>
-        public static readonly IPAddress IPv6MinAddress = new IPAddress(new byte[IPv6ByteCount], 0L);
+        public static readonly IPAddress IPv6MinAddress = new(new byte[IPv6ByteCount], 0L);
 
         #region Address Max / Minimum
 
@@ -103,15 +156,12 @@ namespace Arcus.Utilities
         /// <returns><see cref="IPv4MaxAddress"/> when <paramref name="addressFamily"/> is <see cref="AddressFamily.InterNetwork" /> or <see cref="IPv6MaxAddress"/> when <see cref="AddressFamily.InterNetworkV6" /> </returns>
         public static IPAddress MaxIPAddress(this AddressFamily addressFamily)
         {
-            switch (addressFamily)
+            return addressFamily switch
             {
-                case AddressFamily.InterNetwork:
-                    return IPv4MaxAddress;
-                case AddressFamily.InterNetworkV6:
-                    return IPv6MaxAddress;
-                default:
-                    throw new ArgumentException($"Unsupported address family \"{addressFamily}\"", nameof(addressFamily));
-            }
+                AddressFamily.InterNetwork => IPv4MaxAddress,
+                AddressFamily.InterNetworkV6 => IPv6MaxAddress,
+                _ => throw new ArgumentException($"Unsupported address family \"{addressFamily}\"", nameof(addressFamily)),
+            };
         }
 
         /// <summary>
@@ -122,15 +172,12 @@ namespace Arcus.Utilities
         /// <returns><see cref="IPv4MinAddress"/> when <paramref name="addressFamily"/> is <see cref="AddressFamily.InterNetwork" /> or <see cref="IPv6MinAddress"/> when <see cref="AddressFamily.InterNetworkV6" /> </returns>
         public static IPAddress MinIPAddress(this AddressFamily addressFamily)
         {
-            switch (addressFamily)
+            return addressFamily switch
             {
-                case AddressFamily.InterNetwork:
-                    return IPv4MinAddress;
-                case AddressFamily.InterNetworkV6:
-                    return IPv6MinAddress;
-                default:
-                    throw new ArgumentException($"Unsupported address family \"{addressFamily}\"", nameof(addressFamily));
-            }
+                AddressFamily.InterNetwork => IPv4MinAddress,
+                AddressFamily.InterNetworkV6 => IPv6MinAddress,
+                _ => throw new ArgumentException($"Unsupported address family \"{addressFamily}\"", nameof(addressFamily)),
+            };
         }
 
         #endregion // end: Address Max / Minimum
@@ -138,20 +185,20 @@ namespace Arcus.Utilities
         #region address family detection
 
         /// <summary>
-        ///     Test if address is IPv4
+        ///     Determines whether the address is an IPv4 address.
         /// </summary>
-        /// <param name="ipAddress">the IPAddress to test</param>
-        /// <returns>true if ipv4</returns>
+        /// <param name="ipAddress">The address to test.</param>
+        /// <returns><see langword="true" /> if the address is IPv4.</returns>
         public static bool IsIPv4(this IPAddress ipAddress)
         {
             return ipAddress != null && ipAddress.AddressFamily == AddressFamily.InterNetwork;
         }
 
         /// <summary>
-        ///     Test if address is IPv6
+        ///     Determines whether the address is an IPv6 address.
         /// </summary>
-        /// <param name="ipAddress">the IPAddress to test</param>
-        /// <returns>true if ipv6</returns>
+        /// <param name="ipAddress">The address to test.</param>
+        /// <returns><see langword="true" /> if the address is IPv6.</returns>
         public static bool IsIPv6(this IPAddress ipAddress)
         {
             return ipAddress != null && ipAddress.AddressFamily == AddressFamily.InterNetworkV6;
@@ -162,29 +209,59 @@ namespace Arcus.Utilities
         #region address format detection
 
         /// <summary>
-        ///     Check if address is IPv4 mapped to IPv6
-        ///     in accordance to rfc 4291 (https://tools.ietf.org/html/rfc4291) - 2.5.5.2.  IPv4-Mapped IPv6 Address
+        ///     Determines whether the address is an IPv4-mapped IPv6 address.
         /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         IPv4-Mapped IPv6 Address format per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc4291#section-2.5.5.2">RFC 4291 §2.5.5.2</see>:
+        ///         80 zero bits, 16 one-bits (<c>0xFFFF</c>), followed by the 32-bit IPv4 address.
+        ///     </para>
+        /// </remarks>
         /// <param name="ipAddress">the IPAddress to test</param>
         /// <returns>true if is an IPv4 address mapped to IPv6</returns>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
         public static bool IsIPv4MappedIPv6(this IPAddress ipAddress)
         {
-            if (ipAddress == null || !ipAddress.IsIPv6())
+            if (ipAddress?.IsIPv6() != true)
             {
                 return false;
             }
 
             var addressBytes = ipAddress.GetAddressBytes();
 
-            return addressBytes.Take(10).All(b => b == 0x00) && addressBytes[10] == 0xff && addressBytes[11] == 0xff;
+#if NET8_0_OR_GREATER
+            return addressBytes[11] == 0xff
+                && addressBytes[10] == 0xff
+                && addressBytes[0] == 0x00
+                && addressBytes[1] == 0x00
+                && addressBytes[2] == 0x00
+                && addressBytes[3] == 0x00
+                && addressBytes[4] == 0x00
+                && addressBytes[5] == 0x00
+                && addressBytes[6] == 0x00
+                && addressBytes[7] == 0x00
+                && addressBytes[8] == 0x00
+                && addressBytes[9] == 0x00;
+#else
+            return addressBytes.Take(10).All(byteValue => byteValue == 0x00)
+                && addressBytes[10] == 0xff
+                && addressBytes[11] == 0xff;
+#endif
         }
 
         /// <summary>
-        ///     Determine if the given <see cref="IPAddress" /> is a valid net mask
+        ///     Determines whether the given <see cref="IPAddress" /> is a valid IPv4 subnet mask.
         /// </summary>
-        /// <param name="netmask">the netmask to test</param>
-        /// <returns>true if the given input is a valid netmask</returns>
+        /// <remarks>
+        ///     <para>
+        ///         A valid subnet mask is a contiguous sequence of leading 1-bits followed by 0-bits per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc950#section-2">RFC 950 §2</see>.
+        ///         IPv4 only; returns <see langword="false" /> for IPv6 addresses.
+        ///     </para>
+        /// </remarks>
+        /// <param name="netmask">The mask to test.</param>
+        /// <returns><see langword="true" /> if the address is a valid IPv4 subnet mask.</returns>
         public static bool IsValidNetMask(this IPAddress netmask)
         {
             if (netmask == null || netmask.AddressFamily != AddressFamily.InterNetwork)
@@ -220,16 +297,18 @@ namespace Arcus.Utilities
         #region hex parsing
 
         /// <summary>
-        ///     Attempt to parse a hex input string as an IP Address of the given family
+        ///     Parses a hex string (optionally prefixed with "0x") as an IP address.
         /// </summary>
-        /// <param name="input">hex input</param>
-        /// <param name="addressFamily">address family</param>
-        /// <returns>IP Address, or <see langword="null" /> if parse fails</returns>
+        /// <param name="input">Hex input.</param>
+        /// <param name="addressFamily">Address family.</param>
+        /// <returns>
+        ///     IP Address, or <see langword="null" /> if parse fails.
+        /// </returns>
         public static IPAddress ParseFromHexString(string input, AddressFamily addressFamily)
         {
             #region defense
 
-            if (input == null)
+            if (input is null)
             {
                 throw new ArgumentNullException(nameof(input));
             }
@@ -249,42 +328,59 @@ namespace Arcus.Utilities
 
             #endregion // end: defense
 
-            // ignore "0x" prefix, and trim most significant 0s
+            // Ignore "0x" prefix and trim most significant zeros.
             var byteString = (
-                input.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? input.Substring(2, input.Length - 2) : input
+                input.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? input.Substring(2) : input
             ).TrimStart('0');
 
-            // if the byte string has an odd number of characters provide a single significant 0
-            if (byteString.Length % 2 != 0)
+            // Preserve a single "0" when the input was all zeros (TrimStart would otherwise empty the string).
+            if (byteString.Length == 0)
             {
-                byteString = "0" + byteString; // ensure string has an even number of characters, prefix with MSB 0
+                byteString = "0";
             }
 
-            // fail if the string is composed of non-valid hex characters
+            // If the byte string has an odd number of characters, provide a single significant 0.
+            if (byteString.Length % 2 != 0)
+            {
+                byteString = "0" + byteString;
+            }
+
+            // Fail if the string contains non-hex characters.
             if (!HexLikeRegularExpression.IsMatch(byteString))
             {
                 throw new ArgumentException($"{nameof(input)} is in an unexpected format", nameof(input));
             }
 
-            // for each i%2, convert i, i+1 into a byte, reverse, and convert into an array
+#if NET8_0_OR_GREATER
+            var bytes = Convert.FromHexString(byteString);
+            return Parse(bytes, addressFamily);
+#else
+            // Convert each pair of hex characters into a byte.
             var byteArray = Enumerable
                 .Range(0, byteString.Length / 2)
-                .Select(i => i * 2)
-                .Select(i => Convert.ToByte(byteString.Substring(i, 2), 16))
+                .Select(bytePairIndex => Convert.ToByte(byteString.Substring(bytePairIndex * 2, 2), 16))
                 .ToArray();
 
             return Parse(byteArray, addressFamily);
+#endif
         }
 
         /// <summary>
-        ///     Try to parse an IPv4 or IPv6 <paramref name="address" /> from string containing hex numbers (possibly prefixed by
-        ///     "0x")
+        ///     Attempts to parse a hex string as an IP address.
         /// </summary>
-        /// <param name="input">the string to attempt to parse</param>
-        /// <param name="addressFamily">the desired address family</param>
-        /// <param name="address">the address that was parsed</param>
-        /// <returns>true on success</returns>
+        /// <param name="input">The hex string (optionally prefixed with "0x").</param>
+        /// <param name="addressFamily">The desired address family.</param>
+        /// <param name="address">The parsed <see cref="IPAddress" />, or <see langword="null" /> on failure.</param>
+        /// <returns><see langword="true" /> if parsing succeeded.</returns>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        public static bool TryParseFromHexString(
+            string input,
+            AddressFamily addressFamily,
+            [NotNullWhen(true)] out IPAddress address
+        )
+#else
         public static bool TryParseFromHexString(string input, AddressFamily addressFamily, out IPAddress address)
+#endif
         {
             if (input == null)
             {
@@ -309,19 +405,22 @@ namespace Arcus.Utilities
         #region octal parsing
 
         /// <summary>
-        ///     Converts an IP address string to an <see cref="System.Net.IPAddress" /> instance ignoring leading zeros (octal
-        ///     notation) of dotted quad format.
+        ///     Parses an IP address string, stripping leading zeros from dotted-quad octets to avoid octal interpretation.
         /// </summary>
-        /// <param name="input">
-        ///     A string that contains an IP address in dotted-quad notation for IPv4 and in colon-hexadecimal
-        ///     notation for IPv6
-        /// </param>
-        /// <returns>An <see cref="System.Net.IPAddress" /> instance</returns>
+        /// <remarks>
+        ///     <para>
+        ///         IPv4 dotted-quad notation uses four decimal octets per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc791#section-2.3">RFC 791 §2.3</see>.
+        ///         Leading zeros in an octet are stripped before parsing to avoid unintended octal interpretation.
+        ///     </para>
+        /// </remarks>
+        /// <param name="input">The IP address string (dotted-quad for IPv4, colon-hex for IPv6).</param>
+        /// <returns>The parsed <see cref="IPAddress" />.</returns>
         public static IPAddress ParseIgnoreOctalInIPv4(string input)
         {
             #region defense
 
-            if (input == null)
+            if (input is null)
             {
                 throw new ArgumentNullException(nameof(input));
             }
@@ -342,14 +441,16 @@ namespace Arcus.Utilities
         }
 
         /// <summary>
-        ///     Converts an IP address string to an <see cref="System.Net.IPAddress" /> instance ignoring leading zeros (octal
-        ///     notation) of dotted
-        ///     quad format.
+        ///     Attempts to parse an IP address string, stripping leading zeros from dotted-quad octets.
         /// </summary>
-        /// <param name="input">The string to validate.</param>
-        /// <param name="address">The <see cref="System.Net.IPAddress" /> version of the string.</param>
-        /// <returns>true if ipString is a valid IP address; otherwise, false.</returns>
-        public static bool TryParseIgnoreOctalInIPv4(string input, out IPAddress address)
+        /// <param name="input">The IP address string.</param>
+        /// <param name="address">The parsed <see cref="IPAddress" />, or <see langword="null" /> on failure.</param>
+        /// <returns><see langword="true" /> if parsing succeeded.</returns>
+        public static bool TryParseIgnoreOctalInIPv4(string input,
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+            [NotNullWhen(true)]
+#endif
+            out IPAddress address)
         {
             if (input == null)
             {
@@ -374,30 +475,24 @@ namespace Arcus.Utilities
         #region Parse byte[]
 
         /// <summary>
-        ///     Convert bytes (big endian) to an IP Address providing 0x00 MSB bytes as needed
+        ///     Parses a big-endian byte array into an <see cref="IPAddress" />, zero-padding the MSB side as needed.
         /// </summary>
-        /// <param name="input">the big endian IPAddress</param>
-        /// <param name="addressFamily">the desired address family</param>
-        /// <returns>The parsed <see cref="IPAddress"/></returns>
+        /// <param name="input">The big-endian byte array.</param>
+        /// <param name="addressFamily">The target address family.</param>
+        /// <returns>The parsed <see cref="IPAddress"/>.</returns>
         public static IPAddress Parse(byte[] input, AddressFamily addressFamily)
         {
-            if (input == null)
+            if (input is null)
             {
                 throw new ArgumentNullException(nameof(input));
             }
 
-            int expectedByteCount;
-            switch (addressFamily)
+            var expectedByteCount = addressFamily switch
             {
-                case AddressFamily.InterNetwork:
-                    expectedByteCount = IPv4ByteCount;
-                    break;
-                case AddressFamily.InterNetworkV6:
-                    expectedByteCount = IPv6ByteCount;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(addressFamily));
-            }
+                AddressFamily.InterNetwork => IPv4ByteCount,
+                AddressFamily.InterNetworkV6 => IPv6ByteCount,
+                _ => throw new ArgumentOutOfRangeException(nameof(addressFamily)),
+            };
 
             if (input.Length > expectedByteCount)
             {
@@ -407,18 +502,28 @@ namespace Arcus.Utilities
                 );
             }
 
-            return new IPAddress(input.PadBigEndianMostSignificantBytes(expectedByteCount));
+            return new IPAddress(BigEndianBitWrapper.FromBytes(input, expectedByteCount).ToBytes());
         }
 
         /// <summary>
-        ///     Attempt to convert bytes (big endian) to IP address providing 0x00 MSB bytes as needed
+        ///     Attempts to parse a big-endian byte array into an <see cref="IPAddress" />.
         /// </summary>
-        /// <param name="input">the big endian IPAddress</param>
-        /// <param name="addressFamily">the desired address family</param>
-        /// <param name="address">the address on success</param>
-        /// <returns>true on success</returns>
+        /// <param name="input">The big-endian byte array.</param>
+        /// <param name="addressFamily">The target address family.</param>
+        /// <param name="address">The parsed <see cref="IPAddress"/>, or <see langword="null" /> on failure.</param>
+        /// <returns><see langword="true" /> if parsing succeeded.</returns>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        public static bool TryParse(byte[] input, AddressFamily addressFamily, [NotNullWhen(true)] out IPAddress address)
+#else
         public static bool TryParse(byte[] input, AddressFamily addressFamily, out IPAddress address)
+#endif
         {
+            if (input is null)
+            {
+                address = null;
+                return false;
+            }
+
             try
             {
                 address = Parse(input, addressFamily);
@@ -440,6 +545,12 @@ namespace Arcus.Utilities
         /// <summary>
         ///     Determines if an <see cref="IPAddress"/> is a private address.
         /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         Private address blocks (<c>10.0.0.0/8</c>, <c>172.16.0.0/12</c>, <c>192.168.0.0/16</c>, <c>fd00::/8</c>)
+        ///         are defined in <see href="https://www.rfc-editor.org/rfc/rfc1918#section-3">RFC 1918 §3</see>.
+        ///     </para>
+        /// </remarks>
         /// <param name="address">the input address</param>
         /// <returns><see langword="true"/> if, and only if, the <paramref name="address"/> is private.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="address"/> is <see langword="null"/></exception>

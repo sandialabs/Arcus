@@ -7,6 +7,9 @@ Useful Values
 ^^^^^^^^^^^^^
 Included within are some handy-dandy constant values and static readonly properties:
 
+:``string`` DottedQuadLeadingZerosPattern: Regex pattern matching leading zeros in each dotted-quad octet
+:``string`` DottedQuadRegularExpressionPattern: Regex pattern checking dotted-quad format
+:``string`` HexLikePattern: Regex pattern matching hexadecimal digit strings
 :``int`` IPv4BitCount: The number of bits in an IPv4 address (``32``)
 :``int`` IPv4ByteCount: The number of bytes in an IPv4 address (``4``)
 :``int`` IPv4OctetCount: The number of octets in an IPv4 address (``4``)

@@ -1,0 +1,38 @@
+# Pre-commit hook configuration.
+# Install with: pre-commit install
+# Run on all files: pre-commit run --all-files
+# Update hook versions: pre-commit autoupdate
+#
+# See https://pre-commit.com for more information.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=512]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        args: [--ignore-words-list=fo]
+        types_or: [csharp, python, javascript, ts, markdown, shell, yaml, json]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.44.0
+    hooks:
+      - id: markdownlint
+        args: [--disable, MD013]
+
+  - repo: local
+    hooks:
+      - id: csharpier
+        name: CSharpier
+        entry: dotnet csharpier
+        language: system
+        types: [csharp]
+        pass_filenames: false

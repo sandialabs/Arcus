@@ -1,26 +1,57 @@
+﻿###############################################################################
+# Git Attributes
+#
+# Normalize text files to LF in the repository. Git will handle conversion
+# during checkout as needed, while .editorconfig controls the editor behavior.
 ###############################################################################
-# Set default behavior to automatically normalize line endings.
-###############################################################################
-* text=auto
+
+* text=auto eol=lf
 
 ###############################################################################
-# Set default behavior for command prompt diff.
-#
-# This is need for earlier builds of msysgit that does not have it on by
-# default for csharp files.
-# Note: This is only used by command line
+# Language-specific diff drivers
 ###############################################################################
-*.cs     diff=csharp
+
+*.cs diff=csharp
 
 ###############################################################################
-# Set the merge driver for project and solution files
+# Merge behavior
 #
-# Merging from the command prompt will add diff markers to the files if there
-# are conflicts (Merging from VS is not affected by the settings below, in VS
-# the diff markers are never inserted). Diff markers may cause the following 
-# file extensions to fail to load in VS. An alternative would be to treat
-# these files as binary and thus will always conflict and require user
-# intervention with every merge. To do so, just uncomment the entries below
+# Prevent Git from inserting conflict markers into Visual Studio solution and
+# project files. These files require manual conflict resolution.
 ###############################################################################
-*.sln       merge=binary
-*.csproj    merge=binary
+
+*.sln     merge=binary
+*.csproj  merge=binary
+
+###############################################################################
+# Linux / Cross-platform files
+###############################################################################
+
+*.bash          text eol=lf
+*.editorconfig  text eol=lf
+*.sh            text eol=lf
+
+*.json          text eol=lf
+*.jsonc         text eol=lf
+*.md            text eol=lf
+*.xml           text eol=lf
+*.yaml          text eol=lf
+*.yml           text eol=lf
+
+Dockerfile      text eol=lf
+
+###############################################################################
+# Windows-native files
+###############################################################################
+
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+
+###############################################################################
+# PowerShell
+#
+# PowerShell fully supports LF, making it the preferred choice for
+# cross-platform repositories and devcontainers.
+###############################################################################
+
+*.ps1           text eol=lf

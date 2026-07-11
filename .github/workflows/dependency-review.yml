@@ -1,0 +1,28 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Review dependencies
+        uses: actions/dependency-review-action@v4
+        continue-on-error: true
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: true
+          # Suppress "unknown license" warnings — they are false positives:
+          #   1) GitHub Actions don't carry SPDX metadata the tool can read
+          #   2) Some preview NuGet packages lack modern <license> in nuspec
+          #   3) The Arcus smoke test references a placeholder version not on NuGet.org
+          allow-unknown-licenses: true

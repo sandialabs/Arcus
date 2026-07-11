@@ -1,7 +1,14 @@
 Glossary
 ========
 
+|version| v5.0.0
+
 .. glossary::
+
+   MaxEnumerationExponent
+    ``int`` property on all range types (introduced in v5.0.0). Controls the maximum enumeration size: ``ToIPAddresses()`` (and ``GetEnumerator()``, for backwards compatibility) yields at most ``2^MaxEnumerationExponent`` addresses. The default is 12 (4096 addresses). Values range from 0 (enumeration disabled) to 128 (practically unlimited). If a range exceeds this cap, ``InvalidOperationException`` is thrown.
+
+    **Why:** Prevents accidental enumeration of enormous address spaces (e.g., a ``/8`` IPv4 subnet has 16 million addresses).
 
    Arcus
     Arcus is the lesser known Roman equivalent of the Greek goddess Iris. She is the Olympian messenger god. You know, because IP Addresses and Subnets are all about sending messages. Rainbows are cool too.
@@ -19,22 +26,20 @@ Glossary
 
      `see Endianness on Wikipedia <https://en.wikipedia.org/wiki/Endianness>`_
 
-   Big-Endian
-    Big-Endian ordering, at times also referred to as *Network Byte Order*, is a left-to-right ordering of bytes where the left most bytes are most significant than right most.
+    Big-Endian
+     Big-Endian ordering, at times also referred to as *Network Byte Order*, is a left-to-right ordering of bytes where the left most bytes are most significant than right most.
 
-    For example, the decimal value of the unsigned integer ``6060842`` may be represented as ``0x5C7B2A`` in hexadecimal. This hexadecimal value is composed of the three bytes ``0x5C``, ``0x7B``, and ``0x28``. As such the value ``6060842`` may be represented in Big-Endian as a byte array of ``[0x5C, 0x7B, 0x2A]``.
+     For example, the decimal value of the unsigned integer ``6060842`` may be represented as ``0x5C7B2A`` in hexadecimal. This hexadecimal value is composed of the three bytes ``0x5C``, ``0x7B``, and ``0x28``. As such the value ``6060842`` may be represented in Big-Endian as a byte array of ``[0x5C, 0x7B, 0x2A]``.
 
-     `see Gulliver's What is Endianness <https://gulliver.readthedocs.io/en/latest/What-is-Endianness.html#what-is-endianness>`_
-
-   Gulliver
-     Gulliver is a C# utility package and library engineered for the manipulation of arbitrary sized byte arrays accounting for appropriate endianness and jagged byte length. It was developed by the same folks who created Arcus.
-
-     `see Gulliver on GitHub <https://github.com/sandialabs/gulliver>`_
+      `see Endianness on Wikipedia <https://en.wikipedia.org/wiki/Endianness>`_
 
    IP Address
     Short for **Internet Protocol Address** it is a numeric representation that typically comes in two flavors IPv4 and IPv6.
 
      `see IP Address on Wikipedia <https://en.wikipedia.org/wiki/IP_address>`_
+
+   ToIPAddresses
+    Method on :ref:`IIPAddressRange` (introduced in v5.0.0). Returns an ``IEnumerable<IPAddress>`` yielding addresses from ``Head`` to ``Tail``, capped at ``2^MaxEnumerationExponent``. Replaces the deprecated ``GetEnumerator()``. This will be the **only** enumeration method in v6.0.0.
 
    IPv4
     IPv4 is an IP Address that follows version 4 of the Internet Protocol. It is a 32-bit number, four bytes, with :math:`2^{32}` distinct addresses. IPv4 Addresses are typically represented in a format referred to as *Dotted Quad* or *Quad-dotted* in which the four bytes making the address are delimited by a period (*.*) character in decimal big-endian order, such as ``192.168.1.0``.

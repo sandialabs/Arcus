@@ -1,0 +1,12 @@
+name: "Arcus CodeQL Configuration"
+
+query-filters:
+  - exclude:
+      problem.severity:
+        - warning
+        - recommendation
+        - note
+
+paths-ignore:
+  - src/Arcus.Tests
+  - src/Arcus.Benchmarks

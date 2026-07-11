@@ -3,7 +3,7 @@
 name: Publish .NET Package
 
 permissions:
-  contents: read
+  contents: write
   packages: write
   pull-requests: write
 
@@ -28,30 +28,62 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Extract version
-        id: extract_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-
       - name: Restore .NET tools
         run: dotnet tool restore
-        working-directory: .
 
       - name: Restore dependencies
         run: dotnet restore
-        working-directory: ./src
 
       - name: Build
-        run: dotnet build ./src --no-restore --configuration Release /p:VersionFromCI=${{ env.VERSION }}
+        run: dotnet build --no-restore --configuration Release /p:VersionFromCI=${{ github.ref_name }}
 
       - name: Pack
-        run: dotnet pack ./src/Arcus/Arcus.csproj --configuration Release --no-build --output ./packages /p:VersionFromCI=${{ env.VERSION }}
+        run: dotnet pack src/Arcus/Arcus.csproj --configuration Release --no-build --output packages /p:VersionFromCI=${{ github.ref_name }}
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          dotnet tool install --global CycloneDX --version 3.*
+          dotnet-cyclonedx packages/ -o packages/ --output-format json
+          echo "SBOM generated:"
+          ls packages/*.json
+
+      - name: Upload NuGet packages and SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            packages/*.nupkg
+            packages/*.json
+            packages/*.xml
+          retention-days: 90
 
       - name: Publish to GitHub Packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet nuget push ./packages/*.nupkg --source "https://nuget.pkg.github.com/sandialabs/index.json" --api-key $GITHUB_TOKEN --skip-duplicate
+        run: dotnet nuget push ./packages/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository }}/index.json" --api-key $GITHUB_TOKEN --skip-duplicate
 
       - name: Publish to nuget.org
         env:
           NUGET_ORG_APIKEY: ${{ secrets.NUGET_ORG_APIKEY }}
         run: dotnet nuget push ./packages/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key $NUGET_ORG_APIKEY --skip-duplicate
+
+      - name: Generate release body
+        run: |
+          VERSION="${{ github.ref_name }}"
+          TAG="${{ github.ref_name }}"
+          # Extract section from CHANGELOG.md for this version, or fall back to commit log
+          if grep -q "## \[$VERSION\]" CHANGELOG.md 2>/dev/null; then
+            awk "/^## \[$VERSION\]/,/^## \[/{ if (!/^## \[/) print }" CHANGELOG.md | head -n -1 > release_body.md
+          else
+            echo "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for release notes." > release_body.md
+          fi
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --title "v${{ github.ref_name }}" \
+            --notes-file release_body.md \
+            ./packages/*.nupkg

@@ -3,16 +3,29 @@
 IIPAddressRange
 ===============
 
-Arcus defines the ``IIPAddressRange`` interface for representation of consecutive ``IPAddress`` objects. It implements both ``IFormattable`` and ``IEnumerable<IPAddress>``.
+|version| v5.0.0
 
+Arcus defines the ``IIPAddressRange`` interface for representation of consecutive ``IPAddress`` objects. It implements ``IFormattable``.
 
-.. caution:: ``IIPAddressRange`` implements ``IEnumerable<IPAddress>``, this means that you should pay particular attention when you may be iterating over large ranges. Such as the full set of IPv6 addresses, which will take a while. A long while. It isn't recommended.
+.. warning::
+
+   **Will be removed in v6.0.0:** ``IIPAddressRange`` currently implements ``IEnumerable<IPAddress>`` for backwards compatibility, but this will be **removed in v6.0.0**.
+
+   **Why:** The ``IEnumerable<IPAddress>`` interface makes it too easy to accidentally enumerate astronomically large address spaces. Even with the enumeration cap, the interface contract itself encourages direct ``foreach`` usage that is semantically misleading — iterating over billions of items is rarely the intent.
+
+   **Migration:** Replace ``foreach (var addr in range)`` with ``foreach (var addr in range.ToIPAddresses())`` now. This produces no warnings in v5 and will be **required** in v6.0.0.
+
+   .. seealso:: :ref:`ToIPAddresses` for the replacement enumeration method.
 
 .. hint:: When dealing with more than one ``IPAddress`` or multiple implementations of ``IIPAddressRange`` unless otherwise explicitly stated their ``AddressFamily``, or equivalent properties, **must** match.
 
 .. hint:: ``AddressFamily`` unless otherwise explicitly stated are expected to be either ``InterNetwork`` or ``InterNetworkV6``.
 
 ``IIPAddressRange`` is implemented by :ref:`AbstractIPAddressRange`, :ref:`IPAddressRange`, and :ref:`Subnet`.
+
+.. note::
+
+   **New in v5.0.0:** All range types now accept an optional ``maxEnumerationExponent`` parameter (default 12) that caps enumeration at ``2^maxEnumerationExponent`` addresses (4096 by default). This prevents accidental enumeration of enormous address spaces. See :ref:`ToIPAddresses` for details.
 
 Functionality Promises
 ----------------------
@@ -28,7 +41,29 @@ Properties
 :``bool`` IsIPv6: Returns ``true`` if, and only if, the range is IPv6
 :``bool`` IsSingleIP: Returns ``true`` if, and only if, the range is comprised of only a single ``IPAddress``
 :``BigInteger`` Length: The number of ``IPAddress`` within the range
+:``int`` MaxEnumerationExponent: The exponent controlling the enumeration cap (0–128). Enumeration via ``ToIPAddresses()`` yields at most ``2^MaxEnumerationExponent`` addresses. Default is 12 (4096 addresses).
 :``IPAddress`` Tail: The last ``IPAddress`` within the range
+
+Enumeration via ToIPAddresses
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _ToIPAddresses:
+
+**New in v5.0.0:** The ``ToIPAddresses()`` method returns an ``IEnumerable<IPAddress>`` yielding addresses from ``Head`` to ``Tail``, capped at ``2^MaxEnumerationExponent``. This is the recommended way to enumerate range addresses in v5 and will be the **only** way in v6.0.0.
+
+.. code-block:: c#
+
+   IEnumerable<IPAddress> ToIPAddresses();
+
+.. caution::
+
+   If the range contains more addresses than the cap allows, ``InvalidOperationException`` is thrown at the point the limit is exceeded. Increase ``maxEnumerationExponent`` at construction time to enumerate larger ranges. A value of ``0`` disables enumeration entirely; ``128`` allows enumeration up to the full IPv6 space.
+
+.. warning::
+
+   **Obsolete in v5.0.0, will be removed in v6.0.0:** The ``GetEnumerator()`` method is now ``[Obsolete("Use ToIPAddresses() instead")]``. It still works by delegating to ``ToIPAddresses()`` but produces a compile-time warning.
+
+   Replace all uses of ``foreach (var addr in range)`` with ``foreach (var addr in range.ToIPAddresses())`` now to prepare for v6.0.0.
 
 Set Based Operations
 ^^^^^^^^^^^^^^^^^^^^

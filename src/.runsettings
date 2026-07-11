@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- xUnit v3 configuration -->
+  <RunConfiguration>
+    <MaxCpuCount>0</MaxCpuCount>
+  </RunConfiguration>
+
+  <!-- Code coverage via dotnet-coverage (used in CI) -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <ModulePaths>
+            <Exclude>
+              <ModulePath>.*\.Tests\.dll</ModulePath>
+              <ModulePath>.*\.Benchmarks\.dll</ModulePath>
+              <ModulePath>xunit\.execution\.*</ModulePath>
+              <ModulePath>xunit\.v3\.*</ModulePath>
+              <ModulePath>NSubstitute\.*</ModulePath>
+            </Exclude>
+          </ModulePaths>
+          <UseSourceLink>true</UseSourceLink>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

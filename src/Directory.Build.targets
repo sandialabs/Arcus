@@ -1,0 +1,17 @@
+<Project>
+
+  <!-- Project-type conventions based on folder/name suffix, so individual
+       .csproj files don't need to repeat this. Adjust the Condition checks
+       if your naming suffixes differ. -->
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Benchmarks'))">
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+</Project>

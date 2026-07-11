@@ -17,7 +17,7 @@ That's roughly :math:`3.4\times10^{38}` addresses.
 
 340 undecillion 282 decillion 366 nonillion 920 octillion 938 septillion 463 sextillion 463 quintillion 374 quadrillion 607 trillion 431 billion 768 million 211 thousand 456 to be exact.
 
-Let's face it, arbitrary numbers much bigger than 7 are hard to conceptualize for some of us [#SevenIsHard]_. I personally get lost after three-ish. The awe inspiring scale of IPv6 is much bigger than 3, at least double, probably even over triple that. It is so big we had to jump through some hoops to make C# do the math necessary. This is why both the Arcus and `Gulliver <https://github.com/sandialabs/gulliver>`_ libraries now exist.
+Let's face it, arbitrary numbers much bigger than 7 are hard to conceptualize for some of us [#SevenIsHard]_. I personally get lost after three-ish. The awe inspiring scale of IPv6 is much bigger than 3, at least double, probably even over triple that. It is so big we had to jump through some hoops to make C# do the math necessary. This is why Arcus exists.
 
 As a thought exercise let's try to visualize the mighty scale of IPv6.
 

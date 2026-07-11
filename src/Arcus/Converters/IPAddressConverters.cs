@@ -1,44 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Numerics;
-using System.Text.RegularExpressions;
 using Arcus.Utilities;
-using Gulliver;
+#if !NET8_0_OR_GREATER
+using System.Numerics;
+#endif
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Arcus.Converters
 {
     /// <summary>
-    ///     Static utility class containing conversion methods for converting <see cref="IPAddress" /> objects into something
-    ///     else
+    ///     Static utility class providing extension methods for converting <see cref="IPAddress" /> objects.
     /// </summary>
     public static class IPAddressConverters
     {
         #region integral conversion
 
         /// <summary>
-        ///     Convert a valid netmask (encoded as <see cref="IPAddress" />) into a CIDR route prefix
-        ///     Only valid for IPv4 netmasks
+        ///     Converts a valid IPv4 subnet mask to a CIDR route prefix length.
         /// </summary>
-        /// <param name="netmask">the netmask to convert</param>
-        /// <returns>the route prefix</returns>
-        /// <exception cref="InvalidOperationException"><paramref name="netmask" /> is <see langword="null" />.</exception>
-        /// <exception cref="InvalidOperationException">not a valid netmask</exception>
+        /// <remarks>
+        ///     <para>
+        ///         The netmask must be a contiguous sequence of leading 1-bits per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc950#section-2">RFC 950 §2</see>.
+        ///         The resulting integer is the CIDR prefix length per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc4632#section-2">RFC 4632 §2</see>.
+        ///     </para>
+        /// </remarks>
+        /// <param name="netmask">The subnet mask to convert (IPv4 only).</param>
+        /// <returns>The CIDR route prefix length (0-32).</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="netmask" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentException"><paramref name="netmask" /> is not a valid subnet mask.</exception>
         public static int NetmaskToCidrRoutePrefix(this IPAddress netmask)
         {
             #region defense
 
-            if (netmask == null)
+            if (netmask is null)
             {
                 throw new ArgumentNullException(nameof(netmask));
             }
 
             if (!netmask.IsValidNetMask())
             {
-                throw new InvalidOperationException("not a valid netmask");
+                throw new ArgumentException("The provided address is not a valid netmask.", nameof(netmask));
             }
 
             #endregion // end: defense
@@ -67,131 +73,287 @@ namespace Arcus.Converters
         #region string conversion
 
         /// <summary>
-        ///     IPv6 to Base85 (will return empty string for non ipv6 addresses) AKA Ascii85
-        ///     from RFC 1924 ( http://tools.ietf.org/html/rfc1924 )
-        ///     <remarks>
-        ///         <para>The RFC is an April Fools Day Joke, but we implemented it anyhow</para>
-        ///     </remarks>
+        ///     Converts an IPv6 address to a Base85 (Ascii85) string per RFC 1924.
         /// </summary>
-        /// <param name="ipAddress">the ip address to convert</param>
-        /// <returns>Ascii85/Base85 representation of IPv6 Address, or an empty string on failure</returns>
+        /// <remarks>
+        ///     <para>
+        ///         Encoding defined in <see href="https://www.rfc-editor.org/rfc/rfc1924">RFC 1924</see>
+        ///         (an April Fools Day joke, but implemented here regardless).
+        ///     </para>
+        /// </remarks>
+        /// <param name="ipAddress">The IPv6 address to convert.</param>
+        /// <returns>Base85 representation, or <see langword="null" /> if the address is not IPv6.</returns>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        [return: MaybeNull]
+#endif
         public static string ToBase85String(this IPAddress ipAddress)
         {
-            if (ipAddress == null || !ipAddress.IsIPv6())
+            if (ipAddress?.IsIPv6() is not true)
             {
                 return null;
             }
 
-            return string.Concat(GetBase85Chars(ipAddress).Reverse()).PadLeft(20, '0');
+            const string base85Alphabet =
+                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
+            var chars = new char[20];
+            var addressBytes = ipAddress.GetAddressBytes();
 
-#if NET6_0_OR_GREATER
-            static
-#endif
-            IEnumerable<char> GetBase85Chars(IPAddress input)
+#if NET8_0_OR_GREATER
+            ulong high = 0;
+            ulong low = 0;
+            for (var i = 0; i < 8; i++)
             {
-                const string alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
-
-                // get little endian unsigned byte value
-                var addressBytes = input.GetAddressBytes().Reverse().ToList();
-
-                addressBytes.Add(0x00);
-
-                // either rely on BigInteger, or implement byte based modulus and division
-                var bigInteger = new BigInteger(addressBytes.ToArray());
-
-                do
-                {
-                    bigInteger = BigInteger.DivRem(bigInteger, 85, out var charIndex);
-                    yield return alphabet[(int)charIndex];
-                } while (bigInteger > 0);
+                high = (high << 8) | addressBytes[i];
             }
+
+            for (var i = 8; i < 16; i++)
+            {
+                low = (low << 8) | addressBytes[i];
+            }
+
+            var value128 = new UInt128(high, low);
+            for (var i = 19; i >= 0; i--)
+            {
+                (value128, var remainder) = UInt128.DivRem(value128, 85);
+                chars[i] = base85Alphabet[(int)remainder];
+            }
+#else
+            var leBytes = new byte[17]; // zero-initialized; index 16 stays 0 (sign byte)
+            for (var i = 0; i < 16; i++)
+            {
+                leBytes[i] = addressBytes[15 - i];
+            }
+
+            var value = new BigInteger(leBytes);
+            for (var i = 19; i >= 0; i--)
+            {
+                value = BigInteger.DivRem(value, 85, out var remainder);
+                chars[i] = base85Alphabet[(int)remainder];
+            }
+#endif
+
+            return new string(chars);
         }
 
         /// <summary>
-        ///     Represent address as dotted quad (if not ipv6 simply return stringified version of input)
+        ///     Converts an IP address to dotted-quad notation (IPv4), or mixed IPv6/IPv4 notation for IPv4-mapped IPv6 addresses.
         /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         IPv4 dotted-quad notation (four decimal octets separated by dots) per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc791#section-2.3">RFC 791 §2.3</see>.
+        ///     </para>
+        ///     <para>
+        ///         For IPv6 addresses the first 96 bits (6 hextets) are rendered in compressed IPv6 notation -
+        ///         the longest consecutive run of zero-valued hextets is collapsed to <c>::</c> per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc5952#section-4">RFC 5952 §4</see> - followed
+        ///         by the trailing 32 bits as an IPv4 dotted-quad suffix.
+        ///     </para>
+        /// </remarks>
         /// <param name="ipAddress">the ip address to convert</param>
         /// <returns>dotted quad version of the given address</returns>
         /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        [return: NotNullIfNotNull(nameof(ipAddress))]
+#endif
         public static string ToDottedQuadString(this IPAddress ipAddress)
         {
-            if (ipAddress == null)
+            if (ipAddress?.IsIPv6() is not true)
             {
-                return null;
+                return ipAddress?.ToString();
             }
 
-            if (!ipAddress.IsIPv6())
+#if NET8_0_OR_GREATER
+            Span<byte> addressBytes = stackalloc byte[16];
+            if (!ipAddress.TryWriteBytes(addressBytes, out var bytesWritten) || bytesWritten != 16)
             {
                 return ipAddress.ToString();
             }
+            Span<ushort> hextets = stackalloc ushort[6];
+#else
+            var addressBytes = ipAddress.GetAddressBytes();
+            var hextets = new ushort[6];
+#endif
 
-            // TODO candidate for clean up / simplification
-            var bytes = ipAddress.GetAddressBytes(); // get the bytes of the ip address
-
-            var leadingBytes = bytes.Take(12).ToArray(); // capture the non ipv4 bytes
-
-            var hextets = Enumerable
-                .Range(0, 6)
-                .Select(i =>
-                {
-                    var index = i * 2;
-                    return new byte[] { leadingBytes[index + 1], leadingBytes[index], 0x0, 0x0 };
-                }) // get bytes in pairs with leading 0's to force unsigned form
-                .Select(bs => BitConverter.ToInt32(bs, 0)) // convert byte pairs to 16 bit integers
-                .Select(i => $"{i:x}"); // combine bytes to a hex string
-
-            var hextetString = string.Join(":", hextets); // join the hextets on a colon
-
-            var longestMatch = new Regex(@"((:|\b)0\b)+") // find 0's surrounded by colons or word breaks
-                .Matches(hextetString) // match across the hextet string
-                .Cast<Match>()
-                .Select(match => match.Value) // get the match value
-                .OrderByDescending(s =>
-                    s?.StartsWith("0", StringComparison.OrdinalIgnoreCase) == true ? s.Length + 1 : s.Length
-                ) // order by length accounting for matches at beginning of string
-                .FirstOrDefault(); // find the longest span of 0 valued hextets, or null if one does not exist
-
-            if (longestMatch != null)
+            for (var i = 0; i < 6; i++)
             {
-                // get the first index of the longest match
-                var index = hextetString.IndexOf(longestMatch, StringComparison.Ordinal);
-                hextetString = hextetString.Remove(index, longestMatch.Length).Insert(index, ":"); // replace first occurrence with a ":" char
+                hextets[i] = (ushort)((addressBytes[i * 2] << 8) | addressBytes[(i * 2) + 1]);
             }
 
-            var followingBytes = bytes.Skip(12).ToArray(); // capture IPv4 bytes (last 4)
-            var ipv4Address = new IPAddress(followingBytes).ToString();
+            var (bestStart, bestLen) = FindLongestZeroRun(hextets);
 
-            return hextetString + ":" + ipv4Address;
+#if NET8_0_OR_GREATER
+            Span<char> hexBuffer = stackalloc char[4];
+#endif
+
+            var sb = new System.Text.StringBuilder(45);
+#if NET8_0_OR_GREATER
+            AppendIPv6Prefix(sb, hextets, bestStart, bestLen, hexBuffer);
+#else
+            AppendIPv6Prefix(sb, hextets, bestStart, bestLen);
+#endif
+
+            sb.Append(addressBytes[12]);
+            sb.Append('.');
+            sb.Append(addressBytes[13]);
+            sb.Append('.');
+            sb.Append(addressBytes[14]);
+            sb.Append('.');
+            sb.Append(addressBytes[15]);
+
+            return sb.ToString();
+
+#if NET8_0_OR_GREATER
+            static (int BestStart, int BestLen) FindLongestZeroRun(ReadOnlySpan<ushort> hextets)
+#else
+            static (int BestStart, int BestLen) FindLongestZeroRun(ushort[] hextets)
+#endif
+            {
+                var bestStart = -1;
+                var bestLength = 0;
+                var runStart = -1;
+                var runLength = 0;
+
+                for (var i = 0; i < 6; i++)
+                {
+                    if (hextets[i] == 0)
+                    {
+                        if (runStart < 0)
+                        {
+                            runStart = i;
+                        }
+
+                        runLength++;
+                        if (runLength > bestLength)
+                        {
+                            bestStart = runStart;
+                            bestLength = runLength;
+                        }
+                    }
+                    else
+                    {
+                        runStart = -1;
+                        runLength = 0;
+                    }
+                }
+
+                return (bestStart, bestLength);
+            }
+
+#if NET8_0_OR_GREATER
+            static void AppendIPv6Prefix(
+                System.Text.StringBuilder sb,
+                ReadOnlySpan<ushort> hextets,
+                int bestStart,
+                int bestLen,
+                Span<char> hexBuffer
+            )
+#else
+            static void AppendIPv6Prefix(System.Text.StringBuilder sb, ushort[] hextets, int bestStart, int bestLen)
+#endif
+            {
+                if (bestLen <= 0)
+                {
+#if NET8_0_OR_GREATER
+                    AppendHextetRange(sb, hextets, 0, 6, hexBuffer);
+#else
+                    AppendHextetRange(sb, hextets, 0, 6);
+#endif
+                    sb.Append(':');
+                    return;
+                }
+
+#if NET8_0_OR_GREATER
+                AppendHextetRange(sb, hextets, 0, bestStart, hexBuffer);
+#else
+                AppendHextetRange(sb, hextets, 0, bestStart);
+#endif
+                sb.Append("::");
+
+                var afterRunEnd = bestStart + bestLen;
+#if NET8_0_OR_GREATER
+                AppendHextetRange(sb, hextets, afterRunEnd, 6, hexBuffer);
+#else
+                AppendHextetRange(sb, hextets, afterRunEnd, 6);
+#endif
+
+                if (afterRunEnd < 6)
+                {
+                    sb.Append(':');
+                }
+            }
+
+#if NET8_0_OR_GREATER
+            static void AppendHextetRange(
+                System.Text.StringBuilder sb,
+                ReadOnlySpan<ushort> hextets,
+                int from,
+                int to,
+                Span<char> hexBuffer
+            )
+#else
+            static void AppendHextetRange(System.Text.StringBuilder sb, ushort[] hextets, int from, int to)
+#endif
+            {
+                for (var i = from; i < to; i++)
+                {
+                    if (i > from)
+                    {
+                        sb.Append(':');
+                    }
+#if NET8_0_OR_GREATER
+                    hextets[i].TryFormat(hexBuffer, out var charsWritten, "x");
+                    sb.Append(hexBuffer[..charsWritten]);
+#else
+                    sb.Append(hextets[i].ToString("x"));
+#endif
+                }
+            }
         }
 
         /// <summary>
-        ///     Short hex value
+        ///     Converts an IP address to an uppercase hexadecimal string with no separators.
         /// </summary>
-        /// <param name="ipAddress">the ip address to convert</param>
-        /// <returns>Hex version of the given IP Address</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
+        /// <param name="ipAddress">The address to convert.</param>
+        /// <returns>Hex string (e.g., "C0A80101" for 192.168.1.1), or <see langword="null" /> if input is <see langword="null" />.</returns>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        [return: NotNullIfNotNull(nameof(ipAddress))]
+#endif
         public static string ToHexString(this IPAddress ipAddress)
         {
-            return ipAddress?.GetAddressBytes().ToString("HC", CultureInfo.InvariantCulture);
+            return ipAddress == null ? null : BigEndianBitWrapper.FromBytes(ipAddress.GetAddressBytes()).ToHexString();
         }
 
         /// <summary>
-        ///     Convert an <see cref="IPAddress" /> to a numeric representation
+        ///     Converts an IP address to its decimal numeric string representation.
         /// </summary>
-        /// <param name="ipAddress">The ip address to convert</param>
-        /// <returns>an integral representation of the IP address</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
+        /// <param name="ipAddress">The address to convert.</param>
+        /// <returns>Decimal string of the unsigned integer value, or <see langword="null" /> if input is <see langword="null" />.</returns>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        [return: NotNullIfNotNull(nameof(ipAddress))]
+#endif
         public static string ToNumericString(this IPAddress ipAddress)
         {
-            return ipAddress?.GetAddressBytes().ToString("IBE", CultureInfo.InvariantCulture);
+            return ipAddress == null ? null : BigEndianBitWrapper.FromBytes(ipAddress.GetAddressBytes()).ToDecimalString();
         }
 
         /// <summary>
-        ///     Convert to uncompressed IPv4/IPv6, adding zeros or expanding '::' where appropriate
+        ///     Converts an IP address to its fully-expanded (uncompressed) string form.
         /// </summary>
-        /// <param name="ipAddress">the address to expand</param>
-        /// <returns>the expanded for of IPv4/IPv6, or ToString() otherwise</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="ipAddress" /> is <see langword="null" />.</exception>
+        /// <remarks>
+        ///     <para>
+        ///         For IPv6, produces the fully-expanded form (no <c>::</c> compression, all hextets zero-padded to 4 digits),
+        ///         which is the inverse of the compressed form defined in
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc5952#section-4">RFC 5952 §4</see>.
+        ///         For IPv4, produces three-digit zero-padded dotted-quad per
+        ///         <see href="https://www.rfc-editor.org/rfc/rfc791#section-2.3">RFC 791 §2.3</see>.
+        ///     </para>
+        /// </remarks>
+        /// <param name="ipAddress">The address to expand.</param>
+        /// <returns>The expanded string form, or <see langword="null" /> if input is <see langword="null" />.</returns>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        [return: NotNullIfNotNull(nameof(ipAddress))]
+#endif
         public static string ToUncompressedString(this IPAddress ipAddress)
         {
             if (ipAddress == null)
@@ -199,19 +361,16 @@ namespace Arcus.Converters
                 return null;
             }
 
-            switch (ipAddress.AddressFamily)
+            return ipAddress.AddressFamily switch
             {
-                case AddressFamily.InterNetwork:
-                    return IPv4ToString();
-                case AddressFamily.InterNetworkV6:
-                    return IPv6ToString();
-                default:
-                    return ipAddress.ToString(); // all else treat as to string
-            }
+                AddressFamily.InterNetwork => IPv4ToString(),
+                AddressFamily.InterNetworkV6 => IPv6ToString(),
+                _ => ipAddress.ToString(), // all else treat as to string
+            };
 
             string IPv4ToString()
             {
-                var octets = ipAddress.GetAddressBytes().Select(b => $"{b:D3}");
+                var octets = ipAddress.GetAddressBytes().Select(octet => $"{octet:D3}");
 
                 return string.Join(".", octets); // join padded strings with '.' character
             }
@@ -219,13 +378,33 @@ namespace Arcus.Converters
             string IPv6ToString()
             {
                 var addressBytes = ipAddress.GetAddressBytes();
+#if NET8_0_OR_GREATER
+                const string hexDigits = "0123456789abcdef";
+                Span<char> chars = stackalloc char[(IPAddressUtilities.IPv6HextetCount * 5) - 1];
 
+                var pos = 0;
+                for (var i = 0; i < IPAddressUtilities.IPv6HextetCount; i++)
+                {
+                    if (i > 0)
+                    {
+                        chars[pos++] = ':';
+                    }
+                    var hiByte = addressBytes[i * 2];
+                    var loByte = addressBytes[(i * 2) + 1];
+                    chars[pos++] = hexDigits[hiByte >> 4];
+                    chars[pos++] = hexDigits[hiByte & 0x0F];
+                    chars[pos++] = hexDigits[loByte >> 4];
+                    chars[pos++] = hexDigits[loByte & 0x0F];
+                }
+                return new string(chars);
+#else
                 var hextets = Enumerable
                     .Range(0, IPAddressUtilities.IPv6HextetCount)
-                    .Select(i => i * 2)
-                    .Select(i => $"{addressBytes[i]:x2}{addressBytes[i + 1]:x2}");
+                    .Select(hextetIndex => hextetIndex * 2)
+                    .Select(byteOffset => $"{addressBytes[byteOffset]:x2}{addressBytes[byteOffset + 1]:x2}");
 
                 return string.Join(":", hextets);
+#endif
             }
         }
 

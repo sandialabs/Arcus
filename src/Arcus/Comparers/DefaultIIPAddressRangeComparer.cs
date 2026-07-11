@@ -1,19 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
 using System.Net;
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Arcus.Comparers
 {
     /// <summary>
-    ///     Default <see cref="IIPAddressRange" /> <see cref="Comparer{T}" />
-    ///     Compares by <see cref="IIPAddressRange.Head" /> and then by range length ordinal
+    ///     Default <see cref="Comparer{IIPAddressRange}" /> for <see cref="IIPAddressRange" />.
+    ///     Compares by <see cref="IIPAddressRange.Head" /> first, then by <see cref="IIPAddressRange.Length" />
+    ///     as a tiebreaker.
     /// </summary>
-    public class DefaultIIPAddressRangeComparer : Comparer<IIPAddressRange>
+#pragma warning disable S101 // Types should be named in PascalCase
+    public sealed class DefaultIIPAddressRangeComparer : Comparer<IIPAddressRange>
+#pragma warning restore S101 // Types should be named in PascalCase
     {
         /// <summary>
-        ///     Default instance of <see cref="DefaultIIPAddressRangeComparer"/> using <see cref="DefaultIPAddressComparer.Instance"/>
+        ///     Default singleton instance using <see cref="DefaultIPAddressComparer.Instance"/>.
         /// </summary>
-        public static readonly DefaultIIPAddressRangeComparer Instance = new DefaultIIPAddressRangeComparer();
+        public static readonly DefaultIIPAddressRangeComparer Instance = new();
 
         private readonly IComparer<IPAddress> _ipAddressComparer;
 
@@ -29,13 +34,20 @@ namespace Arcus.Comparers
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DefaultIIPAddressRangeComparer" /> class.
-        ///     Defaults to use the DefaultIIPAddressComparer
         /// </summary>
         public DefaultIIPAddressRangeComparer()
             : this(DefaultIPAddressComparer.Instance) { }
 
         /// <inheritdoc />
-        public override int Compare(IIPAddressRange x, IIPAddressRange y)
+        public override int Compare(
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+            [AllowNull]
+#endif
+            IIPAddressRange x,
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+            [AllowNull]
+#endif
+            IIPAddressRange y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -51,6 +63,8 @@ namespace Arcus.Comparers
             {
                 return 1;
             }
+
+            Debug.Assert(x.Head is not null && y.Head is not null, "IIPAddressRange.Head is contractually non-null.");
 
             var headComparison = this._ipAddressComparer.Compare(x.Head, y.Head);
             return headComparison != 0 ? headComparison : x.Length.CompareTo(y.Length);

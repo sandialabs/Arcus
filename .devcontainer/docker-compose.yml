@@ -1,0 +1,26 @@
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+
+    volumes:
+      # Persist NuGet packages between rebuilds.
+      - nuget-cache:/home/vscode/.nuget/packages
+
+      # Mount the repository into the container.
+      - ..:/workspace:cached
+
+    working_dir: /workspace
+
+    init: true
+    stdin_open: true
+    tty: true
+
+    environment:
+      DOTNET_NOLOGO: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      NUGET_XMLDOC_MODE: "skip"
+      
+volumes:
+  nuget-cache:

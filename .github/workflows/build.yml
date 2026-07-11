@@ -13,9 +13,17 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     env:
       HUSKY: 0  # don't run husky.net hooks
 
@@ -26,22 +34,59 @@ jobs:
       - name: Setup .NET SDKs
         uses: actions/setup-dotnet@v5
         with:
-          # .net 4.8.x is included by default in windows-latest
           dotnet-version: |
             8.0.x
             9.0.x
             10.0.x
 
+      - name: NuGet cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Restore .NET tools
         run: dotnet tool restore
-        working-directory: .
 
       - name: Restore dependencies
         run: dotnet restore
-        working-directory: ./src
 
       - name: Build
-        run: dotnet build ./src --no-restore -p:VersionFromCI="0.0.0-cibuild"
+        run: dotnet build --no-restore -p:VersionFromCI="0.0.0-cibuild"
 
-      - name: Test
-        run: dotnet test ./src --no-build --verbosity normal
+      - name: Test (Ubuntu — net8.0)
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet test --no-build --verbosity normal --logger trx --framework net8.0
+
+      - name: Test (Ubuntu — net9.0)
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet test --no-build --verbosity normal --logger trx --framework net9.0
+
+      - name: Test with coverage (Ubuntu — net10.0)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          dotnet tool install --global dotnet-coverage
+          dotnet-coverage collect "dotnet test --no-build --verbosity normal --logger trx --framework net10.0" -f cobertura -o coverage/cobertura.xml
+
+      - name: Test (Windows — all TFMs including net48)
+        if: matrix.os == 'windows-latest'
+        run: dotnet test --no-build --verbosity normal --logger trx
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ runner.os }}
+          path: '**/TestResults/*.trx'
+          retention-days: 30
+
+      - name: Upload coverage results
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: coverage/
+          retention-days: 30
+

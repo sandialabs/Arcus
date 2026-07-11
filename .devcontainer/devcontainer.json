@@ -1,0 +1,156 @@
+{
+	// Display name shown in VS Code.
+	"name": "${localWorkspaceFolderBasename}",
+	// Use Docker Compose instead of directly building/running containers.
+	"dockerComposeFile": [
+		"docker-compose.yml",
+		"docker-compose.local.yml"
+	],
+	// Main service name from docker-compose.yml.
+	"service": "devcontainer",
+	// Folder inside the container where the workspace is mounted.
+	"workspaceFolder": "/workspace",
+	// Features installed into the container.
+	"features": {
+		// Enhanced git diff pager with syntax highlighting and side-by-side diffs.
+		"ghcr.io/devcontainer-community/devcontainer-features/delta:1": {},
+		// Terminal UI for git operations (commits, branches, staging, rebasing, etc.).
+		"ghcr.io/devcontainer-community/devcontainer-features/lazygit:1": {},
+		// Installs the Prettier formatter for JavaScript, TypeScript, JSON, Markdown, YAML, etc.
+		"ghcr.io/devcontainers-community/npm-features/prettier:1": {},
+		// Installs the Claude Code CLI / agent tooling inside the container.
+		"ghcr.io/devcontainers-extra/features/claude-code:2": {},
+		// GitHub Copilot CLI integration for shell assistance and AI-powered command suggestions.
+		"ghcr.io/devcontainers/features/copilot-cli:1": {},
+		// Installs Node.js runtime, npm, and related tooling.
+		"ghcr.io/devcontainers/features/node:2": {},
+		// Installs PowerShell for cross-platform scripting and shell usage.
+		"ghcr.io/devcontainers/features/powershell:2": {},
+		// Installs Python plus common tooling such as pip.
+		"ghcr.io/devcontainers/features/python:1": {},
+		// Installs OpenCode AI coding agent tooling.
+		"ghcr.io/jsburckhardt/devcontainer-features/opencode:1": {},
+		// Smarter directory navigation with usage-based jumping (`z`, `zi`, etc.).
+		"ghcr.io/jsburckhardt/devcontainer-features/zoxide:1": {},
+		// Installs CSharpier code formatter for consistent C# formatting.
+		"ghcr.io/nikiforovall/devcontainer-features/dotnet-csharpier:1": {},
+		// Installs Zsh shell and configures it for use in the container.
+		"ghcr.io/nils-geistmann/devcontainers-features/zsh:0": {},
+		// Installs Oh My Posh prompt theming engine for customizable shell prompts.
+		"ghcr.io/rosstaco/devcontainer-features/ohmyposh:1": {},
+		// dotnet SDKs for C# development
+		"ghcr.io/devcontainers/features/dotnet:2": {},
+		// GitHub CLI for interacting with GitHub repositories, issues, pull requests, and more directly from the terminal.
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		// Common utilities like curl, wget, git, and more for general development and scripting tasks.
+		"ghcr.io/devcontainers/features/common-utils:2": {},
+		// Mono runtime for running .NET Framework applications and tools that require Mono.
+		"ghcr.io/sliekens/devcontainer-features/mono:1": {}
+	},
+	// Environment variables inside the container.
+	"containerEnv": {
+		"CLAUDE_RUNTIME_DIR": "/home/vscode/.claude-runtime",
+		"DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+		"DOTNET_NOLOGO": "1",
+		"ENABLE_LSP_TOOL": "1",
+		"GIT_CONFIG_GLOBAL": "/home/vscode/.config/git/config",
+		"NUGET_XMLDOC_MODE": "skip"
+	},
+	// VS Code customizations.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Anthropic Claude Code integration and agent tooling.
+				"anthropic.claude-code",
+				// CSharpier formatter integration for consistent C# formatting.
+				"csharpier.csharpier-vscode",
+				// Markdown linting and style enforcement.
+				"davidanson.vscode-markdownlint",
+				// Advanced Git visualization, blame, history, and repository insights.
+				"eamodio.gitlens",
+				// EditorConfig support for consistent cross-editor formatting rules.
+				"editorconfig.editorconfig",
+				// Prettier formatter integration for web and config files.
+				"esbenp.prettier-vscode",
+				// GitHub Copilot conversational AI assistant.
+				"github.copilot-chat",
+				// GitHub Actions workflow syntax support and validation.
+				"github.vscode-github-actions",
+				// Highlights and aggregates TODO, FIXME, HACK, NOTE comments.
+				"gruntfuggly.todo-tree",
+				// REST API testing directly inside VS Code using .http files.
+				"humao.rest-client",
+				// Docker and container tooling integration.
+				"ms-azuretools.vscode-docker",
+				// Primary .NET development toolkit and solution management.
+				"ms-dotnettools.csdevkit",
+				// C# language support, debugging, and IntelliSense.
+				"ms-dotnettools.csharp",
+				// Python language support and tooling.
+				"ms-python.python",
+				// Python language server with rich type analysis and IntelliSense.
+				"ms-python.vscode-pylance",
+				// PowerShell language support and integrated terminal tooling.
+				"ms-vscode.powershell",
+				// Alternating indentation colors for improved readability.
+				"oderwat.indent-rainbow",
+				// OpenCode AI agent integration.
+				"sst-dev.opencode",
+				// Spell checking for code comments, markdown, and documentation.
+				"streetsidesoftware.code-spell-checker",
+				// Quickly sort selected lines alphabetically.
+				"tyriar.sort-lines",
+				// Markdown authoring enhancements including shortcuts and TOC generation.
+				"yzhang.markdown-all-in-one"
+			],
+			"settings": {
+				// Preserve whitespace-only changes in diff view.
+				"diffEditor.ignoreTrimWhitespace": false,
+				// Suggest symbols from namespaces not yet imported.
+				"dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+				// Display bracket pair guide lines for nested scopes.
+				"editor.guides.bracketPairs": true,
+				// Enable inline AI/code completion suggestions.
+				"editor.inlineSuggest.enabled": true,
+				// Automatically format supported files on save.
+				"editor.formatOnSave": true,
+				// Ensure files end with a trailing newline.
+				"files.insertFinalNewline": true,
+				// Remove trailing whitespace during save operations.
+				"files.trimTrailingWhitespace": true,
+				// Disable automatic file encoding detection for consistency.
+				"files.autoGuessEncoding": false,
+				// UTF-8 without BOM is correct for a Linux container environment.
+				"files.encoding": "utf8",
+				// Use LF line endings for cross-platform consistency.
+				"files.eol": "\n",
+				// Automatically fetch remote git changes periodically.
+				"git.autofetch": true,
+				// "terminal.integrated.defaultProfile.linux": "bash" // default to bash
+				// "terminal.integrated.defaultProfile.linux": "zsh"  // default to zsh
+				// Use PowerShell as the default integrated terminal shell.
+				"terminal.integrated.defaultProfile.linux": "pwsh"
+			}
+		}
+	},
+	// One-time setup after container creation.
+	//"postCreateCommand": "bash .devcontainer/post-create.sh > /tmp/post-create.log 2>&1 || (cat /tmp/post-create.log && exit 1)",
+	// "postCreateCommand": "bash .devcontainer/post-create.sh 2>&1 | tee /workspace/.devcontainer/post-create.log; exit ${PIPESTATUS[0]}", // Post Create debug; renders log
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	// Runs whenever the container starts.
+	"postStartCommand": "bash .devcontainer/post-start.sh",
+	// Use non-root user.
+	"remoteUser": "vscode",
+	// Sync UID/GID when supported.
+	"updateRemoteUserUID": true,
+	// Mounts:
+	//   - claude-data: named Docker volume for all Claude state (auth, plugins, marketplace cache, history).
+	//     Keeps everything writable inside the container without host-path dependencies.
+	//   - claude-runtime: separate named volume for volatile plugin/LSP runtime state.
+	//     Kept separate so a claude-data wipe doesn't orphan running processes.
+	//   - nuget-cache: persists NuGet packages across rebuilds (also declared in docker-compose.yml).
+	"mounts": [
+		"source=claude-data,target=/home/vscode/.claude,type=volume",
+		"source=claude-runtime,target=/home/vscode/.claude-runtime,type=volume"
+	]
+}
