@@ -849,6 +849,12 @@ namespace Arcus.Tests.Utilities
 
             yield return new object[] { false, IPAddressUtilities.IPv6MaxAddress };
             yield return new object[] { false, IPAddressUtilities.IPv6MinAddress };
+
+            // the IPv4 mapped IPv6 form of an address is the same address
+            yield return new object[] { true, IPAddress.Parse("::ffff:10.1.2.3") };
+            yield return new object[] { true, IPAddress.Parse("::ffff:172.16.0.1") };
+            yield return new object[] { true, IPAddress.Parse("::ffff:192.168.1.1") };
+            yield return new object[] { false, IPAddress.Parse("::ffff:8.8.8.8") };
         }
 
         [Theory]
