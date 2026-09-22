@@ -450,7 +450,12 @@ namespace Arcus.Utilities
                 throw new ArgumentNullException(nameof(address));
             }
 
-            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet => subnet.Contains(address));
+            // the ranges are held as three IPv4 subnets and one IPv6 subnet, and Contains
+            // requires a matching address family, so an IPv4 mapped IPv6 address has to be
+            // compared in its IPv4 form
+            var comparand = address.IsIPv4MappedIPv6() ? address.MapToIPv4() : address;
+
+            return SubnetUtilities.PrivateIPAddressRangesList.Any(subnet => subnet.Contains(comparand));
         }
 
         #endregion end: IsPrivate
